@@ -1,0 +1,10 @@
+node_modules/
+dist/
+build/
+.react-router/
+coverage/
+.vercel/
+.agents/skills/
+Figma UI-UX/
+Requiments/
+Diagrams/

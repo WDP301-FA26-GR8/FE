@@ -1,45 +1,32 @@
-import { BarChart3, Clock, Grid2X2 } from 'lucide-react'
+import { Clock, Grid2X2, Landmark } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-export type ApprovalTabKey = 'overview' | 'queue' | 'expense-approval' | 'renewal-decision' | 'reports'
+/** Detail tabs open by API identifier; an unknown tab falls back to the overview. */
+import { APPROVAL_TAB_KEYS, type ApprovalTabKey } from './enums'
+export { APPROVAL_TAB_KEYS, type ApprovalTabKey }
 
-export type ApprovalTranslationKey = 'overview' | 'queue' | 'reports'
+/** Label keys under `nav` in the `approvals` namespace. */
+export type ApprovalTranslationKey = 'annualBudget' | 'overview' | 'queue'
 
 export interface ApprovalNavItem {
   badge?: number
   icon: LucideIcon
   key: ApprovalTabKey
+  screenCode?: string
   translationKey: ApprovalTranslationKey
 }
 
 export const approvalNavItems: ApprovalNavItem[] = [
-  {
-    icon: Grid2X2,
-    key: 'overview',
-    translationKey: 'overview'
-  },
-  {
-    badge: 4,
-    icon: Clock,
-    key: 'queue',
-    translationKey: 'queue'
-  },
-  {
-    icon: BarChart3,
-    key: 'reports',
-    translationKey: 'reports'
-  }
+  { icon: Grid2X2, key: 'overview', translationKey: 'overview' },
+  { icon: Clock, key: 'queue', screenCode: 'APV-01', translationKey: 'queue' },
+  { icon: Landmark, key: 'annual-budget', screenCode: 'APV-05', translationKey: 'annualBudget' }
 ]
 
-const validTabs = new Set<string>(['overview', 'queue', 'expense-approval', 'renewal-decision', 'reports'])
-
 export function isValidApprovalTab(value: string | null): value is ApprovalTabKey {
-  return value !== null && validTabs.has(value)
+  return value !== null && (APPROVAL_TAB_KEYS as readonly string[]).includes(value)
 }
 
 export function getParentApprovalMenuKey(tab: ApprovalTabKey): ApprovalTabKey {
-  if (tab === 'expense-approval' || tab === 'renewal-decision') {
-    return 'queue'
-  }
-  return tab
+  if (tab === 'version-history') return 'annual-budget'
+  return tab === 'request' || tab === 'batch' || tab === 'need' ? 'queue' : tab
 }

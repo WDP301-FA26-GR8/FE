@@ -1,94 +1,78 @@
-import { Boxes, ClipboardList, FileCheck2, Grid2X2, Plus, Sparkles, UsersRound, type LucideIcon } from 'lucide-react'
-
-export type ManagerTabKey =
-  | 'overview'
-  | 'my-team'
-  | 'employee-detail'
-  | 'team-software'
-  | 'team-requests'
-  | 'request-approval'
-  | 'create-employee-request'
-  | 'ghost-seat-review'
-  | 'ghost-seat-detail'
-  | 'access-review'
+import {
+  Boxes,
+  ClipboardList,
+  Files,
+  Grid2X2,
+  Landmark,
+  Plus,
+  RefreshCw,
+  UsersRound,
+  type LucideIcon
+} from 'lucide-react'
+import { MANAGER_TAB_KEYS, type ManagerTabKey } from './enums'
+export { MANAGER_TAB_KEYS, type ManagerTabKey }
 
 export type ManagerTranslationKey =
-  'overview' | 'myTeam' | 'teamSoftware' | 'teamRequests' | 'ghostSeatReview' | 'accessReview' | 'createEmployeeRequest'
-
+  | 'renewals'
+  | 'overview'
+  | 'myTeam'
+  | 'teamSoftware'
+  | 'teamRequests'
+  | 'myRequests'
+  | 'ghostSeatReview'
+  | 'accessReview'
+  | 'createEmployeeRequest'
+  | 'weeklyBatch'
+  | 'annualBudget'
+  | 'transfers'
+  | 'notices'
+  | 'handovers'
+type LiveLabel =
+  | 'renewals'
+  | 'overview'
+  | 'team'
+  | 'personnel'
+  | 'tools'
+  | 'requests'
+  | 'createGroupRequest'
+  | 'batch'
+  | 'budget'
+  | 'transfers'
+  | 'notices'
+  | 'handovers'
 export interface ManagerNavItem {
-  badge?: number
   icon: LucideIcon
   key: ManagerTabKey
   translationKey: ManagerTranslationKey
+  liveLabel: LiveLabel
 }
-
 export const managerNavItems: ManagerNavItem[] = [
-  {
-    icon: Grid2X2,
-    key: 'overview',
-    translationKey: 'overview'
-  },
-  {
-    icon: UsersRound,
-    key: 'my-team',
-    translationKey: 'myTeam'
-  },
-  {
-    icon: Boxes,
-    key: 'team-software',
-    translationKey: 'teamSoftware'
-  },
-  {
-    badge: 3,
-    icon: ClipboardList,
-    key: 'team-requests',
-    translationKey: 'teamRequests'
-  },
-  {
-    badge: 4,
-    icon: Sparkles,
-    key: 'ghost-seat-review',
-    translationKey: 'ghostSeatReview'
-  },
-  {
-    badge: 6,
-    icon: FileCheck2,
-    key: 'access-review',
-    translationKey: 'accessReview'
-  },
+  { icon: Grid2X2, key: 'overview', translationKey: 'overview', liveLabel: 'overview' },
+  { icon: UsersRound, key: 'my-team', translationKey: 'myTeam', liveLabel: 'personnel' },
+  { icon: Boxes, key: 'team-software', translationKey: 'teamSoftware', liveLabel: 'tools' },
+  { icon: ClipboardList, key: 'team-requests', translationKey: 'teamRequests', liveLabel: 'requests' },
   {
     icon: Plus,
     key: 'create-employee-request',
-    translationKey: 'createEmployeeRequest'
-  }
+    translationKey: 'createEmployeeRequest',
+    liveLabel: 'createGroupRequest'
+  },
+  { icon: Files, key: 'weekly-batch', translationKey: 'weeklyBatch', liveLabel: 'batch' },
+  { icon: Landmark, key: 'annual-budget', translationKey: 'annualBudget', liveLabel: 'budget' },
+  { icon: RefreshCw, key: 'subscription-renewals', translationKey: 'renewals', liveLabel: 'renewals' }
 ]
-
-const validTabs = new Set<string>([
-  'overview',
-  'my-team',
-  'employee-detail',
-  'team-software',
-  'team-requests',
-  'request-approval',
-  'create-employee-request',
-  'ghost-seat-review',
-  'ghost-seat-detail',
-  'access-review'
-])
-
+const validTabs = new Set<string>(MANAGER_TAB_KEYS)
 export function isValidManagerTab(value: string | null): value is ManagerTabKey {
   return value !== null && validTabs.has(value)
 }
-
-export function getParentManagerMenuKey(tab: ManagerTabKey): ManagerTabKey {
-  if (tab === 'employee-detail') {
-    return 'my-team'
-  }
-  if (tab === 'request-approval') {
-    return 'team-requests'
-  }
-  if (tab === 'ghost-seat-detail') {
-    return 'ghost-seat-review'
-  }
+export function getParentManagerMenuKey(tab: ManagerTabKey, from?: string | null): ManagerTabKey {
+  if (tab === 'personal-request') return 'overview'
+  if (tab === 'tool-detail' || tab === 'return-detail') return 'team-software'
+  if (tab === 'personnel-notices') return 'my-team'
+  if (tab === 'employee-detail') return from === 'access-review' ? 'access-review' : 'my-team'
+  if (tab === 'request-approval') return 'team-requests'
+  if (tab === 'create-employee-request') return 'create-employee-request'
+  if (tab === 'ghost-seat-detail') return 'ghost-seat-review'
+  if (tab === 'profile') return 'profile'
   return tab
 }

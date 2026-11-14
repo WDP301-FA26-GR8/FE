@@ -1,6 +1,6 @@
-# SaaS-Sentry instructions
-
-Read [AGENTS.md](AGENTS.md), then the [rules router](rules/README.md)
-and [context](rules/context.md). Follow the task routing table and load the
-relevant playbook/topic rules. Markdown links are relative to this file.
-Do not duplicate those rules in this adapter. Verify according to change impact.
+Read AGENTS.md, ARCHITECTURE.md, and UI_UX_DESIGN_GUIDELINES.md before changing code.
+Keep routes thin and obey routes -> features -> entities -> shared.
+Obey UI/UX Guardrails: single primary CTA, table text left & numbers right with tabular-nums, locked h-screen App Shell, concentric border radii, no AI buzzwords, no emojis as UI icons.
+Generate app/shared/api/generated with pnpm api:generate; never edit generated files or pnpm-lock.yaml manually.
+Keep Faker/MSW out of production imports and run the relevant pnpm quality gates.
+Use typed vi/en i18n keys for all UI/accessibility copy. Validate OpenAPI before generation.

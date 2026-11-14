@@ -1,67 +1,84 @@
-import { Calendar, CreditCard, Grid2X2, Layers, PieChart, Wallet } from 'lucide-react'
+import {
+  Building2,
+  CalendarRange,
+  FileInput,
+  FileText,
+  Grid2X2,
+  Landmark,
+  Layers,
+  LineChart,
+  ReceiptText
+} from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { FINANCE_TAB_KEYS, type FinanceTabKey } from './enums'
+export { FINANCE_TAB_KEYS, type FinanceTabKey }
 
-export type FinanceTabKey =
-  'overview' | 'budget-snapshot' | 'renewal-schedule' | 'held-commitments' | 'shadow-it' | 'software-directory'
-
+export type FinanceAreaKey = 'budget' | 'close' | 'overview' | 'planning' | 'spend'
 export type FinanceTranslationKey =
-  'overview' | 'budgetSnapshot' | 'renewalSchedule' | 'heldCommitments' | 'shadowIt' | 'softwareDirectory'
+  | 'overview'
+  | 'costCenters'
+  | 'budgets'
+  | 'budgetCycles'
+  | 'proposals'
+  | 'versions'
+  | 'spendBatches'
+  | 'commitments'
+  | 'catalog'
+  | 'vendorTax'
+  | 'periodClose'
+  | 'periodReport'
 
-export interface FinanceNavItem {
-  badge?: number
-  icon: LucideIcon
+export interface FinanceTab {
   key: FinanceTabKey
+  icon: LucideIcon
   translationKey: FinanceTranslationKey
 }
+export interface FinanceArea {
+  icon: LucideIcon
+  key: FinanceAreaKey
+  tabs: readonly FinanceTab[]
+}
 
-export const financeNavItems: FinanceNavItem[] = [
+export const financeAreas: readonly FinanceArea[] = [
+  { key: 'overview', icon: Grid2X2, tabs: [{ key: 'overview', icon: Grid2X2, translationKey: 'overview' }] },
   {
-    icon: Grid2X2,
-    key: 'overview',
-    translationKey: 'overview'
+    key: 'budget',
+    icon: Landmark,
+    tabs: [{ key: 'cost-centers', icon: Building2, translationKey: 'costCenters' }]
   },
   {
-    icon: PieChart,
-    key: 'budget-snapshot',
-    translationKey: 'budgetSnapshot'
+    key: 'planning',
+    icon: LineChart,
+    tabs: [
+      { key: 'budget-cycles', icon: Landmark, translationKey: 'budgetCycles' },
+      { key: 'annual-proposals', icon: FileInput, translationKey: 'proposals' },
+      { key: 'budget-negotiation', icon: CalendarRange, translationKey: 'versions' }
+    ]
   },
   {
-    badge: 3,
-    icon: Calendar,
-    key: 'renewal-schedule',
-    translationKey: 'renewalSchedule'
+    key: 'spend',
+    icon: ReceiptText,
+    tabs: [
+      { key: 'spend-batches', icon: Layers, translationKey: 'spendBatches' },
+      { key: 'commitments', icon: ReceiptText, translationKey: 'commitments' }
+    ]
   },
   {
-    icon: Wallet,
-    key: 'held-commitments',
-    translationKey: 'heldCommitments'
-  },
-  {
-    badge: 2,
-    icon: CreditCard,
-    key: 'shadow-it',
-    translationKey: 'shadowIt'
-  },
-  {
-    icon: Layers,
-    key: 'software-directory',
-    translationKey: 'softwareDirectory'
+    key: 'close',
+    icon: FileText,
+    tabs: [
+      { key: 'period-close', icon: CalendarRange, translationKey: 'periodClose' },
+      { key: 'period-report', icon: FileText, translationKey: 'periodReport' }
+    ]
   }
 ]
 
-const validTabs = new Set<string>([
-  'overview',
-  'budget-snapshot',
-  'renewal-schedule',
-  'held-commitments',
-  'shadow-it',
-  'software-directory'
-])
-
-export function isValidFinanceTab(value: string | null): value is FinanceTabKey {
-  return value !== null && validTabs.has(value)
+export const areaTabs = (area: FinanceArea) => area.tabs
+export function financeAreaOf(tab: FinanceTabKey): FinanceArea {
+  // Detail screens belong to the menu area of the list they open from.
+  const menuTab = tab === 'version-history' ? 'budget-negotiation' : tab === 'commitment-release' ? 'commitments' : tab
+  return financeAreas.find((area) => area.tabs.some((item) => item.key === menuTab)) ?? financeAreas[0]
 }
-
-export function getParentFinanceMenuKey(tab: FinanceTabKey): FinanceTabKey {
-  return tab
+export function isValidFinanceTab(value: string | null): value is FinanceTabKey {
+  return value !== null && (FINANCE_TAB_KEYS as readonly string[]).includes(value)
 }

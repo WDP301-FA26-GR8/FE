@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { isRouteErrorResponse, Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router'
 
 import { AppProviders } from '~/providers/app-providers'
+import { PageLoading } from '~/shared/ui/page-loading'
 
 import type { Route } from './+types/root'
 import './app.css'
@@ -14,6 +15,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet='utf-8' />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
+        <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
+        <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
+        <link rel='preconnect' href='https://fonts.googleapis.com' />
+        <link rel='preconnect' href='https://fonts.gstatic.com' crossOrigin='anonymous' />
+        <link
+          href='https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
+          rel='stylesheet'
+        />
         <Meta />
         <Links />
       </head>
@@ -37,11 +46,7 @@ export default function App() {
 export function HydrateFallback() {
   const { t } = useTranslation('errors')
 
-  return (
-    <main className='grid min-h-screen place-items-center p-6'>
-      <p className='text-sm text-muted-foreground'>{t('loading')}</p>
-    </main>
-  )
+  return <PageLoading message={t('loading')} />
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

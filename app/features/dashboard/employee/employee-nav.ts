@@ -1,23 +1,15 @@
-import { CirclePlus, FileText, Laptop, LayoutDashboard, User, type LucideIcon } from 'lucide-react'
+import {
+  CirclePlus,
+  FileText,
+  Laptop,
+  LayoutDashboard,
+  ShieldCheck,
+  MessageSquare,
+  type LucideIcon
+} from 'lucide-react'
 
-export const EMPLOYEE_TAB_KEYS = [
-  'overview',
-  'my-software',
-  'software-detail',
-  'my-requests',
-  'request-detail',
-  'create-request',
-  'request-new-software',
-  'temporary-renewal',
-  'return-license',
-  'review-request',
-  'submission-success',
-  'profile',
-  'data-export',
-  'data-usage'
-] as const
-
-export type EmployeeTabKey = (typeof EMPLOYEE_TAB_KEYS)[number]
+import { EMPLOYEE_TAB_KEYS, type EmployeeTabKey } from './enums'
+export { EMPLOYEE_TAB_KEYS, type EmployeeTabKey }
 
 export function isValidEmployeeTab(value: unknown): value is EmployeeTabKey {
   return typeof value === 'string' && EMPLOYEE_TAB_KEYS.includes(value as EmployeeTabKey)
@@ -36,7 +28,7 @@ export type EmployeeMenuItem = {
   directTabKey?: EmployeeTabKey
   icon: LucideIcon
   key: string
-  translationKey: 'overview' | 'mySoftware' | 'myRequests' | 'createRequest' | 'profile'
+  translationKey: 'overview' | 'mySoftware' | 'myRequests' | 'create' | 'privacy' | 'handovers' | 'issues'
 }
 
 export const employeeMenuItems: readonly EmployeeMenuItem[] = [
@@ -47,14 +39,12 @@ export const employeeMenuItems: readonly EmployeeMenuItem[] = [
     translationKey: 'overview'
   },
   {
-    badge: 6,
     directTabKey: 'my-software',
     icon: Laptop,
     key: 'my-software',
     translationKey: 'mySoftware'
   },
   {
-    badge: 2,
     directTabKey: 'my-requests',
     icon: FileText,
     key: 'my-requests',
@@ -64,29 +54,34 @@ export const employeeMenuItems: readonly EmployeeMenuItem[] = [
     directTabKey: 'create-request',
     icon: CirclePlus,
     key: 'create-request',
-    translationKey: 'createRequest'
+    translationKey: 'create'
   },
   {
-    directTabKey: 'profile',
-    icon: User,
-    key: 'profile',
-    translationKey: 'profile'
-  }
+    directTabKey: 'privacy',
+    icon: ShieldCheck,
+    key: 'privacy',
+    translationKey: 'privacy'
+  },
+  { directTabKey: 'issues', icon: MessageSquare, key: 'issues', translationKey: 'issues' }
 ]
 
 export function getParentEmployeeMenuKey(tabKey: EmployeeTabKey): string {
+  if (tabKey === 'issues' || tabKey === 'issue-detail' || tabKey === 'report-issue') return 'issues'
+  if (tabKey === 'return-detail') return 'my-software'
   if (tabKey === 'overview') return 'overview'
   if (tabKey === 'my-software' || tabKey === 'software-detail') return 'my-software'
   if (tabKey === 'my-requests' || tabKey === 'request-detail') return 'my-requests'
   if (
     tabKey === 'create-request' ||
     tabKey === 'request-new-software' ||
+    tabKey === 'request-software-details' ||
     tabKey === 'temporary-renewal' ||
     tabKey === 'return-license' ||
     tabKey === 'review-request' ||
     tabKey === 'submission-success'
   )
     return 'create-request'
-  if (tabKey === 'profile' || tabKey === 'data-export' || tabKey === 'data-usage') return 'profile'
+  if (tabKey === 'profile') return ''
+  if (tabKey === 'privacy' || tabKey === 'data-export' || tabKey === 'data-usage') return 'privacy'
   return 'overview'
 }

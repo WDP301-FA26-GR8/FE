@@ -1,30 +1,76 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeAll, afterAll, beforeEach, describe, expect, it, vi } from 'vitest'
+import { http, HttpResponse } from 'msw'
+import { setupServer } from 'msw/node'
 
 import type { UserRole } from '~/entities/user-role/user-role'
 import { AppProviders } from '~/providers/app-providers'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 
 import { DashboardPage } from './dashboard-page'
+// Pre-transform lazy code outside assertion timeouts; production network tests cover deferred downloads.
+import './super-admin/super-admin-screen'
+import './finance/finance-screen'
+import './approvals/approval-screen'
+
+const server = setupServer(
+  http.get('*/api/v1/onboarding-checklist', () => HttpResponse.json({ success: true, data: { steps: [] } })),
+  http.get('*/api/v1/super-admin-watch', () =>
+    HttpResponse.json({ success: true, data: { status: 'HEALTHY', reasons: {}, warnings: {}, holder: null } })
+  ),
+  http.get('*/api/v1/app-users', () =>
+    HttpResponse.json({
+      success: true,
+      data: { items: [], pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 } }
+    })
+  ),
+  ...[
+    'provisioning-tasks',
+    'saas-issues',
+    'offboarding-cases',
+    'budget-proposals',
+    'budget-versions',
+    'finance-reviews',
+    'budgets',
+    'budget-commitments',
+    'cost-centers',
+    'spend-approvals',
+    'subscription-renewals',
+    'subscription-deadline-events',
+    'notifications'
+  ].map((path) =>
+    http.get(`*/api/v1/${path}`, () =>
+      HttpResponse.json({
+        success: true,
+        data: { items: [], pagination: { page: 1, pageSize: 1, totalItems: 0, totalPages: 0 } }
+      })
+    )
+  ),
+  http.get('*/api/v1/me', () => HttpResponse.json({ error: { code: 'AUTHORIZATION.FORBIDDEN' } }, { status: 403 }))
+)
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+afterAll(() => server.close())
 
 const roleLabels: Record<UserRole, string> = {
   employee: 'Nhân viên',
-  finance: 'Finance',
+  finance: 'Tài chính',
   'it-admin': 'Quản trị viên CNTT',
   manager: 'Quản lý trực tiếp',
   'spending-approver': 'Người duyệt chi',
   'super-admin': 'Quản trị hệ thống'
 }
 
-function renderDashboard(role: UserRole) {
-  return render(
-    <MemoryRouter>
+async function renderDashboard(role: UserRole, initialEntry = '/') {
+  const view = render(
+    <MemoryRouter initialEntries={[initialEntry]}>
       <AppProviders>
         <DashboardPage role={role} />
       </AppProviders>
     </MemoryRouter>
   )
+  await act(() => vi.dynamicImportSettled())
+  return view
 }
 
 describe('DashboardPage', () => {
@@ -34,228 +80,78 @@ describe('DashboardPage', () => {
     await setAppLanguage('vi', false)
   })
 
-  it('renders the shared dashboard shell for super-admin', () => {
-    const view = renderDashboard('super-admin')
+  it('renders the super-admin dashboard and navigates the UF-13 screens', async () => {
+    const view = await renderDashboard('super-admin')
 
-    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Thiết lập tổ chức' })).toBeInTheDocument()
     expect(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Chỉ số tổng quan' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Chi phí phần mềm theo tháng' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Chi phí theo danh mục' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent(roleLabels['super-admin'])
 
-    view.unmount()
-  })
-
-  it('renders the finance dashboard shell and navigates tabs', () => {
-    const view = renderDashboard('finance')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
-
-    expect(screen.getByText('Bảng điều khiển Tài chính & SaaS Spend')).toBeInTheDocument()
-    expect(screen.getByTestId('dashboard-role')).toHaveTextContent('Finance')
-
-    // Click "Báo cáo ngân sách"
-    const budgetBtn = within(nav).getByRole('button', { name: /Báo cáo ngân sách/i })
-    expect(budgetBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(budgetBtn)
-    expect(budgetBtn).toHaveClass('bg-primary')
-    expect(screen.getByText('Báo cáo ngân sách & Giải trình chi phí')).toBeInTheDocument()
-
-    // Click "Lịch gia hạn"
-    const renewalBtn = within(nav).getByRole('button', { name: /Lịch gia hạn/i })
-    expect(renewalBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(renewalBtn)
-    expect(renewalBtn).toHaveClass('bg-primary')
-    expect(budgetBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Lịch gia hạn & Hạn chót hợp đồng')).toBeInTheDocument()
+    const accountsBtn = within(nav).getByRole('button', { name: /Tài khoản và trách nhiệm/i })
+    fireEvent.click(accountsBtn)
+    expect(screen.getByRole('heading', { level: 1, name: 'Tài khoản và trách nhiệm' })).toBeInTheDocument()
 
     view.unmount()
   })
 
-  it('renders the approvals dashboard shell for spending-approver and navigates tabs', () => {
-    const view = renderDashboard('spending-approver')
+  it('translates the super-admin overview and navigation when English is selected', async () => {
+    await setAppLanguage('en')
+    await renderDashboard('super-admin')
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Organization setup' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Setup checklist' })).toBeInTheDocument()
+    const nav = screen.getByRole('navigation', { name: 'Dashboard navigation' })
+    expect(within(nav).getByRole('button', { name: 'Departments' })).toBeInTheDocument()
+    expect(screen.queryByText('Minh Anh')).not.toBeInTheDocument()
+  })
+
+  it('navigates Finance API workspaces and identifies unavailable reporting', async () => {
+    await renderDashboard('finance')
+    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan tài chính' })).toBeInTheDocument()
+    const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
+    expect(within(nav).queryByRole('button', { name: 'Ngân sách hiện hành' })).not.toBeInTheDocument()
+    fireEvent.click(within(nav).getByRole('button', { name: 'Trung tâm chi phí' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Trung tâm chi phí' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Tạo mới' })).not.toBeInTheDocument()
+    fireEvent.click(within(nav).getByRole('button', { name: 'Đóng kỳ & Báo cáo' }))
+    fireEvent.click(within(nav).getByRole('button', { name: 'Báo cáo kỳ' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Chức năng chưa khả dụng' })).toBeInTheDocument()
+  })
+
+  it('navigates the Spending Approver API workspaces without demo badges or profile', async () => {
+    const view = await renderDashboard('spending-approver')
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
 
-    expect(screen.getByText('Bảng điều khiển Phê duyệt & Ngân sách')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan phê duyệt' })).toBeInTheDocument()
     expect(screen.getByTestId('dashboard-role')).toHaveTextContent(roleLabels['spending-approver'])
+    expect(screen.queryByText('Hoàng Nam')).not.toBeInTheDocument()
 
-    // Click "Hàng chờ duyệt"
     const queueBtn = within(nav).getByRole('button', { name: /Hàng chờ duyệt/i })
     expect(queueBtn).not.toHaveClass('bg-primary')
     fireEvent.click(queueBtn)
     expect(queueBtn).toHaveClass('bg-primary')
-    expect(screen.getByText('Hàng chờ phê duyệt yêu cầu')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { level: 1, name: 'Hàng đợi duyệt chi' })).toBeInTheDocument()
+    expect(await screen.findByText('Không có bản ghi phù hợp.')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Ví dụ: Figma, Nguyễn Văn A hoặc CC-ENG')).toBeInTheDocument()
 
-    // Click "Báo cáo & Phân tích"
-    const reportsBtn = within(nav).getByRole('button', { name: /Báo cáo & Phân tích/i })
-    expect(reportsBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(reportsBtn)
-    expect(reportsBtn).toHaveClass('bg-primary')
-    expect(queueBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Báo cáo & Phân tích chi tiêu')).toBeInTheDocument()
+    expect(within(nav).queryByRole('button', { name: /Báo cáo/i })).not.toBeInTheDocument()
+    fireEvent.click(within(nav).getByRole('button', { name: /Ngân sách năm/i }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Phê duyệt ngân sách năm' })).toBeInTheDocument()
 
     view.unmount()
   })
 
-  it('renders the manager dashboard shell and navigates tabs', () => {
-    const view = renderDashboard('manager')
+  it('sends removed tabs back to the overview without a renewals menu item', async () => {
+    await renderDashboard('spending-approver', '/?tab=reports')
+    expect(screen.getByRole('heading', { level: 1, name: 'Tổng quan phê duyệt' })).toBeInTheDocument()
     const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
-
-    expect(screen.getByText('Bảng điều khiển Quản lý')).toBeInTheDocument()
-    expect(screen.getByTestId('dashboard-role')).toHaveTextContent(roleLabels.manager)
-
-    // Click "Nhân viên của tôi"
-    const myTeamBtn = within(nav).getByRole('button', { name: /Nhân viên của tôi/i })
-    expect(myTeamBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(myTeamBtn)
-    expect(myTeamBtn).toHaveClass('bg-primary')
-    expect(screen.getByText('Thành viên trong nhóm')).toBeInTheDocument()
-
-    // Click "Phần mềm của nhóm"
-    const teamSoftBtn = within(nav).getByRole('button', { name: /Phần mềm của nhóm/i })
-    expect(teamSoftBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(teamSoftBtn)
-    expect(teamSoftBtn).toHaveClass('bg-primary')
-    expect(myTeamBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Phần mềm phòng ban sử dụng')).toBeInTheDocument()
-
-    // Click "Yêu cầu phê duyệt"
-    const teamRequestsBtn = within(nav).getByRole('button', { name: /Yêu cầu phê duyệt/i })
-    fireEvent.click(teamRequestsBtn)
-    expect(teamRequestsBtn).toHaveClass('bg-primary')
-    expect(teamSoftBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Yêu cầu phần mềm của nhóm')).toBeInTheDocument()
-
-    // Click "Rà soát tài khoản lãng phí"
-    const ghostSeatBtn = within(nav).getByRole('button', { name: /Rà soát tài khoản lãng phí/i })
-    fireEvent.click(ghostSeatBtn)
-    expect(ghostSeatBtn).toHaveClass('bg-primary')
-    expect(teamRequestsBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Rà soát tài khoản lãng phí (Ghost Seats)')).toBeInTheDocument()
-
-    view.unmount()
+    expect(within(nav).queryByRole('button', { name: 'Gia hạn thuê bao' })).not.toBeInTheDocument()
   })
 
-  it('renders the employee dashboard shell', () => {
-    const view = renderDashboard('employee')
-
-    expect(screen.getByRole('heading', { level: 1, name: /Xin chào, Đức Anh!/i })).toBeInTheDocument()
-    expect(screen.getByRole('navigation', { name: 'Điều hướng dashboard' })).toBeInTheDocument()
-    expect(screen.getByRole('region', { name: 'Chỉ số tổng quan' })).toBeInTheDocument()
-    expect(screen.getByTestId('dashboard-role')).toHaveTextContent('Nhân viên')
-
-    view.unmount()
-  })
-
-  it('exposes a keyboard-operable mobile navigation toggle', () => {
-    renderDashboard('employee')
-
-    const toggle = screen.getByRole('button', { name: 'Mở menu' })
-    expect(toggle).toHaveAttribute('aria-expanded', 'false')
-
-    fireEvent.click(toggle)
-
-    expect(screen.getByRole('button', { expanded: true, name: 'Đóng menu' })).toHaveAttribute('aria-expanded', 'true')
-  })
-
-  it('keeps theme, language, search, and logout controls available', () => {
-    renderDashboard('finance')
-
-    expect(screen.getByRole('searchbox', { name: 'Tìm kiếm' })).toBeInTheDocument()
-    expect(screen.getByRole('group', { name: 'Ngôn ngữ' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Chuyển sang giao diện tối' })).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Đăng xuất' })).toHaveAttribute('href', '/login')
-  })
-
-  it('navigates through IT admin submenus and activates the corresponding submenu', () => {
-    const view = renderDashboard('it-admin')
-
-    // Default entrance is Home screen of dashboard (Tổng quan)
-    const overviewBtn = screen.getByRole('button', { current: 'page', name: /Tổng quan/i })
-    expect(overviewBtn).toBeInTheDocument()
-    expect(overviewBtn).toHaveClass('bg-primary')
-    expect(screen.getByText('Bảng điều khiển IT Admin')).toBeInTheDocument()
-
-    // Click sub-menu "Cấp phát & Thu hồi"
-    const provisioningBtn = screen.getByRole('button', { name: /Cấp phát & Thu hồi/i })
-    expect(provisioningBtn).not.toHaveAttribute('aria-current', 'page')
-    expect(provisioningBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(provisioningBtn)
-
-    // Sub-menu is now active and the provisioning view is rendered
-    expect(provisioningBtn).toHaveAttribute('aria-current', 'page')
-    expect(provisioningBtn).toHaveClass('bg-primary')
-    expect(overviewBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Hàng đợi cấp phát & thu hồi bản quyền')).toBeInTheDocument()
-
-    // Click sub-menu "Tối ưu bản quyền"
-    const optimizeBtn = screen.getByRole('button', { name: /Tối ưu bản quyền/i })
-    fireEvent.click(optimizeBtn)
-    expect(optimizeBtn).toHaveAttribute('aria-current', 'page')
-    expect(optimizeBtn).toHaveClass('bg-primary')
-    expect(provisioningBtn).not.toHaveAttribute('aria-current', 'page')
-    expect(provisioningBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Bảng tối ưu bản quyền & Giảm chi phí')).toBeInTheDocument()
-
-    // Return to default dashboard home
-    fireEvent.click(overviewBtn)
-    expect(overviewBtn).toHaveAttribute('aria-current', 'page')
-    expect(overviewBtn).toHaveClass('bg-primary')
-    expect(optimizeBtn).not.toHaveAttribute('aria-current', 'page')
-    expect(optimizeBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Bảng điều khiển IT Admin')).toBeInTheDocument()
-
-    view.unmount()
-  })
-
-  it('navigates through Employee menus and activates the corresponding view', () => {
-    const view = renderDashboard('employee')
-    const nav = screen.getByRole('navigation', { name: 'Điều hướng dashboard' })
-
-    // Default entrance is Employee Overview
-    const overviewBtn = within(nav).getByRole('button', { current: 'page', name: /Tổng quan/i })
-    expect(overviewBtn).toBeInTheDocument()
-    expect(overviewBtn).toHaveClass('bg-primary')
-    expect(screen.getByText('Bảng điều khiển Nhân viên')).toBeInTheDocument()
-
-    // Click "Phần mềm của tôi"
-    const mySoftwareBtn = within(nav).getByRole('button', { name: /Phần mềm của tôi/i })
-    expect(mySoftwareBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(mySoftwareBtn)
-    expect(mySoftwareBtn).toHaveClass('bg-primary')
-    expect(overviewBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Bản quyền phần mềm của tôi')).toBeInTheDocument()
-
-    // Click "Yêu cầu của tôi"
-    const myRequestsBtn = within(nav).getByRole('button', { name: /Yêu cầu của tôi/i })
-    expect(myRequestsBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(myRequestsBtn)
-    expect(myRequestsBtn).toHaveClass('bg-primary')
-    expect(mySoftwareBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Danh sách yêu cầu của tôi')).toBeInTheDocument()
-
-    // Click "Tạo yêu cầu"
-    const createRequestBtn = within(nav).getByRole('button', { name: 'Tạo yêu cầu' })
-    expect(createRequestBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(createRequestBtn)
-    expect(createRequestBtn).toHaveClass('bg-primary')
-    expect(myRequestsBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Trung tâm tạo yêu cầu phần mềm')).toBeInTheDocument()
-
-    // Click "Hồ sơ & Quyền riêng tư"
-    const profileBtn = within(nav).getByRole('button', { name: /Hồ sơ & Quyền riêng tư/i })
-    expect(profileBtn).not.toHaveClass('bg-primary')
-    fireEvent.click(profileBtn)
-    expect(profileBtn).toHaveClass('bg-primary')
-    expect(createRequestBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Hồ sơ cá nhân & Quyền riêng tư')).toBeInTheDocument()
-
-    // Return to Overview
-    fireEvent.click(overviewBtn)
-    expect(overviewBtn).toHaveClass('bg-primary')
-    expect(profileBtn).not.toHaveClass('bg-primary')
-    expect(screen.getByText('Bảng điều khiển Nhân viên')).toBeInTheDocument()
-
-    view.unmount()
+  it('does not restore a demo Request for a legacy fixture ID', async () => {
+    await renderDashboard('spending-approver', '/?tab=request&id=req-101')
+    expect(screen.getByRole('heading', { level: 1, name: 'Duyệt chi yêu cầu' })).toBeInTheDocument()
+    expect(screen.getByText('Không có bản ghi phù hợp.')).toBeInTheDocument()
   })
 })

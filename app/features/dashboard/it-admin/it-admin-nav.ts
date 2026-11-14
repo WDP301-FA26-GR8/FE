@@ -1,158 +1,89 @@
 import {
+  CalendarClock,
+  ArrowRightLeft,
+  FileText,
   Laptop,
+  Layers,
   LayoutDashboard,
+  MessageSquare,
   PackageCheck,
-  Scale,
+  Warehouse,
   ShieldAlert,
   Sparkles,
   UploadCloud,
   UserMinus,
-  UsersRound,
   UserX,
   type LucideIcon
 } from 'lucide-react'
-
-export const IT_ADMIN_TAB_KEYS = [
-  'overview',
-  'provisioning',
-  'reconciliation',
-  'usage-import',
-  'unmatched-identities',
-  'device-collectors',
-  'license-optimization',
-  'shadow-it',
-  'offboarding'
-] as const
-
-export type ItAdminTabKey = (typeof IT_ADMIN_TAB_KEYS)[number]
-
+import { IT_ADMIN_TAB_KEYS, type ItAdminTabKey } from './enums'
+export { IT_ADMIN_TAB_KEYS, type ItAdminTabKey }
 export function isValidItAdminTab(value: unknown): value is ItAdminTabKey {
-  return typeof value === 'string' && IT_ADMIN_TAB_KEYS.includes(value as ItAdminTabKey)
+  return typeof value === 'string' && IT_ADMIN_TAB_KEYS.some((key) => key === value)
 }
-
 export type ItAdminSubMenuItem = {
-  badge?: number | string
   icon: LucideIcon
   key: ItAdminTabKey
-  screenCode: string
   translationKey:
     | 'provisioning'
-    | 'reconciliation'
+    | 'sharedStock'
+    | 'purchaseDocuments'
     | 'usageImport'
-    | 'unmatchedIdentities'
     | 'deviceCollectors'
     | 'licenseOptimization'
     | 'shadowIt'
     | 'offboarding'
+    | 'transfers'
+    | 'saasIssues'
+    | 'identities'
+    | 'renewals'
 }
-
 export type ItAdminMenuItem = {
   children?: readonly ItAdminSubMenuItem[]
   directTabKey?: ItAdminTabKey
   icon: LucideIcon
   key: string
-  translationKey: 'overview' | 'licenses' | 'usageSources' | 'optimize' | 'people'
+  translationKey: 'overview' | 'licenses' | 'usageSources' | 'optimize' | 'deptCatalog'
 }
-
 export const itAdminMenuItems: readonly ItAdminMenuItem[] = [
+  { key: 'overview', directTabKey: 'overview', icon: LayoutDashboard, translationKey: 'overview' },
   {
-    directTabKey: 'overview',
-    icon: LayoutDashboard,
-    key: 'overview',
-    translationKey: 'overview'
-  },
-  {
-    children: [
-      {
-        badge: 3,
-        icon: PackageCheck,
-        key: 'provisioning',
-        screenCode: 'UF-08 · ITA-05',
-        translationKey: 'provisioning'
-      },
-      {
-        badge: 4,
-        icon: Scale,
-        key: 'reconciliation',
-        screenCode: 'UF-14 · ITA-11',
-        translationKey: 'reconciliation'
-      }
-    ],
-    icon: PackageCheck,
     key: 'licenses',
-    translationKey: 'licenses'
+    icon: PackageCheck,
+    translationKey: 'licenses',
+    children: [
+      { key: 'provisioning', icon: PackageCheck, translationKey: 'provisioning' },
+      { key: 'shared-stock', icon: Warehouse, translationKey: 'sharedStock' },
+      { key: 'offboarding', icon: UserMinus, translationKey: 'offboarding' },
+      { key: 'transfers', icon: ArrowRightLeft, translationKey: 'transfers' },
+      { key: 'saas-issues', icon: MessageSquare, translationKey: 'saasIssues' },
+      { key: 'purchase-documents', icon: FileText, translationKey: 'purchaseDocuments' },
+      { key: 'renewals', icon: CalendarClock, translationKey: 'renewals' }
+    ]
   },
   {
-    children: [
-      {
-        badge: 3,
-        icon: UploadCloud,
-        key: 'usage-import',
-        screenCode: 'UF-06 · ITA-08',
-        translationKey: 'usageImport'
-      },
-      {
-        badge: 146,
-        icon: UserX,
-        key: 'unmatched-identities',
-        screenCode: 'UF-07 · ITA-09',
-        translationKey: 'unmatchedIdentities'
-      },
-      {
-        badge: 24,
-        icon: Laptop,
-        key: 'device-collectors',
-        screenCode: 'UF-16 · ITA-16',
-        translationKey: 'deviceCollectors'
-      }
-    ],
-    icon: UploadCloud,
     key: 'usage-sources',
-    translationKey: 'usageSources'
+    icon: Laptop,
+    translationKey: 'usageSources',
+    children: [
+      { key: 'usage-import', icon: UploadCloud, translationKey: 'usageImport' },
+      { key: 'device-collectors', icon: Laptop, translationKey: 'deviceCollectors' },
+      { key: 'identities', icon: UserX, translationKey: 'identities' }
+    ]
   },
   {
-    children: [
-      {
-        badge: 38,
-        icon: Sparkles,
-        key: 'license-optimization',
-        screenCode: 'UF-10 · ITA-10',
-        translationKey: 'licenseOptimization'
-      },
-      {
-        badge: 6,
-        icon: ShieldAlert,
-        key: 'shadow-it',
-        screenCode: 'UF-12 · ITA-15',
-        translationKey: 'shadowIt'
-      }
-    ],
-    icon: Sparkles,
     key: 'optimize',
-    translationKey: 'optimize'
-  },
-  {
+    icon: Sparkles,
+    translationKey: 'optimize',
     children: [
-      {
-        badge: 1,
-        icon: UserMinus,
-        key: 'offboarding',
-        screenCode: 'UF-09 · ITA-12',
-        translationKey: 'offboarding'
-      }
-    ],
-    icon: UsersRound,
-    key: 'people',
-    translationKey: 'people'
-  }
+      { key: 'license-optimization', icon: Sparkles, translationKey: 'licenseOptimization' },
+      { key: 'shadow-it', icon: ShieldAlert, translationKey: 'shadowIt' }
+    ]
+  },
+  { key: 'dept-catalog', directTabKey: 'dept-catalog', icon: Layers, translationKey: 'deptCatalog' }
 ]
-
-export function getParentMenuKey(tabKey: ItAdminTabKey): string {
-  if (tabKey === 'overview') return 'overview'
-  if (tabKey === 'provisioning' || tabKey === 'reconciliation') return 'licenses'
-  if (tabKey === 'usage-import' || tabKey === 'unmatched-identities' || tabKey === 'device-collectors')
-    return 'usage-sources'
-  if (tabKey === 'license-optimization' || tabKey === 'shadow-it') return 'optimize'
-  if (tabKey === 'offboarding') return 'people'
-  return 'overview'
+export function getParentMenuKey(tab: ItAdminTabKey): string {
+  return (
+    itAdminMenuItems.find((item) => item.directTabKey === tab || item.children?.some((child) => child.key === tab))
+      ?.key ?? 'overview'
+  )
 }

@@ -1,7 +1,6 @@
-import { readFile } from 'node:fs/promises'
 import { pathToFileURL } from 'node:url'
 
-import { parse } from 'yaml'
+import { loadEnv } from 'vite'
 
 const HTTP_METHODS = new Set(['delete', 'get', 'head', 'options', 'patch', 'post', 'put', 'trace'])
 
@@ -65,16 +64,48 @@ export function validateOpenApi(document) {
   return issues
 }
 
-export async function validateOpenApiFile(filePath) {
-  const document = parse(await readFile(filePath, 'utf8'))
-  const issues = validateOpenApi(document)
+export function validateOpenApiDocument(document) {
+  if (
+    !document ||
+    typeof document.openapi !== 'string' ||
+    !document.info ||
+    !document.paths ||
+    !Object.keys(document.paths).length
+  ) {
+    throw new Error('Invalid OpenAPI document: missing version, info or paths')
+  }
+  const isBackendExport = document.info?.version === '1.0' && !document.tags?.length
+  const issues = isBackendExport ? validateBackendExport(document) : validateOpenApi(document)
   if (issues.length > 0) {
     throw new Error(`OpenAPI conventions failed:\n- ${issues.join('\n- ')}`)
   }
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const filePath = process.argv[2] ?? './openapi/openapi.yaml'
-  await validateOpenApiFile(filePath)
-  console.log(`OpenAPI conventions passed: ${filePath}`)
+function validateBackendExport(document) {
+  const expected = {
+    authLogin: ['post', '/api/v1/auth/login'],
+    authRefresh: ['post', '/api/v1/auth/refresh'],
+    authLogout: ['post', '/api/v1/auth/logout'],
+    authRequestPasswordReset: ['post', '/api/v1/auth/password-reset-requests'],
+    authResetPassword: ['post', '/api/v1/auth/password-resets'],
+    authRedeemInvitation: ['post', '/api/v1/auth/invitations/redeem'],
+    meGet: ['get', '/api/v1/me'],
+    meChangePassword: ['post', '/api/v1/me/password']
+  }
+  return Object.entries(expected).flatMap(([operationId, [method, path]]) =>
+    document.paths?.[path]?.[method]?.operationId === operationId
+      ? []
+      : [`Missing ${operationId} at ${method.toUpperCase()} ${path}`]
+  )
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const env = loadEnv('development', process.cwd(), ['VITE_', 'API_PROXY_'])
+  const origin =
+    process.env.API_PROXY_TARGET ?? env.API_PROXY_TARGET ?? process.env.VITE_API_BASE_URL ?? env.VITE_API_BASE_URL
+  const url = new URL('/api/docs-json', origin).href
+  const response = await fetch(url, { signal: AbortSignal.timeout(30000) })
+  if (!response.ok) throw new Error(`Swagger request failed: HTTP ${response.status}`)
+  validateOpenApiDocument(await response.json())
+  console.log(`OpenAPI conventions passed: ${url}`)
 }

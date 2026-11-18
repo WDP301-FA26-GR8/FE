@@ -9,7 +9,7 @@ import type { SecondParameter } from './applications.helpers'
 import { useMutation } from '@tanstack/react-query'
 import type { MutationFunction, QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
-import type { ApplicationCreate201, DeclareApplicationBodyDto, ErrorEnvelopeDto } from '../../model'
+import type { ApplicationCreate201, CreateApplicationBodyDto, ErrorEnvelopeDto } from '../../model'
 
 import { env } from '~/shared/config/env'
 
@@ -17,10 +17,10 @@ import { customAxios } from '../../../mutator/custom-axios'
 import type { ErrorType, BodyType } from '../../../mutator/custom-axios'
 
 /**
- * @summary Declare an application
+ * @summary Declare an application with its first plan
  */
 export const applicationCreate = (
-  declareApplicationBodyDto: BodyType<DeclareApplicationBodyDto>,
+  createApplicationBodyDto: BodyType<CreateApplicationBodyDto>,
   options?: SecondParameter<typeof customAxios>,
   signal?: AbortSignal
 ) => {
@@ -29,7 +29,7 @@ export const applicationCreate = (
       url: `${env.API_BASE_URL}/api/v1/applications`,
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      data: declareApplicationBodyDto,
+      data: createApplicationBodyDto,
       signal
     },
     options
@@ -43,14 +43,14 @@ export const getApplicationCreateMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof applicationCreate>>,
     TError,
-    { data: BodyType<DeclareApplicationBodyDto> },
+    { data: BodyType<CreateApplicationBodyDto> },
     TContext
   >
   request?: SecondParameter<typeof customAxios>
 }): UseMutationOptions<
   Awaited<ReturnType<typeof applicationCreate>>,
   TError,
-  { data: BodyType<DeclareApplicationBodyDto> },
+  { data: BodyType<CreateApplicationBodyDto> },
   TContext
 > => {
   const mutationKey = ['applicationCreate']
@@ -62,7 +62,7 @@ export const getApplicationCreateMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof applicationCreate>>,
-    { data: BodyType<DeclareApplicationBodyDto> }
+    { data: BodyType<CreateApplicationBodyDto> }
   > = (props) => {
     const { data } = props ?? {}
 
@@ -73,18 +73,18 @@ export const getApplicationCreateMutationOptions = <
 }
 
 export type ApplicationCreateMutationResult = NonNullable<Awaited<ReturnType<typeof applicationCreate>>>
-export type ApplicationCreateMutationBody = BodyType<DeclareApplicationBodyDto>
+export type ApplicationCreateMutationBody = BodyType<CreateApplicationBodyDto>
 export type ApplicationCreateMutationError = ErrorType<ErrorEnvelopeDto>
 
 /**
- * @summary Declare an application
+ * @summary Declare an application with its first plan
  */
 export const useApplicationCreate = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof applicationCreate>>,
       TError,
-      { data: BodyType<DeclareApplicationBodyDto> },
+      { data: BodyType<CreateApplicationBodyDto> },
       TContext
     >
     request?: SecondParameter<typeof customAxios>
@@ -93,7 +93,7 @@ export const useApplicationCreate = <TError = ErrorType<ErrorEnvelopeDto>, TCont
 ): UseMutationResult<
   Awaited<ReturnType<typeof applicationCreate>>,
   TError,
-  { data: BodyType<DeclareApplicationBodyDto> },
+  { data: BodyType<CreateApplicationBodyDto> },
   TContext
 > => {
   return useMutation(getApplicationCreateMutationOptions(options), queryClient)

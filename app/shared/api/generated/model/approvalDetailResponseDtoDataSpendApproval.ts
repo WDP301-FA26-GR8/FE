@@ -11,9 +11,11 @@ import type { ApprovalDetailResponseDtoDataSpendApprovalBudgetSnapshot } from '.
 import type { ApprovalDetailResponseDtoDataSpendApprovalCost } from './approvalDetailResponseDtoDataSpendApprovalCost'
 import type { ApprovalDetailResponseDtoDataSpendApprovalDecision } from './approvalDetailResponseDtoDataSpendApprovalDecision'
 import type { ApprovalDetailResponseDtoDataSpendApprovalNeed } from './approvalDetailResponseDtoDataSpendApprovalNeed'
+import type { ApprovalDetailResponseDtoDataSpendApprovalNextYearBudget } from './approvalDetailResponseDtoDataSpendApprovalNextYearBudget'
 import type { ApprovalDetailResponseDtoDataSpendApprovalRequest } from './approvalDetailResponseDtoDataSpendApprovalRequest'
 import type { ApprovalDetailResponseDtoDataSpendApprovalRouting } from './approvalDetailResponseDtoDataSpendApprovalRouting'
 import type { ApprovalDetailResponseDtoDataSpendApprovalStep } from './approvalDetailResponseDtoDataSpendApprovalStep'
+import type { ApprovalDetailResponseDtoDataSpendApprovalTermCost } from './approvalDetailResponseDtoDataSpendApprovalTermCost'
 
 export type ApprovalDetailResponseDtoDataSpendApproval = {
   routing: ApprovalDetailResponseDtoDataSpendApprovalRouting
@@ -25,11 +27,15 @@ export type ApprovalDetailResponseDtoDataSpendApproval = {
   /** @nullable */
   cost: ApprovalDetailResponseDtoDataSpendApprovalCost
   /** @nullable */
+  termCost: ApprovalDetailResponseDtoDataSpendApprovalTermCost
+  /** @nullable */
   assessment: ApprovalDetailResponseDtoDataSpendApprovalAssessment
   /** @nullable */
   decision: ApprovalDetailResponseDtoDataSpendApprovalDecision
   /** @nullable */
   budgetSnapshot: ApprovalDetailResponseDtoDataSpendApprovalBudgetSnapshot
+  /** @nullable */
+  nextYearBudget: ApprovalDetailResponseDtoDataSpendApprovalNextYearBudget
   /** @nullable */
   annualVendorAmount: ApprovalDetailResponseDtoDataSpendApprovalAnnualVendorAmount
 }

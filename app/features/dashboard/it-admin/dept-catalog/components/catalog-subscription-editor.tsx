@@ -64,7 +64,6 @@ function SubscriptionFields({
 }) {
   const { t: translate } = useTranslation('itCatalog')
   const { formatDate } = useDashboardFormat()
-  const [priceError, setPriceError] = useState(false)
   const [dirty, setDirty] = useState(false)
   const queryClient = useQueryClient()
   const previewKeys = queryClient
@@ -88,9 +87,7 @@ function SubscriptionFields({
   const completeFeedback = useItMutationFeedback(affected)
   const complete = useSubscriptionComplete({ mutation: completeFeedback })
   const pending = update.isPending || complete.isPending
-  const canComplete =
-    subscription.status === CatalogSubscriptionStatus.DRAFT &&
-    subscription.missing.every((value) => value === 'EXCHANGE_RATE')
+  const canComplete = subscription.status === CatalogSubscriptionStatus.DRAFT && subscription.missing.length === 0
   return (
     <ItFormDialog
       wide
@@ -106,16 +103,16 @@ function SubscriptionFields({
         const read = (key: string) => String(values.get(key) ?? '').trim()
         const quantity = read('quantity')
         const amount = read('amount')
-        const currency = read('currency')
         const billingCycle = Object.values(UpdateSubscriptionBodyDtoBillingCycle).find(
           (value) => value === values.get('billingCycle')
         )
-        setPriceError(!!amount !== !!currency)
-        if (!!amount !== !!currency) return
+        const commitmentTerm = values.get('commitmentTermMonths')
+        const commitmentTermMonths = commitmentTerm === '1' ? 1 : commitmentTerm === '12' ? 12 : undefined
         const data: UpdateSubscriptionBodyDto = {
           ...(quantity ? { purchasedQuantity: Number(quantity) } : {}),
-          ...(amount && currency ? { unitPrice: { amount, currency } } : {}),
+          ...(amount ? { unitPrice: { amount, currency: 'VND' } } : {}),
           ...(billingCycle ? { billingCycle } : {}),
+          ...(commitmentTermMonths ? { commitmentTermMonths } : {}),
           ...(read('startDate') ? { startDate: read('startDate') } : {}),
           endDate: read('endDate') || null,
           renewalDate: read('renewalDate') || null,
@@ -149,7 +146,7 @@ function SubscriptionFields({
         </div>
       )}
       <div
-        className='grid gap-4 sm:grid-cols-2'
+        className='grid gap-4 sm:grid-cols-2 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'
         onChange={() => {
           setDirty(true)
           onDirty()
@@ -167,17 +164,13 @@ function SubscriptionFields({
             className={itInputClass}
           />
         </ItField>
-        <ItField
-          label={translate('unitAmount')}
-          hint={translate('help.unitAmount')}
-          error={priceError ? translate('pricePair') : undefined}
-        >
+        <ItField label={translate('unitAmount')} hint={translate('help.unitAmount')}>
           <input
             placeholder={translate('placeholders.amount')}
             name='amount'
-            inputMode='decimal'
-            pattern='[0-9]+([.][0-9]+)?'
-            maxLength={40}
+            inputMode='numeric'
+            pattern='[0-9]{1,16}'
+            maxLength={16}
             defaultValue={subscription.unitPrice?.amount ?? ''}
             className={itInputClass}
           />
@@ -186,9 +179,10 @@ function SubscriptionFields({
           <input
             placeholder={translate('placeholders.currency')}
             name='currency'
-            pattern='[A-Z]{3}'
+            pattern='VND'
             maxLength={3}
-            defaultValue={subscription.unitPrice?.currency ?? ''}
+            value='VND'
+            readOnly
             className={itInputClass}
           />
         </ItField>
@@ -260,6 +254,27 @@ function SubscriptionFields({
           </label>
         ))}
       </fieldset>
+      {subscription.kind === 'TERM' && (
+        <fieldset
+          onChange={() => {
+            setDirty(true)
+            onDirty()
+          }}
+        >
+          <legend>{translate('setup.commitment')}</legend>
+          {([1, 12] as const).map((months) => (
+            <label key={months} className='mr-4 inline-flex min-h-11 items-center gap-2'>
+              <input
+                type='radio'
+                name='commitmentTermMonths'
+                value={months}
+                defaultChecked={subscription.commitmentTermMonths === months}
+              />
+              {translate('setup.monthCount', { count: months })}
+            </label>
+          ))}
+        </fieldset>
+      )}
       {(['autoRenew', 'allowsMidTermReduction'] as const).map((key) => (
         <label key={key} className='flex min-h-11 items-center gap-2'>
           <input

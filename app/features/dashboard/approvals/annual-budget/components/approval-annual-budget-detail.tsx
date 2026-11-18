@@ -1,5 +1,4 @@
-import { ArrowLeft, FileSearch, History } from 'lucide-react'
-import { useState } from 'react'
+import { ArrowLeft, FileSearch, History, Landmark } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetVersionGet } from '~/shared/api/generated/operations/budget-versions/budget-version-get'
 import { useMeGet } from '~/shared/api/generated/operations/me/me-get'
@@ -7,8 +6,7 @@ import { ApprovalsButton, ApprovalsEmpty, ApprovalsPage, ApprovalsStatus } from 
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import { versionState } from '../enums/version-state'
 import type { ApprovalBudgetViewProps } from '../budget-view-props'
-import { ApprovalAnnualBudgetDecision } from './approval-annual-budget-decision'
-import { ApprovalAnnualBudgetLines } from './approval-annual-budget-lines'
+import { ApprovalAnnualBudgetDecision, VERSION_DECISION_ANCHOR } from './approval-annual-budget-decision'
 import { ApprovalAnnualBudgetSummary, ApprovalBudgetWaitingNotice } from './approval-annual-budget-summary'
 import { ApprovalBudgetAttachments } from './approval-budget-attachments'
 
@@ -17,7 +15,6 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
   const query = useBudgetVersionGet(itemId)
   const identity = useMeGet()
   const version = query.data?.data?.version
-  const [decisionOpen, setDecisionOpen] = useState(false)
   const employeeId = identity.data?.data?.employee.id
   const isSpendingApprover = identity.data?.data?.roles.includes('SPENDING_APPROVER') === true
   const ownVersion = !!employeeId && employeeId === version?.createdBy?.employeeId
@@ -30,8 +27,13 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
     !identity.isFetching &&
     !query.isError &&
     !query.isFetching
+  // The decision is the last block of the page; the button at the top takes the approver there.
+  const scrollToDecision = () =>
+    document.getElementById(VERSION_DECISION_ANCHOR)?.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
   return (
     <ApprovalsPage
+      icon={Landmark}
+      eyebrow={translate('versionTitle')}
       title={version ? version.costCenter.name : translate('versionTitle')}
       description={
         version
@@ -48,7 +50,7 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
       <ApprovalsQueryState query={query}>
         {version ? (
           <div className='space-y-6'>
-            <div className='flex flex-wrap items-center justify-between gap-3'>
+            <div className='soft-panel flex flex-wrap items-center justify-between gap-3 px-4 py-3'>
               <ApprovalsStatus value={version.state} />
               <div className='flex flex-wrap gap-2'>
                 {version.proposalId && (
@@ -66,7 +68,7 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
                 </ApprovalsButton>
                 <ApprovalsQueryState query={identity}>
                   {canDecide && (
-                    <ApprovalsButton variant='primary' onClick={() => setDecisionOpen(true)}>
+                    <ApprovalsButton variant='primary' onClick={() => scrollToDecision()}>
                       {translate('reviewDecision')}
                     </ApprovalsButton>
                   )}
@@ -75,21 +77,18 @@ export function ApprovalAnnualBudgetDetail({ itemId, onSelectTab }: ApprovalBudg
             </div>
             <ApprovalBudgetWaitingNotice reason={version.waitingReason} />
             {ownVersion && (
-              <p role='status' className='rounded-lg border border-border bg-surface-subtle p-4 text-sm'>
+              <p role='status' className='rounded-xl border border-border/70 bg-surface-subtle p-4 text-sm'>
                 {translate('ownVersion')}
               </p>
             )}
             <ApprovalAnnualBudgetSummary version={version} />
-            <ApprovalAnnualBudgetLines itemId={itemId} />
             <ApprovalBudgetAttachments target='version' ownerId={itemId} />
+            {canDecide && <ApprovalAnnualBudgetDecision itemId={itemId} disabled={!canDecide} />}
           </div>
         ) : (
           <ApprovalsEmpty />
         )}
       </ApprovalsQueryState>
-      {decisionOpen && (
-        <ApprovalAnnualBudgetDecision itemId={itemId} disabled={!canDecide} onClose={() => setDecisionOpen(false)} />
-      )}
     </ApprovalsPage>
   )
 }

@@ -1,4 +1,25 @@
 export const adminAccounts = {
+  applicationHandover: {
+    title: 'Transfer application responsibility',
+    submit: 'Save new administrator',
+    help: 'Transfer application management to a technology administrator who currently works here. The change applies to this application across the company.',
+    department: 'Department using the application',
+    departmentHelp:
+      'Choose a department to find applications in its software list. Change pages to see more departments.',
+    application: 'Application to transfer',
+    applicationHelp:
+      'Choose the application whose administrator will change. Only software registered for the selected department is listed.',
+    target: 'Receiving administrator',
+    targetHelp: 'Choose a current technology administrator to take responsibility for the application.'
+  },
+  releaseDepartureBlock: 'Release access block after cancelled departure',
+  roleHelp: 'Choose the role that will replace the current role. New access permissions apply from the next request.',
+  inviteRoleHelp: 'Choose the initial role for the invited account.',
+  spendingApproverInviteHelp:
+    'To appoint a spending approver, invite the person as an employee. Once they activate their account, change their role to spending approver.',
+  employeeHelp: 'Choose an employee without an account. The activation invitation goes to their work email address.',
+  emailFromPersonnel:
+    'The login and invitation address comes from the employee record. Update the record before creating the account to change this address.',
   retryIn: 'Try again in {{count}}s',
   title: 'Accounts and responsibilities',
   list: 'Accounts',
@@ -23,7 +44,8 @@ export const adminAccounts = {
   directRoles: 'Direct roles',
   none: 'None',
   unknown: 'Unknown',
-  candidateLimit: 'Up to 20 employees without an account are shown. Refine your search to find someone else.',
+  candidateLimit:
+    'Up to {{count}} employees without an account are shown. Search by name, employee code or work email to find someone else.',
   selectEmployee: 'Select an employee before continuing.',
   emailHint: 'Leave blank to use the employee’s work email.',
   lock: 'Lock account',
@@ -36,6 +58,10 @@ export const adminAccounts = {
   confirm: 'Confirm',
   resend: 'Resend invitation',
   resendHint: 'Send a new activation invitation to this account’s login email.',
+  removeAvatar: 'Remove avatar',
+  removeAvatarReasonPlaceholder: 'Enter reason for removing inappropriate avatar (max 500 characters)',
+  removeAvatarHint:
+    'The avatar will be removed and recorded in the audit trail. The user will not receive a notification.',
   createdAt: 'Created',
   invitation: 'Activation invitation',
   usable: 'Invitation is usable',
@@ -80,5 +106,22 @@ export const adminAccounts = {
     CONFLICT_SUBSTITUTE: 'Conflict substitute',
     FALLBACK_APPROVER: 'Fallback approver'
   },
-  deliveryStatuses: { PENDING: 'Pending', SENDING: 'Sending', SENT: 'Sent', FAILED: 'Failed', CANCELLED: 'Cancelled' }
+  deliveryStatuses: { PENDING: 'Pending', SENDING: 'Sending', SENT: 'Sent', FAILED: 'Failed', CANCELLED: 'Cancelled' },
+  ui: {
+    eyebrow: 'Accounts and responsibilities',
+    allStatuses: 'All account statuses',
+    allActivation: 'All activation states',
+    allRoles: 'All roles',
+    allEmployment: 'All employment states',
+    accountCount: '{{count}} accounts',
+    noAccountsTitle: 'No matching accounts',
+    noAccountsHint: 'Change the filters or clear the search to see more accounts.',
+    pickRole: 'Choose a new role, type to search',
+    pickCandidate: 'Choose an employee, type to search',
+    noCandidates: 'No employees available to invite',
+    pickDepartment: 'Choose a department, type to search',
+    pickApplication: 'Choose the application to hand over, type to search',
+    noApplications: 'This department has no applications yet',
+    pickItAdmin: 'Choose an IT administrator, type to search'
+  }
 }

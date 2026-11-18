@@ -6,26 +6,14 @@
  * OpenAPI spec version: 1.0
  */
 import type { PackageResponseDtoDataDepartmentsItemBaselineRefusal } from './packageResponseDtoDataDepartmentsItemBaselineRefusal'
-import type { PackageResponseDtoDataDepartmentsItemCeiling } from './packageResponseDtoDataDepartmentsItemCeiling'
 import type { PackageResponseDtoDataDepartmentsItemHeadStatus } from './packageResponseDtoDataDepartmentsItemHeadStatus'
 import type { PackageResponseDtoDataDepartmentsItemProposal } from './packageResponseDtoDataDepartmentsItemProposal'
-import type { PackageResponseDtoDataDepartmentsItemPublishedCeiling } from './packageResponseDtoDataDepartmentsItemPublishedCeiling'
 import type { PackageResponseDtoDataDepartmentsItemVersion } from './packageResponseDtoDataDepartmentsItemVersion'
 
 export type PackageResponseDtoDataDepartmentsItem = {
   departmentId: string
   departmentCode: string
   departmentName: string
-  /**
-   * The ceiling as it stands now, which Finance may still be editing.
-   * @nullable
-   */
-  ceiling: PackageResponseDtoDataDepartmentsItemCeiling
-  /**
-   * The ceiling the head was told when the cycle was published; null before the first publication. The flags over the ceiling are judged against it (S4-01).
-   * @nullable
-   */
-  publishedCeiling: PackageResponseDtoDataDepartmentsItemPublishedCeiling
   /** Whether somebody heads the department today, somebody is named to head it later, or nobody is. */
   headStatus: PackageResponseDtoDataDepartmentsItemHeadStatus
   /** Finance may build the first version of the department from the baseline now: the same check as the version of source BASELINE. */

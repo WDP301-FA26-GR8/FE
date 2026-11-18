@@ -19,7 +19,14 @@ export type ApplicationPageResponseDtoDataItemsItem = {
   kind: ApplicationPageResponseDtoDataItemsItemKind
   /** @nullable */
   vendor: ApplicationPageResponseDtoDataItemsItemVendor
+  /** @nullable */
   dataSensitivity: ApplicationPageResponseDtoDataItemsItemDataSensitivity
+  /**
+   * The https link to the logo image that the IT Admin pasted, or null. The server never checks it: it may be broken, so show the first letter of the name when the image does not load.
+   * @nullable
+   */
+  logoUrl: string | null
+  /** True when the application stands in the group Liên lạc (email, chat, meetings): the usage rules never collect it. */
   isCommunicationService: boolean
   /**
    * The IT Admin who answers for the application (the one who declared it, or who took it over); null when nobody does.
@@ -30,7 +37,6 @@ export type ApplicationPageResponseDtoDataItemsItem = {
   needsResponsible: boolean
   /** @nullable */
   usageCollectionDefault: ApplicationPageResponseDtoDataItemsItemUsageCollectionDefault
-  /** @nullable */
   functionalGroup: ApplicationPageResponseDtoDataItemsItemFunctionalGroup
   status: ApplicationPageResponseDtoDataItemsItemStatus
   updatedAt: string

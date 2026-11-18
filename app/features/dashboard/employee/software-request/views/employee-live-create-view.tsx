@@ -1,5 +1,7 @@
+import { PROVISIONING_TYPE } from '~/entities/request/enums/provisioning-type'
 import { useRef, useState } from 'react'
-import { FilePlus2 } from 'lucide-react'
+import { FilePlus2, Repeat, Undo2, UserRound, UsersRound, Lightbulb } from 'lucide-react'
+import { EmployeeFormStep, EmployeeSegmented } from '../../shared/components/employee-layout'
 import { EmployeePageHeader } from '../../shared/components/employee-page-header'
 import { EmployeeRequestGuide } from '../components/employee-request-guide'
 import { useTranslation } from 'react-i18next'
@@ -23,6 +25,13 @@ import { useRequestAssignments } from '../hooks/use-request-assignments'
 import { useEmployeeCatalogSelection } from '../hooks/use-employee-catalog-selection'
 import type { EmployeeTabKey } from '../../enums'
 import { isEmployeeResourceId } from '../../shared/employee-identifiers'
+import { TermMonthsField } from '~/entities/request/components/term-months-field'
+import { SoftwareProposalForm } from '~/entities/request/components/software-proposal-form'
+import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
+import { termRule } from '~/entities/request/term-months'
+
+const REQUEST_MODES = ['individual', 'group', 'proposal', 'renewal', 'return'] as const
+const modeIcons = { individual: UserRound, group: UsersRound, proposal: Lightbulb, renewal: Repeat, return: Undo2 }
 
 export function EmployeeLiveCreateView({
   onSelectTab
@@ -43,29 +52,29 @@ export function EmployeeLiveCreateView({
   return (
     <div className='space-y-6'>
       <EmployeePageHeader title={translate('create')} icon={FilePlus2} />
-      <nav aria-label={translate('mode')} className='flex gap-1 overflow-x-auto border-b border-border/60 pb-3'>
-        {(['individual', 'group', 'proposal', 'renewal', 'return'] as const).map((option) => (
-          <button
-            key={option}
-            type='button'
-            aria-pressed={mode === option}
-            className={`min-h-11 shrink-0 rounded-md px-4 text-sm font-medium whitespace-nowrap transition-colors ${mode === option ? 'bg-primary-soft text-primary-ink' : 'text-muted-foreground hover:bg-surface-subtle'}`}
-            onClick={() => setSearchParams({ tab: 'create-request', mode: option })}
-          >
-            {translate(option)}
-          </button>
-        ))}
-      </nav>
+      <EmployeeSegmented
+        label={translate('mode')}
+        value={mode}
+        options={REQUEST_MODES.map((option) => ({ value: option, label: translate(option), icon: modeIcons[option] }))}
+        onChange={(option) => setSearchParams({ tab: 'create-request', mode: option })}
+      />
       <div className='grid items-start gap-5 2xl:grid-cols-[minmax(0,1fr)_300px]'>
-        <LiveCreateForm
-          key={`${mode}:${searchParams.get('assignmentId') ?? ''}:${searchParams.get('planId') ?? ''}`}
-          mode={mode}
-          assignmentId={searchParams.get('assignmentId') ?? ''}
-          initialPlanId={
-            isEmployeeResourceId(searchParams.get('planId') ?? '') ? (searchParams.get('planId') ?? '') : ''
-          }
-          onSelectTab={onSelectTab}
-        />
+        {mode === 'proposal' ? (
+          <SoftwareProposalForm
+            onCreated={(id) => onSelectTab('request-detail', { id })}
+            onUsePlan={(planId) => onSelectTab('create-request', { planId })}
+          />
+        ) : (
+          <LiveCreateForm
+            key={`${mode}:${searchParams.get('assignmentId') ?? ''}:${searchParams.get('planId') ?? ''}`}
+            mode={mode}
+            assignmentId={searchParams.get('assignmentId') ?? ''}
+            initialPlanId={
+              isEmployeeResourceId(searchParams.get('planId') ?? '') ? (searchParams.get('planId') ?? '') : ''
+            }
+            onSelectTab={onSelectTab}
+          />
+        )}
         <aside className='hidden min-w-0 2xl:block'>
           <EmployeeRequestGuide needsPreview={mode === 'individual' || mode === 'group'} group={mode === 'group'} />
         </aside>
@@ -87,8 +96,10 @@ function LiveCreateForm({
 }) {
   const { t: translate } = useTranslation('employee')
   const { t: flow } = useTranslation('requestFlow')
+  const { formatDate } = useWorkspaceFormat()
   const formRef = useRef<HTMLFormElement>(null)
   const [selectedAssignmentId, setAssignmentId] = useState(assignmentId)
+  const [renewalLongTerm, setRenewalLongTerm] = useState(false)
   const assignments = useRequestAssignments(mode)
   const selectedAssignment = assignments.items.find((item) => item.assignmentId === selectedAssignmentId)
   const selection = useEmployeeCatalogSelection(initialPlanId)
@@ -105,13 +116,23 @@ function LiveCreateForm({
     (needsPreview &&
       (!selection.ready || (mode === 'group' && (workflow.members.length < 2 || workflow.members.length > 10)))) ||
     ((mode === 'renewal' || mode === 'return') &&
-      (!selectedAssignment || assignments.query.isFetching || assignments.query.isError))
+      (!selectedAssignment ||
+        assignments.query.isFetching ||
+        assignments.query.isError ||
+        (mode === 'renewal' && workflow.renewalWindow?.assignmentId === selectedAssignmentId)))
   const onReview = () => {
     if (!selectionIncomplete && formRef.current?.reportValidity())
       workflow.preview.mutate(readRequestFields(formRef.current))
   }
   return (
-    <EmployeeSection title={translate(mode)}>
+    <EmployeeSection title={translate(mode)} icon={modeIcons[mode]}>
+      {mode === 'renewal' && workflow.renewalWindow?.assignmentId === selectedAssignmentId && (
+        <p role='status' className='text-sm text-muted-foreground'>
+          {workflow.renewalWindow.opensOn && Number.isFinite(Date.parse(workflow.renewalWindow.opensOn))
+            ? flow('renewalWindow', { date: formatDate(workflow.renewalWindow.opensOn) })
+            : flow('renewalWindowUnknown')}
+        </p>
+      )}
       {mode === 'return' && <p className='text-sm text-muted-foreground'>{translate('returnHint')}</p>}
       <form
         ref={formRef}
@@ -123,8 +144,7 @@ function LiveCreateForm({
               field instanceof HTMLTextAreaElement ||
               field instanceof HTMLSelectElement) &&
             field.name &&
-            field.name !== 'businessReason' &&
-            field.name !== 'manyPaidSoftwareReason'
+            field.name !== 'businessReason'
           )
             workflow.clearPreview()
         }}
@@ -137,113 +157,175 @@ function LiveCreateForm({
         <EmployeeFormErrors fields={workflow.feedback.invalidFields}>
           <fieldset disabled={busy || workflow.feedback.blocked} className='space-y-5'>
             {needsPreview && (
-              <>
+              <EmployeeFormStep
+                step={1}
+                title={translate('ui.create.softwareStep')}
+                hint={translate('ui.create.softwareStepHint')}
+              >
                 <EmployeeCatalogPicker
                   value={plan}
                   initialPlanId={initialPlanId}
                   onSelectPlanId={selection.setPlanId}
                   onChange={(choice) => {
                     setPlan(choice)
-                    workflow.setMembers((members) => members.map((member) => ({ ...member, reasonRequired: false })))
                     workflow.clearPreview()
                   }}
                   disabled={busy || workflow.feedback.blocked}
                   invalid={workflow.feedback.invalidFields.includes('planId')}
                 />
                 <EmployeeCatalogPlanDetails selection={selection} />
-              </>
+              </EmployeeFormStep>
             )}
-            <div className='grid items-start gap-5 sm:grid-cols-2'>
-              {(mode === 'renewal' || mode === 'return') && (
-                <EmployeeAssignmentPicker
-                  assignments={assignments}
-                  value={selectedAssignmentId}
-                  onChange={setAssignmentId}
+            {mode === 'group' && (
+              <EmployeeFormStep step={2} title={translate('members')}>
+                <LiveGroupMembers
+                  members={workflow.members}
                   disabled={busy || workflow.feedback.blocked}
-                  invalid={workflow.feedback.invalidFields.includes('assignmentId')}
+                  invalid={workflow.feedback.invalidFields.some(
+                    (field) => field === 'lines' || field.startsWith('lines.')
+                  )}
+                  onChange={(members) => {
+                    workflow.setMembers(members)
+                    workflow.clearPreview()
+                  }}
                 />
-              )}
-              {mode === 'renewal' && (
-                <EmployeeField label={translate('extensionMonths')}>
-                  <EmployeeInput
-                    required
-                    type='number'
-                    name='extensionMonths'
-                    min={1}
-                    max={12}
-                    step={1}
-                    defaultValue={1}
-                    disabled={!selectedAssignment}
+              </EmployeeFormStep>
+            )}
+            <EmployeeFormStep
+              step={mode === 'group' ? 3 : needsPreview ? 2 : 1}
+              title={translate('ui.create.detailsStep')}
+              hint={translate('ui.create.detailsStepHint')}
+            >
+              <div className='grid items-start gap-5 sm:grid-cols-2'>
+                {(mode === 'renewal' || mode === 'return') && (
+                  <EmployeeAssignmentPicker
+                    assignments={assignments}
+                    value={selectedAssignmentId}
+                    onChange={(id) => {
+                      setAssignmentId(id)
+                      setRenewalLongTerm(false)
+                    }}
+                    disabled={busy || workflow.feedback.blocked}
+                    invalid={workflow.feedback.invalidFields.includes('assignmentId')}
                   />
-                </EmployeeField>
-              )}
-              {mode !== 'return' && mode !== 'renewal' && (
-                <EmployeeField label={flow('endDate')}>
-                  <EmployeeInput
-                    required={preview?.preview?.termRequired}
-                    type='date'
-                    name='expectedEndDate'
-                    max={preview?.preview?.maxEndDate ?? preview?.groupCheck?.maxEndDate}
+                )}
+                {mode === 'renewal' && (
+                  <div className='space-y-2'>
+                    <EmployeeField label={translate('extensionMonths')}>
+                      <EmployeeInput
+                        required={!renewalLongTerm}
+                        type='number'
+                        name='extensionMonths'
+                        min={1}
+                        max={selectedAssignment?.provisioningType === PROVISIONING_TYPE.K1 ? 9 : 12}
+                        step={1}
+                        defaultValue={1}
+                        placeholder={translate('ui.placeholders.extensionMonths')}
+                        disabled={!selectedAssignment || renewalLongTerm}
+                      />
+                    </EmployeeField>
+                    {(selectedAssignment?.provisioningType === PROVISIONING_TYPE.K2 ||
+                      selectedAssignment?.provisioningType === PROVISIONING_TYPE.K5) && (
+                      <label className='flex min-h-11 items-center gap-2 text-sm'>
+                        <input
+                          type='checkbox'
+                          name='longTerm'
+                          checked={renewalLongTerm}
+                          disabled={!selectedAssignment}
+                          onChange={(event) => setRenewalLongTerm(event.target.checked)}
+                        />
+                        {flow('longTerm')}
+                      </label>
+                    )}
+                  </div>
+                )}
+                {(needsPreview || mode === 'proposal') && (
+                  <TermMonthsField
+                    key={mode === 'proposal' ? mode : (plan?.id ?? 'none')}
+                    subject={mode === 'proposal' ? 'NEW_SOFTWARE' : plan?.provisioningType}
+                    refusal={preview?.preview?.termRefusal ?? preview?.groupCheck?.termRefusal}
+                    invalid={workflow.feedback.invalidFields.includes('termMonths')}
+                    inputClassName={employeeInputClass}
+                    placeholder={translate('ui.placeholders.termMonths')}
+                    onChange={workflow.clearPreview}
                   />
-                </EmployeeField>
-              )}
-              {mode === 'proposal' && (
+                )}
+                {mode === 'proposal' && (
+                  <>
+                    <EmployeeField label={translate('softwareName')}>
+                      <EmployeeInput
+                        required
+                        name='softwareName'
+                        maxLength={200}
+                        placeholder={translate('ui.placeholders.softwareName')}
+                      />
+                    </EmployeeField>
+                    <EmployeeField label={translate('homepage')}>
+                      <EmployeeInput
+                        required
+                        type='url'
+                        name='homepageUrl'
+                        maxLength={500}
+                        placeholder={translate('ui.placeholders.homepage')}
+                      />
+                    </EmployeeField>
+                    <EmployeeField label={translate('expectedUsers')}>
+                      <EmployeeInput
+                        required
+                        type='number'
+                        name='expectedUsers'
+                        min={1}
+                        max={1000000}
+                        defaultValue={1}
+                        placeholder={translate('ui.placeholders.expectedUsers')}
+                      />
+                    </EmployeeField>
+                  </>
+                )}
+              </div>
+              {mode === 'proposal' ? (
                 <>
-                  <EmployeeField label={translate('softwareName')}>
-                    <EmployeeInput required name='softwareName' maxLength={200} />
+                  <EmployeeField label={translate('purpose')}>
+                    <textarea
+                      className={employeeInputClass}
+                      required
+                      name='purpose'
+                      maxLength={1000}
+                      rows={3}
+                      placeholder={translate('ui.placeholders.purpose')}
+                    />
                   </EmployeeField>
-                  <EmployeeField label={translate('homepage')}>
-                    <EmployeeInput required type='url' name='homepageUrl' maxLength={500} />
-                  </EmployeeField>
-                  <EmployeeField label={translate('expectedUsers')}>
-                    <EmployeeInput required type='number' name='expectedUsers' min={1} max={1000000} defaultValue={1} />
+                  <EmployeeField label={translate('dataDescription')}>
+                    <textarea
+                      className={employeeInputClass}
+                      required
+                      name='dataDescription'
+                      maxLength={1000}
+                      rows={3}
+                      placeholder={translate('ui.placeholders.dataDescription')}
+                    />
                   </EmployeeField>
                 </>
+              ) : (
+                <EmployeeField label={translate('reason')}>
+                  <textarea
+                    required
+                    name='businessReason'
+                    maxLength={1000}
+                    rows={3}
+                    placeholder={translate('ui.placeholders.businessReason')}
+                    className={employeeInputClass}
+                  />
+                </EmployeeField>
               )}
-            </div>
-            {mode === 'group' && (
-              <LiveGroupMembers
-                members={workflow.members}
-                disabled={busy || workflow.feedback.blocked}
-                invalid={workflow.feedback.invalidFields.some(
-                  (field) => field === 'lines' || field.startsWith('lines.')
-                )}
-                onChange={(members) => {
-                  workflow.setMembers(members)
-                  workflow.clearPreview()
-                }}
-              />
-            )}
-            {mode === 'individual' && workflow.requiresReason && (
-              <EmployeeField label={flow('manyReason')}>
-                <textarea
-                  required
-                  name='manyPaidSoftwareReason'
-                  maxLength={1000}
-                  rows={3}
-                  className={employeeInputClass}
-                />
-              </EmployeeField>
-            )}
-            {mode === 'proposal' ? (
-              <>
-                <EmployeeField label={translate('purpose')}>
-                  <textarea className={employeeInputClass} required name='purpose' maxLength={1000} rows={3} />
-                </EmployeeField>
-                <EmployeeField label={translate('dataDescription')}>
-                  <textarea className={employeeInputClass} required name='dataDescription' maxLength={1000} rows={3} />
-                </EmployeeField>
-              </>
-            ) : (
-              <EmployeeField label={translate('reason')}>
-                <textarea required name='businessReason' maxLength={1000} rows={3} className={employeeInputClass} />
-              </EmployeeField>
-            )}
+            </EmployeeFormStep>
           </fieldset>
           {preview && (
-            <section className='space-y-3 border-t border-border/60 pt-5' aria-label={translate('preview')}>
-              <h3 className='font-semibold'>{translate('preview')}</h3>
-              {preview.preview && <LiveRequestPreview preview={preview.preview} />}
+            <section className='soft-panel space-y-3 p-4 sm:p-5' aria-label={translate('preview')}>
+              <h3 className='section-accent font-semibold'>{translate('preview')}</h3>
+              {preview.preview && (
+                <LiveRequestPreview preview={preview.preview} termAsked={termRule(plan?.provisioningType).asked} />
+              )}
               {preview.groupCheck && <LiveGroupEligibility check={preview.groupCheck} members={workflow.members} />}
               {!preview.canSubmit && (
                 <p role='status' className='text-sm text-warning'>

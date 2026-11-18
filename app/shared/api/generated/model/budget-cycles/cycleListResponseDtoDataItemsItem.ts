@@ -5,11 +5,10 @@
  * Internal software license and technology cost API. A text field whose description says it is trimmed has its leading and trailing whitespace removed before it is checked; for the other text fields the description makes no such promise.
  * OpenAPI spec version: 1.0
  */
-import type { CycleListResponseDtoDataItemsItemAllocated } from './cycleListResponseDtoDataItemsItemAllocated'
 import type { CycleListResponseDtoDataItemsItemAnnualCeiling } from './cycleListResponseDtoDataItemsItemAnnualCeiling'
+import type { CycleListResponseDtoDataItemsItemAvailable } from './cycleListResponseDtoDataItemsItemAvailable'
 import type { CycleListResponseDtoDataItemsItemSharedPoolReserve } from './cycleListResponseDtoDataItemsItemSharedPoolReserve'
 import type { CycleListResponseDtoDataItemsItemStatus } from './cycleListResponseDtoDataItemsItemStatus'
-import type { CycleListResponseDtoDataItemsItemUnallocated } from './cycleListResponseDtoDataItemsItemUnallocated'
 
 export type CycleListResponseDtoDataItemsItem = {
   /**
@@ -24,16 +23,12 @@ export type CycleListResponseDtoDataItemsItem = {
   annualCeiling: CycleListResponseDtoDataItemsItemAnnualCeiling
   /** @nullable */
   sharedPoolReserve: CycleListResponseDtoDataItemsItemSharedPoolReserve
-  /** @nullable */
-  priorities: string | null
+  /** The annual ceiling less the shared-pool reserve: what the budgets of the departments may add up to (checked when a version is sent); below nothing is shown as zero. */
+  available: CycleListResponseDtoDataItemsItemAvailable
   status: CycleListResponseDtoDataItemsItemStatus
-  openedAt: string
-  /** @nullable */
-  publishedAt: string | null
-  /** @nullable */
-  firstPublishedAt: string | null
-  /** The ceilings of the departments and the reserve, added. */
-  allocated: CycleListResponseDtoDataItemsItemAllocated
-  /** The annual ceiling less what is allocated; below nothing is shown as zero. */
-  unallocated: CycleListResponseDtoDataItemsItemUnallocated
+  /**
+   * When Finance opened the cycle; null while it is a draft.
+   * @nullable
+   */
+  openedAt: string | null
 }

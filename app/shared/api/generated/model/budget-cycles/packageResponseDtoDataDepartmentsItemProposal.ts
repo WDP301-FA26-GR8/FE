@@ -5,7 +5,6 @@
  * Internal software license and technology cost API. A text field whose description says it is trimmed has its leading and trailing whitespace removed before it is checked; for the other text fields the description makes no such promise.
  * OpenAPI spec version: 1.0
  */
-import type { PackageResponseDtoDataDepartmentsItemProposalLinesItem } from './packageResponseDtoDataDepartmentsItemProposalLinesItem'
 import type { PackageResponseDtoDataDepartmentsItemProposalState } from './packageResponseDtoDataDepartmentsItemProposalState'
 import type { PackageResponseDtoDataDepartmentsItemProposalTotal } from './packageResponseDtoDataDepartmentsItemProposalTotal'
 
@@ -14,12 +13,7 @@ import type { PackageResponseDtoDataDepartmentsItemProposalTotal } from './packa
  */
 export type PackageResponseDtoDataDepartmentsItemProposal = {
   id: string
-  /** The lines counted: a CANCEL line is shown and not added. */
+  /** The amount the head asked for. */
   total: PackageResponseDtoDataDepartmentsItemProposalTotal
   state: PackageResponseDtoDataDepartmentsItemProposalState
-  /**
-   * The lines of the proposal by priority rank, with the flag over the published ceiling and the part that goes over.
-   * @maxItems 200
-   */
-  lines: PackageResponseDtoDataDepartmentsItemProposalLinesItem[]
 } | null

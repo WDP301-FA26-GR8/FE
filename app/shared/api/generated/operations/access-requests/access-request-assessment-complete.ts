@@ -9,23 +9,30 @@ import type { SecondParameter } from './access-requests.helpers'
 import { useMutation } from '@tanstack/react-query'
 import type { MutationFunction, QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
-import type { AccessRequestAssessmentComplete200, ErrorEnvelopeDto } from '../../model'
+import type { AccessRequestAssessmentComplete200, AssessmentCompletionBodyDto, ErrorEnvelopeDto } from '../../model'
 
 import { env } from '~/shared/config/env'
 
 import { customAxios } from '../../../mutator/custom-axios'
-import type { ErrorType } from '../../../mutator/custom-axios'
+import type { ErrorType, BodyType } from '../../../mutator/custom-axios'
 
 /**
  * @summary Complete the assessment of a proposal
  */
 export const accessRequestAssessmentComplete = (
   id: string,
+  assessmentCompletionBodyDto: BodyType<AssessmentCompletionBodyDto>,
   options?: SecondParameter<typeof customAxios>,
   signal?: AbortSignal
 ) => {
   return customAxios<AccessRequestAssessmentComplete200>(
-    { url: `${env.API_BASE_URL}/api/v1/access-requests/${id}/assessment/completion`, method: 'POST', signal },
+    {
+      url: `${env.API_BASE_URL}/api/v1/access-requests/${id}/assessment/completion`,
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      data: assessmentCompletionBodyDto,
+      signal
+    },
     options
   )
 }
@@ -37,14 +44,14 @@ export const getAccessRequestAssessmentCompleteMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof accessRequestAssessmentComplete>>,
     TError,
-    { id: string },
+    { id: string; data: BodyType<AssessmentCompletionBodyDto> },
     TContext
   >
   request?: SecondParameter<typeof customAxios>
 }): UseMutationOptions<
   Awaited<ReturnType<typeof accessRequestAssessmentComplete>>,
   TError,
-  { id: string },
+  { id: string; data: BodyType<AssessmentCompletionBodyDto> },
   TContext
 > => {
   const mutationKey = ['accessRequestAssessmentComplete']
@@ -54,12 +61,13 @@ export const getAccessRequestAssessmentCompleteMutationOptions = <
       : { ...options, mutation: { ...options.mutation, mutationKey } }
     : { mutation: { mutationKey }, request: undefined }
 
-  const mutationFn: MutationFunction<Awaited<ReturnType<typeof accessRequestAssessmentComplete>>, { id: string }> = (
-    props
-  ) => {
-    const { id } = props ?? {}
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof accessRequestAssessmentComplete>>,
+    { id: string; data: BodyType<AssessmentCompletionBodyDto> }
+  > = (props) => {
+    const { id, data } = props ?? {}
 
-    return accessRequestAssessmentComplete(id, requestOptions)
+    return accessRequestAssessmentComplete(id, data, requestOptions)
   }
 
   return { mutationFn, ...mutationOptions }
@@ -68,7 +76,7 @@ export const getAccessRequestAssessmentCompleteMutationOptions = <
 export type AccessRequestAssessmentCompleteMutationResult = NonNullable<
   Awaited<ReturnType<typeof accessRequestAssessmentComplete>>
 >
-
+export type AccessRequestAssessmentCompleteMutationBody = BodyType<AssessmentCompletionBodyDto>
 export type AccessRequestAssessmentCompleteMutationError = ErrorType<ErrorEnvelopeDto>
 
 /**
@@ -79,12 +87,17 @@ export const useAccessRequestAssessmentComplete = <TError = ErrorType<ErrorEnvel
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof accessRequestAssessmentComplete>>,
       TError,
-      { id: string },
+      { id: string; data: BodyType<AssessmentCompletionBodyDto> },
       TContext
     >
     request?: SecondParameter<typeof customAxios>
   },
   queryClient?: QueryClient
-): UseMutationResult<Awaited<ReturnType<typeof accessRequestAssessmentComplete>>, TError, { id: string }, TContext> => {
+): UseMutationResult<
+  Awaited<ReturnType<typeof accessRequestAssessmentComplete>>,
+  TError,
+  { id: string; data: BodyType<AssessmentCompletionBodyDto> },
+  TContext
+> => {
   return useMutation(getAccessRequestAssessmentCompleteMutationOptions(options), queryClient)
 }

@@ -12,12 +12,14 @@ export function CatalogLinkPlanPicker({
   applicationId,
   planId,
   disabled,
+  optional = false,
   onApplicationChange,
   onPlanChange
 }: {
   applicationId: string
   planId: string
   disabled: boolean
+  optional?: boolean
   onApplicationChange: (id: string) => void
   onPlanChange: (id: string) => void
 }) {
@@ -39,7 +41,7 @@ export function CatalogLinkPlanPicker({
   const planItems = plans.data?.data?.items ?? []
   return (
     <div className='space-y-3'>
-      <ItField label={translate('catalogLink.searchApplication')}>
+      <ItField label={translate('catalogLink.searchApplication')} hint={translate('fieldHints.searchApplication')}>
         <input
           className={itInputClass}
           type='search'
@@ -55,6 +57,7 @@ export function CatalogLinkPlanPicker({
       </ItField>
       <ItChoiceSelect
         label={translate('catalogLink.application')}
+        required={!optional}
         value={applicationId}
         options={applicationItems.map((application) => ({ value: application.id, label: application.name }))}
         disabled={disabled || applications.isFetching || applications.isError}
@@ -78,6 +81,7 @@ export function CatalogLinkPlanPicker({
           <ItChoiceSelect
             key={applicationId}
             label={translate('catalogLink.plan')}
+            required={!optional}
             value={planId}
             options={planItems.map((plan) => ({ value: plan.id, label: plan.name }))}
             disabled={disabled || plans.isFetching || plans.isError}

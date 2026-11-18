@@ -8,9 +8,9 @@
 import type { DraftSubmitResponseDtoDataRequestBeneficiary } from './draftSubmitResponseDtoDataRequestBeneficiary'
 import type { DraftSubmitResponseDtoDataRequestBranch } from './draftSubmitResponseDtoDataRequestBranch'
 import type { DraftSubmitResponseDtoDataRequestCancellation } from './draftSubmitResponseDtoDataRequestCancellation'
+import type { DraftSubmitResponseDtoDataRequestCost } from './draftSubmitResponseDtoDataRequestCost'
 import type { DraftSubmitResponseDtoDataRequestCostCenter } from './draftSubmitResponseDtoDataRequestCostCenter'
 import type { DraftSubmitResponseDtoDataRequestDepartment } from './draftSubmitResponseDtoDataRequestDepartment'
-import type { DraftSubmitResponseDtoDataRequestFlags } from './draftSubmitResponseDtoDataRequestFlags'
 import type { DraftSubmitResponseDtoDataRequestLimitExemption } from './draftSubmitResponseDtoDataRequestLimitExemption'
 import type { DraftSubmitResponseDtoDataRequestNeedDecision } from './draftSubmitResponseDtoDataRequestNeedDecision'
 import type { DraftSubmitResponseDtoDataRequestNeedStep } from './draftSubmitResponseDtoDataRequestNeedStep'
@@ -61,7 +61,6 @@ export type DraftSubmitResponseDtoDataRequest = {
   serviceAccount: DraftSubmitResponseDtoDataRequestServiceAccount
   /** @nullable */
   limitExemption: DraftSubmitResponseDtoDataRequestLimitExemption
-  flags: DraftSubmitResponseDtoDataRequestFlags
   /** @nullable */
   renewal: DraftSubmitResponseDtoDataRequestRenewal
   /** @nullable */
@@ -73,6 +72,8 @@ export type DraftSubmitResponseDtoDataRequest = {
    */
   budgetYear: number | null
   pricing: DraftSubmitResponseDtoDataRequestPricing
+  /** @nullable */
+  cost: DraftSubmitResponseDtoDataRequestCost
   policy: DraftSubmitResponseDtoDataRequestPolicy
   submittedAt: string
   needStep: DraftSubmitResponseDtoDataRequestNeedStep

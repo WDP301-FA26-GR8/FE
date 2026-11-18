@@ -10,6 +10,7 @@ export function AssessmentQuote({
   onChange: (quote: AssessmentPatchDto['quote']) => void
 }) {
   const { t: translate } = useTranslation('itNewSoftware')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [enabled, setEnabled] = useState(false)
   return (
     <div className='space-y-3'>
@@ -18,18 +19,20 @@ export function AssessmentQuote({
         type='button'
         onClick={() => {
           setEnabled(true)
-          onChange(quote ?? { unitPrice: { amount: '', currency: '' }, billingCycle: 'MONTHLY', validFrom: '' })
+          onChange(quote ?? { unitPrice: { amount: '', currency: 'VND' }, billingCycle: 'MONTHLY', validFrom: '' })
         }}
       >
         {translate('quote.edit')}
       </button>
       {enabled && (
         <>
-          <div className='grid gap-3 sm:grid-cols-2'>
+          <div className='grid gap-3 sm:grid-cols-2 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
             {(['amount', 'currency', 'validFrom', 'validUntil'] as const).map((key) => (
               <ItField key={key} label={translate(`quote.${key}`)}>
                 <input
+                  placeholder={translatePlaceholder(`quote.${key}`)}
                   className={itInputClass}
+                  readOnly={key === 'currency'}
                   required={key === 'amount' || key === 'currency' || key === 'validFrom'}
                   type={key === 'validFrom' || key === 'validUntil' ? 'date' : 'text'}
                   maxLength={key === 'amount' ? 40 : key === 'currency' ? 3 : undefined}

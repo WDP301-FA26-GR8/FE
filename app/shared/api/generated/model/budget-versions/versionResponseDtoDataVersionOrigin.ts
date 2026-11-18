@@ -11,5 +11,7 @@ export type VersionResponseDtoDataVersionOrigin =
 
 export const VersionResponseDtoDataVersionOrigin = {
   PROPOSAL: 'PROPOSAL',
-  BASELINE_NO_HEAD: 'BASELINE_NO_HEAD'
+  BASELINE_NO_HEAD: 'BASELINE_NO_HEAD',
+  BASELINE_NO_PROPOSAL: 'BASELINE_NO_PROPOSAL',
+  ADJUSTMENT: 'ADJUSTMENT'
 } as const

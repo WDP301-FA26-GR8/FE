@@ -20,6 +20,8 @@ import {
   ManagerSection,
   managerInputClass
 } from '../../shared/components/manager-api-ui'
+import { TermMonthsField } from '~/entities/request/components/term-months-field'
+import { readTermMonths, termMonthsPayload } from '~/entities/request/term-months'
 
 export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) {
   const { t: translate } = useTranslation('manager')
@@ -27,9 +29,6 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
   const [plan, setPlan] = useState<ManagerCatalogPlan | null>(null)
   const [created, setCreated] = useState<{ id: string; label: string }[]>([])
   const [pending, setPending] = useState<GroupBodyDto | null>(null)
-  const [expectedEndDate, setExpectedEndDate] = useState('')
-  const [reasons, setReasons] = useState<Record<string, string>>({})
-  const { t: flow } = useTranslation('requestFlow')
   const action = useManagerAction({
     mutationFn: (body: GroupBodyDto) => groupRequestSubmit(body),
     invalidate: [getSpendQueueListQueryKey()],
@@ -58,56 +57,52 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
               if (!businessReason) return
               setPending({
                 businessReason,
-                ...(expectedEndDate ? { expectedEndDate } : {}),
+                ...termMonthsPayload(readTermMonths(form)),
                 planId,
-                lines: people.map((person) => ({
-                  employeeId: person.value,
-                  ...(reasons[person.value]?.trim() ? { manyPaidSoftwareReason: reasons[person.value].trim() } : {})
-                }))
+                lines: people.map((person) => ({ employeeId: person.value }))
               })
             }}
           >
-            <fieldset disabled={action.blocked || !!pending} className='space-y-4'>
+            <fieldset disabled={action.blocked || !!pending} className='space-y-6'>
               <div className='space-y-4'>
+                <h3 className='section-accent text-sm font-semibold'>{translate('ui.create.softwareStep')}</h3>
                 <ManagerCatalogPicker
                   value={plan}
                   onChange={setPlan}
                   disabled={action.blocked}
                   invalid={action.fields.includes('planId')}
                 />
-                <ManagerField label={flow('endDate')}>
-                  <input
+                <TermMonthsField
+                  key={plan?.id ?? 'none'}
+                  subject={plan?.provisioningType}
+                  invalid={action.fields.includes('termMonths')}
+                  inputClassName={managerInputClass}
+                />
+              </div>
+              <div className='space-y-4 border-t border-border/50 pt-5'>
+                <h3 className='section-accent text-sm font-semibold'>{translate('ui.create.peopleStep')}</h3>
+                <ManagerPeoplePicker
+                  value={people}
+                  onChange={setPeople}
+                  disabled={action.blocked}
+                  multiple
+                  limit={100}
+                  invalid={action.fields.some((field) => field.startsWith('lines.'))}
+                />
+              </div>
+              <div className='space-y-4 border-t border-border/50 pt-5'>
+                <h3 className='section-accent text-sm font-semibold'>{translate('ui.create.reasonStep')}</h3>
+                <ManagerField label={translate('reason')}>
+                  <textarea
                     className={managerInputClass}
-                    name='expectedEndDate'
-                    type='date'
-                    value={expectedEndDate}
-                    onChange={(event) => setExpectedEndDate(event.target.value)}
+                    name='businessReason'
+                    required
+                    maxLength={1000}
+                    rows={3}
+                    placeholder={translate('ui.placeholders.businessReason')}
                   />
                 </ManagerField>
               </div>
-              <ManagerPeoplePicker
-                value={people}
-                onChange={setPeople}
-                disabled={action.blocked}
-                multiple
-                limit={100}
-                invalid={action.fields.some((field) => field.startsWith('lines.'))}
-              />
-              {people.map((person) => (
-                <ManagerField key={person.value} label={`${person.label}: ${flow('manyReason')}`}>
-                  <textarea
-                    className={managerInputClass}
-                    maxLength={1000}
-                    value={reasons[person.value] ?? ''}
-                    onChange={(event) =>
-                      setReasons((previous) => ({ ...previous, [person.value]: event.target.value }))
-                    }
-                  />
-                </ManagerField>
-              ))}
-              <ManagerField label={translate('reason')}>
-                <textarea className={managerInputClass} name='businessReason' required maxLength={1000} />
-              </ManagerField>
             </fieldset>
             <ManagerActionState action={action} />
             <div className='sticky bottom-0 flex justify-end border-t border-border/60 bg-surface py-4 pb-[calc(1rem+env(safe-area-inset-bottom))]'>
@@ -129,7 +124,7 @@ export function ManagerLiveCreate({ onOpen }: { onOpen: (id: string) => void }) 
             {created.map((item) => (
               <div
                 key={item.id}
-                className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-surface p-4 transition hover:border-primary/40'
+                className='flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border/60 bg-surface p-4 transition-colors hover:border-primary/40'
               >
                 <div className='flex items-center gap-3 min-w-0'>
                   <span

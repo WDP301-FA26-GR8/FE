@@ -1,5 +1,18 @@
-﻿export const itNewSoftware = {
+export const itNewSoftware = {
+  checklistTitle: 'Kiểm tra trước khi quyết định',
+  fieldHints: {
+    opinionNote: 'Ghi ý kiến đã nhận từ người chịu trách nhiệm nghiệp vụ. Để trống nếu chưa có.',
+    requestId: 'Nhập mã yêu cầu cần tra cứu; dùng danh sách theo phòng ban để tìm yêu cầu khi chưa biết mã.',
+    searchApplication: 'Tìm theo tên ứng dụng đã có trong danh mục dùng chung.',
+    softwareName: 'Nhập tên hiển thị của phần mềm nội bộ sẽ được tạo trong danh mục.'
+  },
+  checklistHint: 'Trả lời từng câu hỏi để hoàn tất đánh giá.',
+  reasonHint: 'Mô tả lý do từ chối để người gửi hiểu quyết định.',
+  alternativeHint: 'Ghi phương án thay thế nếu có.',
   title: 'Yêu cầu phần mềm ngoài danh mục',
+  eyebrow: 'Thẩm định phần mềm mới',
+  subtitle: 'Mở một yêu cầu trong hàng đợi để phân loại, ghi báo giá và đưa phần mềm vào danh mục.',
+  sections: { proposal: 'Đề xuất của người gửi', assessment: 'Kết quả thẩm định' },
   placeholders: {
     vendorName: 'Ví dụ: Miro',
     plannedPlanName: 'Ví dụ: Business',
@@ -7,11 +20,14 @@
     memberUsageMethod: 'Cách xác minh thành viên và hoạt động sử dụng',
     grantRevokeMethod: 'Các bước cấp, thu hồi và bàn giao dữ liệu',
     controlRiskNote: 'Rủi ro và căn cứ của kết quả thẩm định',
-    proposedBusinessOwnerEmployeeId: 'UUID nhân viên phụ trách nghiệp vụ',
-    equivalentPlanId: 'UUID gói tương đương đã lưu trong danh mục',
+    proposedBusinessOwnerEmployeeId: 'mã định danh nhân viên phụ trách nghiệp vụ',
+    equivalentPlanId: 'mã định danh gói tương đương đã lưu trong danh mục',
     opinion: 'Ý kiến nhận được, ngày và căn cứ liên quan'
   },
   queue: {
+    chooseDepartment: 'Chọn phòng ban',
+    waitingCount: '{{count}} yêu cầu đang chờ',
+    backDepartments: 'Quay lại phòng ban',
     title: 'Chờ thẩm định',
     total: '{{count}} yêu cầu',
     users: '{{count}} người dùng',
@@ -43,13 +59,13 @@
     confirmHint:
       'Ứng dụng đã đăng ký phải có người phụ trách nghiệp vụ còn làm việc. Nối gói để chuẩn bị cấp phát cho yêu cầu này.'
   },
-  requestIdPlaceholder: 'Nhập UUID của yêu cầu',
+  requestIdPlaceholder: 'Nhập mã định danh của yêu cầu',
   unknown: 'Trạng thái chưa xác định',
   registerInternal: 'Đăng ký phần mềm nội bộ',
   owner: 'ID nhân viên phụ trách nghiệp vụ',
   softwareName: 'Tên phần mềm',
   internalRegistrationHint:
-    'Tạo ứng dụng nội bộ và gói K5 cho đề xuất. Chỉ thêm báo giá khi cần trình duyệt chi cho đăng ký này.',
+    'Tạo ứng dụng nội bộ và gói truy cập nội bộ cho đề xuất. Chỉ thêm báo giá khi cần trình duyệt chi cho đăng ký này.',
   opinion: 'Ý kiến người phụ trách nghiệp vụ',
   opinionNote: 'Bằng chứng / giải trình ý kiến',
   quote: {
@@ -71,6 +87,7 @@
   requestId: 'ID yêu cầu',
   lookup: 'Mở thẩm định',
   refresh: 'Tải lại',
+  clearEquivalent: 'Bỏ gói tương đương',
   status: 'Trạng thái',
   unfilled: 'Chưa ghi nhận',
   save: 'Lưu thẩm định',
@@ -110,14 +127,14 @@
     grantRevokeMethod: 'Cách cấp và thu hồi',
     controlRiskNote: 'Bằng chứng rủi ro kiểm soát',
     proposedBusinessOwnerEmployeeId: 'ID nhân viên phụ trách nghiệp vụ đề xuất',
-    equivalentPlanId: 'ID gói tương đương trong danh mục'
+    equivalentPlanId: 'Gói tương đương trong danh mục'
   },
   values: {
-    K1: 'K1',
-    K2: 'K2',
-    K3: 'K3',
-    K4: 'K4',
-    K5: 'K5',
+    K1: 'Tài khoản cá nhân',
+    K2: 'Không gian làm việc dùng chung',
+    K3: 'Đăng nhập và đồng bộ tập trung',
+    K4: 'Khóa bản quyền',
+    K5: 'Truy cập nội bộ',
     OBTAINED: 'Đã lấy ý kiến',
     NOT_AVAILABLE: 'Chưa có ý kiến',
     DRAFT: 'Bản nháp',

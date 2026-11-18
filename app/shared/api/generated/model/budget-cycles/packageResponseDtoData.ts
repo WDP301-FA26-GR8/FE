@@ -11,6 +11,8 @@ import type { PackageResponseDtoDataDepartmentsItem } from './packageResponseDto
 import type { PackageResponseDtoDataOverBy } from './packageResponseDtoDataOverBy'
 import type { PackageResponseDtoDataProposalsTotal } from './packageResponseDtoDataProposalsTotal'
 import type { PackageResponseDtoDataSharedPoolReserve } from './packageResponseDtoDataSharedPoolReserve'
+import type { PackageResponseDtoDataUnallocated } from './packageResponseDtoDataUnallocated'
+import type { PackageResponseDtoDataVersionsAdjustment } from './packageResponseDtoDataVersionsAdjustment'
 import type { PackageResponseDtoDataVersionsOutsideListed } from './packageResponseDtoDataVersionsOutsideListed'
 import type { PackageResponseDtoDataVersionsTotal } from './packageResponseDtoDataVersionsTotal'
 
@@ -31,8 +33,12 @@ export type PackageResponseDtoData = {
   proposalsTotal: PackageResponseDtoDataProposalsTotal
   /** The proposals add up to more than `available` (the annual ceiling less the shared-pool reserve). */
   proposalsOverAvailable: boolean
-  /** The versions counted at the annual check, in the currency of the cycle, whether or not their department is listed below. */
+  /** The versions counted at the annual check, in the currency of the cycle, whether or not their department is listed below, with the adjustments approved for them (the version of a row keeps its own figures). */
   versionsTotal: PackageResponseDtoDataVersionsTotal
+  /** Of versionsTotal, what the adjustments approved in the year gave to (positive) or took from (negative) the base of the approved versions; the versions in the rows are as they were approved. */
+  versionsAdjustment: PackageResponseDtoDataVersionsAdjustment
+  /** `available` less versionsTotal, never below nothing: what is not allocated, which a supplement or a reduction of the annual ceiling may take. */
+  unallocated: PackageResponseDtoDataUnallocated
   /** Of versionsTotal, what belongs to a Cost Center whose department is not listed (a department that stopped). */
   versionsOutsideListed: PackageResponseDtoDataVersionsOutsideListed
   /**

@@ -11,5 +11,6 @@ export type TaskResponseDtoDataTaskK1ChecklistVariant =
 
 export const TaskResponseDtoDataTaskK1ChecklistVariant = {
   DEPARTURE: 'DEPARTURE',
-  STILL_EMPLOYED: 'STILL_EMPLOYED'
+  STILL_EMPLOYED: 'STILL_EMPLOYED',
+  GRANT: 'GRANT'
 } as const

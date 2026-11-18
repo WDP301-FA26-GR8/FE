@@ -1,75 +1,96 @@
-import { useState } from 'react'
+import { useId, useState, type KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useControlledWaitList } from '~/shared/api/generated/operations/controlled-waits/controlled-wait-list'
 import { useStepCongestionList } from '~/shared/api/generated/operations/step-congestion/step-congestion-list'
 import { getStepCongestionIncidentListQueryKey } from '~/shared/api/generated/operations/step-congestion/step-congestion-incident-list'
 import { useStepCongestionIncidentRecord } from '~/shared/api/generated/operations/step-congestion/step-congestion-incident-record'
-import { AdminEmpty, AdminQueryState } from '../../shared/components/admin-query-state'
+import { AdminQueryState } from '../../shared/components/admin-query-state'
+import { AdminPageHeader, AdminSectionTitle } from '../../shared/components/admin-page-header'
+import { WorkspaceEmptyState } from '~/shared/ui/workspace-empty-state'
+import { Activity, CircleCheck } from 'lucide-react'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { AdminField, AdminFormDialog, adminButtonClass, adminInputClass } from '../../shared/components/admin-form'
 import { useAdminMutationFeedback } from '../../shared/hooks/use-admin-mutation-feedback'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { CongestionDetails } from '../components/congestion-details'
+import { OperationsReports } from '../components/operations-reports'
+
+const MONITORING_VIEWS = ['workflow', 'sla', 'auditFlags', 'deadlines'] as const
+type MonitoringView = (typeof MONITORING_VIEWS)[number]
 
 export function SuperAdminOperationsView() {
   const { t: translate } = useTranslation('admin')
-  const { formatDateTime, formatNumber } = useDashboardFormat()
-  const [waitPage, setWaitPage] = useState(1)
+  const [report, setReport] = useState<MonitoringView>('workflow')
+  const panelId = useId()
+  const moveFocus = (event: KeyboardEvent<HTMLDivElement>) => {
+    const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
+    if (!step) return
+    event.preventDefault()
+    const next =
+      MONITORING_VIEWS[(MONITORING_VIEWS.indexOf(report) + step + MONITORING_VIEWS.length) % MONITORING_VIEWS.length]
+    setReport(next)
+    event.currentTarget.querySelector<HTMLButtonElement>(`[data-view='${next}']`)?.focus()
+  }
+  return (
+    <div className='space-y-6'>
+      <AdminPageHeader
+        icon={Activity}
+        eyebrow={translate('ui.operationsEyebrow')}
+        title={translate('operations.title')}
+        subtitle={translate(`ui.operationsHint.${report}`)}
+      >
+        <div
+          aria-label={translate('oversight.choose')}
+          className='flex w-full gap-1 overflow-x-auto rounded-lg border border-border/70 bg-surface/80 p-1 sm:w-fit'
+          onKeyDown={moveFocus}
+          role='tablist'
+        >
+          {MONITORING_VIEWS.map((value) => (
+            <button
+              aria-controls={panelId}
+              aria-selected={report === value}
+              className='min-h-10 shrink-0 rounded-md px-4 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors duration-150 hover:bg-surface-subtle hover:text-foreground aria-selected:bg-primary-soft aria-selected:text-primary-ink'
+              data-view={value}
+              key={value}
+              onClick={() => setReport(value)}
+              role='tab'
+              tabIndex={report === value ? 0 : -1}
+              type='button'
+            >
+              {translate(`oversight.${value}`)}
+            </button>
+          ))}
+        </div>
+      </AdminPageHeader>
+      <div id={panelId} role='tabpanel'>
+        {report === 'workflow' ? <WorkflowMonitoring /> : <OperationsReports key={report} report={report} />}
+      </div>
+    </div>
+  )
+}
+
+function WorkflowMonitoring() {
+  const { t: translate } = useTranslation('admin')
+  const { formatNumber } = useDashboardFormat()
   const [congestionPage, setCongestionPage] = useState(1)
-  const waits = useControlledWaitList({ page: waitPage, pageSize: 20 })
   const congestion = useStepCongestionList({ page: congestionPage, pageSize: 20 })
   const [incident, setIncident] = useState<{ holderEmployeeId: string | null; description: string } | null>(null)
   const [selectedHolder, setSelectedHolder] = useState<string | null | undefined>(undefined)
   const feedback = useAdminMutationFeedback([getStepCongestionIncidentListQueryKey()], () => setIncident(null))
   const mutation = useStepCongestionIncidentRecord({ mutation: feedback })
+  if (selectedHolder !== undefined)
+    return <CongestionDetails holderEmployeeId={selectedHolder} onClose={() => setSelectedHolder(undefined)} />
   return (
     <div className='space-y-6'>
-      <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('operations.title')}</h1>
-      <section className='space-y-4 rounded-lg border border-border bg-surface p-5'>
-        <h2 className='font-semibold'>{translate('operations.waits')}</h2>
-        <AdminQueryState query={waits}>
-          {!waits.data?.data?.items.length && <AdminEmpty />}
-          <ul className='divide-y divide-border/40'>
-            {waits.data?.data?.items.map((item) => (
-              <li key={item.stepId} className='space-y-2 py-4 text-sm'>
-                <div className='flex flex-wrap justify-between gap-3'>
-                  <p className='truncate font-medium' title={item.department.name}>
-                    {item.department.name}
-                  </p>
-                  <time className='text-right font-mono text-xs tabular-nums' dateTime={item.waitingSince}>
-                    {formatDateTime(item.waitingSince)}
-                  </time>
-                </div>
-                <p>
-                  {translate(`operations.waitReasons.${item.waitingReason}`, { defaultValue: translate('unknown') })}
-                </p>
-                <div className='grid min-w-0 gap-1 text-muted-foreground'>
-                  <p className='flex min-w-0 flex-wrap items-baseline gap-x-2'>
-                    <span>
-                      {translate('operations.requester')}
-                      {': '}
-                    </span>
-                    <span className='truncate' title={item.requester.fullName}>
-                      {item.requester.fullName}
-                    </span>
-                    <span className='font-mono text-xs tabular-nums'>{item.requester.employeeCode}</span>
-                  </p>
-                  <p>{translate(`operations.stepKinds.${item.stepKind}`, { defaultValue: translate('unknown') })}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <AdminPagination
-            pagination={waits.data?.data?.pagination}
-            disabled={waits.isFetching}
-            onPageChange={setWaitPage}
-          />
-        </AdminQueryState>
-      </section>
-      <section className='space-y-4 rounded-lg border border-border bg-surface p-5'>
-        <h2 className='font-semibold'>{translate('operations.congestion')}</h2>
+      <section className='space-y-4 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)] sm:p-6'>
+        <AdminSectionTitle title={translate('operations.congestion')} hint={translate('ui.congestionHint')} />
         <AdminQueryState query={congestion}>
-          {!congestion.data?.data?.items.length && <AdminEmpty />}
+          {!congestion.data?.data?.items.length && (
+            <WorkspaceEmptyState
+              icon={CircleCheck}
+              title={translate('ui.noCongestionTitle')}
+              description={translate('ui.noCongestionHint')}
+            />
+          )}
           <ul className='divide-y divide-border/40'>
             {congestion.data?.data?.items.map((item) => (
               <li
@@ -121,9 +142,6 @@ export function SuperAdminOperationsView() {
           />
         </AdminQueryState>
       </section>
-      {selectedHolder !== undefined && (
-        <CongestionDetails holderEmployeeId={selectedHolder} onClose={() => setSelectedHolder(undefined)} />
-      )}
       {incident && (
         <AdminFormDialog
           title={translate('operations.incident')}

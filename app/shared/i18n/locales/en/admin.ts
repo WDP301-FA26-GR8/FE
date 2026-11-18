@@ -3,8 +3,14 @@ import { parameterPresentation } from './admin-parameters'
 import { operationPresentation } from './admin-operations-presentation'
 import { overviewMetrics } from './admin-overview-metrics'
 import { parameterContract } from './admin-parameter-contract'
+import { adminFormHelp } from './admin-form-help'
+import { adminOversight } from './admin-oversight'
+import { policyLibrary } from './admin-policy-library'
+import { operatingDefinitions } from './admin-operating-definitions'
 
 export const admin = {
+  ...adminFormHelp,
+  ...adminOversight,
   retryIn: 'Try again in {{count}}s',
   navigation: {
     overview: 'Overview',
@@ -12,9 +18,7 @@ export const admin = {
     departments: 'Departments',
     personnel: 'Personnel',
     reminders: 'Operating parameters',
-    settings: 'System settings',
-    transfer: 'Department transfers',
-    'audit-trail': 'Audit trail',
+    policies: 'Policy library',
     operations: 'Workflow monitoring'
   },
   loading: 'Loading…',
@@ -39,6 +43,11 @@ export const admin = {
   remove: 'Remove',
   create: 'Create',
   errors: {
+    activeDepartureBlock: 'The departure case is still active. Cancel the departure before releasing its access block.',
+    itAdminLimit:
+      'This technology administrator already manages the maximum number of departments. Choose another person.',
+    policyStepsFixed:
+      'The system decision steps and automatic checks must be preserved. Reload the draft and edit their displayed text.',
     duplicate: 'This identifier, email or date already exists. Choose a different value.',
     financeAssigned: 'A Finance account is already assigned. Review the current assignment first.',
     derivedRole: 'This role comes from a department head assignment or approval responsibility.',
@@ -117,8 +126,6 @@ export const admin = {
     departments: 'Departments',
     accounts: 'Accounts and responsibilities',
     personnel: 'Personnel',
-    settings: 'Operating settings',
-    audit: 'Audit trail',
     operations: 'Workflow monitoring',
     steps: {
       ORGANIZATION: 'Organization',
@@ -148,6 +155,19 @@ export const admin = {
     }
   },
   parameters: {
+    additionalDefinitions: operatingDefinitions,
+    options: { ON: 'Enabled', OFF: 'Disabled', DAILY: 'Every day', WEEKLY: 'Every week' },
+    groups: {
+      WORKFLOW: 'Workflow',
+      BUDGET: 'Budget',
+      PERSONNEL: 'Personnel',
+      PROVISIONING: 'Access provisioning',
+      ACCOUNT: 'Accounts',
+      DOCUMENT: 'Documents',
+      SUBSCRIPTION: 'Subscriptions',
+      USAGE: 'Software usage',
+      AI: 'Artificial intelligence'
+    },
     contract: parameterContract,
     ...parameterPresentation,
     title: 'Operating parameters',
@@ -163,49 +183,50 @@ export const admin = {
     olderHistory: 'Earlier changes are not included in this response.',
     changed: 'Changed at'
   },
-  settings: {
-    reasonPlaceholder: 'e.g. National holiday',
-    currencyPlaceholder: 'e.g. USD',
-    title: 'System settings',
-    holidays: 'Non-working dates',
-    date: 'Date',
-    reason: 'Reason',
-    addDate: 'Add non-working date',
-    renameDate: 'Rename non-working date',
-    removeDate: 'Remove non-working date',
-    confirmRemove: 'Remove this date from the working calendar?',
-    currency: 'Reporting currency',
-    currencyImpact: 'The currency becomes locked once exchange rates or converted prices exist.',
-    currencySave: 'Set reporting currency',
-    from: 'From date',
-    to: 'To date'
-  },
-  audit: {
-    placeholders: {
-      resourceType: 'Enter a resource type, e.g. Department',
-      resourceId: 'Enter the resource ID to find',
-      actorAppUserId: 'Enter the acting account ID',
-      action: 'Enter the action code to find'
-    },
-    title: 'Audit trail',
-    resourceType: 'Resource type',
-    resourceId: 'Resource ID',
-    actor: 'Actor account ID',
-    action: 'Action',
-    from: 'From time',
-    to: 'To time (exclusive)',
-    apply: 'Apply filters',
-    occurred: 'Occurred at',
-    before: 'Before',
-    after: 'After',
-    correlation: 'Correlation ID',
-    actorKinds: { USER: 'User', SYSTEM: 'System', OPERATOR: 'Operator' }
+  policies: {
+    title: 'Policy library',
+    description: 'Manage and publish operating policies and decision step checklists.',
+    draftBadge: 'Draft open',
+    applicableRoles: 'Applicable roles',
+    publishedAt: 'Published date',
+    viewDetails: 'Read policy',
+    createDraft: 'Draft new version',
+    editDraft: 'Edit draft',
+    saveDraft: 'Save draft',
+    discardDraft: 'Discard draft',
+    publish: 'Publish',
+    publishTitle: 'Publish policy {{code}}',
+    publishConfirm: 'Confirm publish',
+    publishNotice:
+      'The policy takes effect immediately upon publishing. Subsequent decisions will enforce the new version.',
+    changeNote: 'Issuing grounds',
+    changeNotePlaceholder: 'Specify the directive, document number, date, and issuer…',
+    requiresReacknowledgement: 'Require re-acknowledgement (users who read prior versions must read again)',
+    draftTitle: 'Policy draft {{code}}',
+    targetVersion: 'Target version: v{{version}}',
+    titleLabel: 'Policy title',
+    firstSectionHeading: 'Opening section heading',
+    firstSectionBody: 'Policy body text',
+    version: 'Version',
+    versionNumber: 'Version {{version}}',
+    sections: 'Sections',
+    steps: 'Decision steps with checklists',
+    report: 'Acknowledgement report',
+    reportTitle: 'Acknowledgement report: {{code}}',
+    filterState: 'Acknowledgement status',
+    status: 'Status',
+    stateDone: 'Acknowledged',
+    statePending: 'Pending',
+    state_DONE: 'Done',
+    state_PENDING: 'Pending',
+    ackVersion: 'Version read',
+    acknowledgedAt: 'Acknowledged at',
+    ...policyLibrary
   },
   operations: {
     descriptionPlaceholder: 'Describe the blockage, its impact and the action needed',
     ...operationPresentation,
     title: 'Workflow monitoring',
-    waits: 'Waiting for configuration',
     congestion: 'Congested responsibilities',
     incident: 'Record incident',
     holder: 'Holder employee ID',
@@ -217,19 +238,44 @@ export const admin = {
     overdueSteps: 'Overdue steps',
     reminders: 'Reminders sent',
     incidentHistory: 'Recorded incidents',
-    waitReasons: {
-      NO_SPENDING_APPROVER: 'Configure the spending approver.',
-      NO_FALLBACK_APPROVER: 'Configure the fallback approver.',
-      FALLBACK_IS_REQUESTER: 'The fallback approver is the requester. Configure a substitute.',
-      NO_CONFLICT_SUBSTITUTE: 'Configure the conflict substitute.',
-      NO_FINANCE_REVIEWER: 'Assign an eligible Finance reviewer.',
-      NO_IT_ADMIN_IN_CHARGE: 'Assign the department’s information technology administrator.'
-    },
     stepKinds: {
       NEED: 'Needs approval',
       FINANCE_REVIEW: 'Finance review',
       SPEND_APPROVAL: 'Spending approval',
       IT_ASSESSMENT: 'Information technology assessment'
+    }
+  },
+  ui: {
+    pickGroupBy: 'Choose how to group results',
+    allSources: 'All sources',
+    noReportRows: 'No data to show yet',
+    noReportRowsHint: 'Data will appear when activity matches the filters.',
+    allDeadlineKinds: 'All deadline types',
+    operationsEyebrow: 'Operations monitoring',
+    operationsHint: {
+      workflow: 'Track waiting and overdue steps and congested responsibilities.',
+      sla: 'Compare handling time against commitments by group.',
+      auditFlags: 'Control flags that need review.',
+      deadlines: 'Upcoming and overdue deadlines.'
+    },
+    congestionHint: 'People currently holding the most steps awaiting action.',
+    noCongestionTitle: 'No congestion',
+    noCongestionHint: 'No responsibilities are congested right now.',
+    pickCheckType: 'Choose a checklist item type',
+    pickReack: 'Choose whether re-acknowledgement is required',
+    policiesEyebrow: 'Policy library',
+    policyLibrary: 'Policy list',
+    policyCount: '{{count}} policies',
+    noPoliciesTitle: 'No policies yet',
+    parametersEyebrow: 'Operating parameters',
+    noParametersTitle: 'No parameters yet',
+    parameterCount: '{{count}} parameters',
+    placeholders: {
+      sectionHeading: 'Example: Scope of application',
+      sectionBody: 'Example: This policy applies to every employee using company software',
+      stepTitle: 'Example: Send the request to the department head',
+      checklistText: 'Example: I have read and understood the software usage rules',
+      policyTitle: 'Example: General operating policy, supplementary version'
     }
   }
 } as const

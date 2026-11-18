@@ -9,7 +9,7 @@
 export type CycleResponseDtoDataStatus = (typeof CycleResponseDtoDataStatus)[keyof typeof CycleResponseDtoDataStatus]
 
 export const CycleResponseDtoDataStatus = {
-  NOT_PUBLISHED: 'NOT_PUBLISHED',
-  PUBLISHED: 'PUBLISHED',
-  CHANGED_AFTER_PUBLISH: 'CHANGED_AFTER_PUBLISH'
+  DRAFT: 'DRAFT',
+  OPEN: 'OPEN',
+  LOCKED: 'LOCKED'
 } as const

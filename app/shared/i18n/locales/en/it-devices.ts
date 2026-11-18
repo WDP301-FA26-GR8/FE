@@ -6,10 +6,24 @@ export const itDevices = {
   allowlist: 'Collector allowlist',
   create: 'Create device',
   detail: 'Device details',
+  history: 'Holder history',
+  backToDevices: 'Back to devices',
+  backToDevice: 'Back to device',
+  backToHistory: 'Back to holder history',
+  noCollection: 'No collection received yet',
+  noHolder: 'No holder available',
+  validUntil: 'Last handover day',
+  openRegistration: 'Current registration',
+  notAcknowledged: 'Not acknowledged',
+  partialCoverage: 'Partial observation: these counts are a lower bound.',
   assetCode: 'Asset code',
   hostname: 'Hostname',
   os: 'Operating system',
-  holderEmployeeId: 'Holder employee ID',
+  holderEmployeeId: 'Device holder',
+  filterDepartment: 'Department',
+  filterHolder: 'Device holder',
+  allDepartments: 'All departments',
+  allHolders: 'All employees',
   handedOverOn: 'Handover date',
   holder: 'Change holder',
   retire: 'Retire device',
@@ -55,9 +69,11 @@ export const itDevices = {
   endpoint: 'Endpoint',
   rejectedAt: 'Rejected',
   publish: 'Publish allowlist version',
-  applicationId: 'Catalog application ID',
+  applicationId: 'Catalog application',
   enabled: 'Include this tool',
   versionNumber: 'Version',
+  noticeNotPublished:
+    'No monitoring notice has been published yet, so a signature record cannot be added. Ask a Super Admin to publish one first.',
   publishedAt: 'Published',
   acknowledge: 'Acknowledge monitoring notice',
   acknowledgement: 'Acknowledgement',
@@ -97,7 +113,7 @@ export const itDevices = {
     ENDED: 'Registration ended',
     DEPARTURE: 'Departure',
     EMPLOYEE_LEFT: 'Employee left',
-    ACTIVE: 'Active',
+    ACTIVE: 'Acknowledged',
     AWAITING_ACKNOWLEDGEMENT: 'Awaiting acknowledgement',
     COLLECTION_STOPPED: 'Collection stopped',
     UNREGISTERED: 'No holder',
@@ -120,6 +136,7 @@ export const itDevices = {
     HOLDER_CHANGED: 'Holder changed',
     DEVICE_RETIRED: 'Device retired',
     HOLDER_ACCESS_BLOCKED: 'Holder access blocked',
+    DEPARTURE_BLOCKED: 'Departure access blocked',
     MANUAL: 'Manual revocation'
   },
   blocked: {
@@ -140,11 +157,19 @@ export const itDevices = {
     INVALID_QUOTA: 'Invalid quota data'
   },
   hints: {
+    search: 'Find a company machine by its asset code or hostname.',
+    holderFilter: 'Select an employee to filter their assigned devices.',
+    filterDepartment: 'Select a department to find employees; devices are filtered after choosing an employee.',
+    chooseDepartmentFirst: 'Select a department first to see its employees.',
+    collectionState: 'Acknowledgement permits collection; it does not confirm the collector is sending data.',
+    credentials:
+      'Credentials belong to this handover registration. Revoking one prevents that collector from submitting more data.',
+    reasonCode: 'Show rejected submissions for one reason, or select all reasons.',
     assetCode: 'Use the unique company asset tag printed on the machine.',
     hostname: 'Enter the machine hostname, up to 63 characters.',
     os: 'Enter the installed operating system, for example its product name and version.',
     holderEmployeeId:
-      'Select an employee from the department directory or enter their employee UUID. The backend checks eligibility.',
+      'Pick a department, then pick the employee receiving the device from the directory. The system checks eligibility.',
     handedOverOn: 'Optional. Defaults to today; cannot be in the future or before the employee was hired.',
     holder:
       'Changing the holder ends the current registration and revokes its collector credentials. The new holder must sign and acknowledge a notice.',
@@ -159,8 +184,7 @@ export const itDevices = {
     file: 'Select the signed BM-06 file, up to 1 GB. Uploading records the signature for the selected notice version.',
     allowlist:
       'Publishing replaces the complete AI tool mapping. Unchecked tools are removed; leaving all tools unchecked removes them all.',
-    applicationId:
-      'Enter the UUID of the catalog application represented by this tool. Each application may appear only once.',
+    applicationId: 'Select the catalog application this tool represents. Each application may appear only once.',
     from: 'Show daily usage on or after this date.',
     to: 'Show daily usage on or before this date.',
     acknowledge: 'Only the holder can acknowledge their own open registration after a signed notice is recorded.'

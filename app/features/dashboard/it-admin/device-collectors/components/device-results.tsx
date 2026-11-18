@@ -7,8 +7,9 @@ import { useMyDeviceToolStatusList } from '~/shared/api/generated/operations/ai-
 import { useDeviceIntakeRejectionList } from '~/shared/api/generated/operations/intake-rejections/device-intake-rejection-list'
 import { DeviceIntakeRejectionListReasonCode } from '~/shared/api/generated/model/intake-rejections/deviceIntakeRejectionListReasonCode'
 import { useWorkspaceFormat } from '~/shared/hooks/use-workspace-format'
-import { ItDetailDialog } from '../../shared/components/it-detail-dialog'
+import { DevicePage } from './device-page'
 import { ItField, itInputClass } from '../../shared/components/it-form'
+import { ItChoiceSelect } from '../../shared/components/it-choice-select'
 import { ItQueryState, ItEmpty } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 
@@ -25,7 +26,7 @@ export function DeviceResults({
 }) {
   const { t: translate } = useTranslation('itDevices')
   return (
-    <ItDetailDialog title={translate(kind)} onClose={onClose}>
+    <DevicePage title={translate(kind)} backLabel={translate('backToDevice')} onBack={onClose}>
       {kind === 'usage' ? (
         <Usage id={id} mine={mine} />
       ) : kind === 'status' ? (
@@ -33,7 +34,7 @@ export function DeviceResults({
       ) : !mine ? (
         <Rejections id={id} />
       ) : null}
-    </ItDetailDialog>
+    </DevicePage>
   )
 }
 
@@ -50,7 +51,7 @@ function Usage({ id, mine }: { id: string; mine: boolean }) {
   const data = query.data?.data
   return (
     <div className='space-y-4'>
-      <div className='grid gap-4 sm:grid-cols-2'>
+      <div className='grid gap-4 sm:grid-cols-2 [&>.it-form-field]:row-span-3 [&>.it-form-field]:grid-rows-subgrid'>
         <ItField label={translate('from')} hint={translate('hints.from')}>
           <input
             type='date'
@@ -88,10 +89,13 @@ function Usage({ id, mine }: { id: string; mine: boolean }) {
                   )}
                 </p>
                 <p className='text-xs text-muted-foreground'>{formatDate(item.date)}</p>
+                {item.coverage === 'PARTIAL' && (
+                  <p className='text-xs text-muted-foreground'>{translate('partialCoverage')}</p>
+                )}
                 {item.coverage === 'NOT_OBSERVABLE' ? (
                   <p>{translate('noData')}</p>
                 ) : (
-                  <dl className='grid grid-cols-2 gap-3'>
+                  <dl className='grid grid-cols-2 gap-3 text-right'>
                     <div>
                       <dt className='text-muted-foreground'>{translate('responses')}</dt>
                       <dd className='font-mono tabular-nums'>{formatNumber(item.responses)}</dd>
@@ -150,7 +154,9 @@ function ToolStatus({ id, mine }: { id: string; mine: boolean }) {
                 </div>
                 <div>
                   <dt className='text-muted-foreground'>{translate('usedPercent')}</dt>
-                  <dd>{item.usedPercent === null ? translate('noData') : formatPercent(item.usedPercent / 100)}</dd>
+                  <dd className='text-right font-mono tabular-nums'>
+                    {item.usedPercent == null ? translate('noData') : formatPercent(item.usedPercent / 100)}
+                  </dd>
                 </div>
                 <div>
                   <dt className='text-muted-foreground'>{translate('resetsAt')}</dt>
@@ -185,29 +191,28 @@ function Rejections({ id }: { id: string }) {
   const data = query.data?.data
   return (
     <div className='space-y-4'>
-      <ItField label={translate('reasonCode')}>
-        <select
-          className={itInputClass}
-          value={reasonCode ?? ''}
-          onChange={(event) => {
-            setReason(Object.values(DeviceIntakeRejectionListReasonCode).find((value) => value === event.target.value))
-            setPage(1)
-          }}
-        >
-          <option value=''>{translate('allReasons')}</option>
-          {Object.values(DeviceIntakeRejectionListReasonCode).map((value) => (
-            <option key={value} value={value}>
-              {translate(`reasons.${value}`, { defaultValue: value })}
-            </option>
-          ))}
-        </select>
-      </ItField>
+      <ItChoiceSelect
+        label={translate('reasonCode')}
+        hint={translate('hints.reasonCode')}
+        value={reasonCode ?? ''}
+        onChange={(next) => {
+          setReason(Object.values(DeviceIntakeRejectionListReasonCode).find((value) => value === next))
+          setPage(1)
+        }}
+        options={[
+          { value: '', label: translate('allReasons') },
+          ...Object.values(DeviceIntakeRejectionListReasonCode).map((value) => ({
+            value,
+            label: translate(`reasons.${value}`, { defaultValue: value })
+          }))
+        ]}
+      />
       <ItQueryState query={query}>
         {data?.items.length ? (
           <div className='divide-y divide-border/40'>
             {data.items.map((item) => (
               <article key={item.id} className='space-y-2 py-4 text-sm'>
-                <p>{translate(`reasons.${item.reasonCode}`, { defaultValue: item.reasonCode })}</p>
+                <p>{translate(`reasons.${item.reasonCode}`, { defaultValue: translate('unknown') })}</p>
                 <p className='text-xs text-muted-foreground'>{formatDateTime(item.rejectedAt)}</p>
                 <p className='break-all font-mono text-xs'>{item.endpoint}</p>
               </article>

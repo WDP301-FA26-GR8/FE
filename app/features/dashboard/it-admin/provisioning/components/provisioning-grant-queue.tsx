@@ -14,13 +14,20 @@ import {
   subscriptionList,
   getSubscriptionListQueryKey
 } from '~/shared/api/generated/operations/subscriptions/subscription-list'
-import type { GrantQueueResponseDtoDataItemsItem, GrantBodyDto } from '~/shared/api/generated/model'
+import type {
+  GrantQueueResponseDtoDataItemsItem,
+  GrantBodyDto,
+  GrantQueueListState
+} from '~/shared/api/generated/model'
 import { ItEmpty, ItQueryState } from '../../shared/components/it-query-state'
 import { ItPagination } from '../../shared/components/it-pagination'
 import { ItField, ItFormDialog, itInputClass, itButtonClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { BoundaryState } from '../enums/boundary-state'
 import { grantStockDecision } from '../grant-stock'
+import { ItDirectoryLookup } from '../../shared/components/it-directory-lookup'
+import { allProvisioningPages } from '../hooks/use-provisioning-departments'
+import { useAccumulatedOptions } from '../../shared/hooks/use-accumulated-options'
 
 function GrantDialog({
   request,
@@ -32,6 +39,7 @@ function GrantDialog({
   onCreated: (id: string) => void
 }) {
   const { t: translate } = useTranslation('itProvisioning')
+  const { t: translatePlaceholder } = useTranslation('itPlaceholders')
   const [draft, setDraft] = useState<GrantBodyDto>({
     requestId: request.requestId,
     beneficiaryEmployeeId: request.beneficiary.employeeId
@@ -68,6 +76,13 @@ function GrantDialog({
     }
   })
   const data = subscriptions.data?.data
+  const subscriptionOptions = useAccumulatedOptions({
+    page,
+    items: data?.items,
+    resetKey: request.plan.planId,
+    onReset: () => setPage(1),
+    toOption: (item) => ({ value: item.id, label: item.planName })
+  })
   function update(key: keyof GrantBodyDto, value: string) {
     setDraft((previous) => ({ ...previous, [key]: value.trim() || undefined }))
   }
@@ -114,6 +129,7 @@ function GrantDialog({
               hint={translate(request.stock.inRevocation > 0 ? 'purchaseReasonRequired' : 'purchaseReasonOptional')}
             >
               <input
+                placeholder={translatePlaceholder('purchaseReason')}
                 className={itInputClass}
                 maxLength={500}
                 required={request.stock.inRevocation > 0}
@@ -124,27 +140,17 @@ function GrantDialog({
           )}
         </div>
       )}
-      <ItQueryState query={subscriptions}>
-        <ItChoiceSelect
-          label={translate('subscription')}
-          value={draft.subscriptionId ?? ''}
-          options={[
-            { value: '', label: translate('automaticSubscription') },
-            ...(data?.items.map((item) => ({ value: item.id, label: item.planName })) ?? [])
-          ]}
-          onChange={(value) => update('subscriptionId', value)}
-        />
-        {data && (
-          <ItPagination
-            page={page}
-            pageSize={20}
-            total={data.pagination.totalItems}
-            onChange={setPage}
-            disabled={mutation.isPending}
-          />
-        )}
-      </ItQueryState>
-      <ItField label={translate('account')}>
+      <ItChoiceSelect
+        label={translate('subscription')}
+        value={draft.subscriptionId ?? ''}
+        options={[{ value: '', label: translate('automaticSubscription') }, ...subscriptionOptions]}
+        loading={subscriptions.isFetching}
+        disabled={subscriptions.isError || mutation.isPending}
+        hasMore={!!data && page * 20 < data.pagination.totalItems}
+        onLoadMore={() => setPage((current) => current + 1)}
+        onChange={(value) => update('subscriptionId', value)}
+      />
+      <ItField label={translate('account')} hint={translate('accountHint')}>
         <input
           className={itInputClass}
           maxLength={254}
@@ -161,56 +167,83 @@ function GrantDialog({
         </p>
       )}
       {request.type === 'SERVICE_ACCOUNT' && (
-        <ItField label={translate('responsibleEmployeeId')}>
-          <input
-            className={itInputClass}
-            pattern='[0-9a-fA-F-]{36}'
-            placeholder={translate('placeholders.employeeId')}
-            value={draft.responsibleEmployeeId ?? ''}
-            onChange={(event) => update('responsibleEmployeeId', event.target.value)}
-          />
-        </ItField>
+        <ItDirectoryLookup
+          mode='employee'
+          label={translate('responsibleEmployeeId')}
+          hint={translate('responsibleEmployeeHint')}
+          value={draft.responsibleEmployeeId ?? ''}
+          onSelect={(id) => update('responsibleEmployeeId', id)}
+        />
       )}
     </ItFormDialog>
   )
 }
 
-export function ProvisioningGrantQueue({ onCreated }: { onCreated: (id: string) => void }) {
+export function ProvisioningGrantQueue({
+  onCreated,
+  context
+}: {
+  onCreated: (id: string) => void
+  context?: { departmentId: string; employeeId: string }
+}) {
   const { t: translate } = useTranslation('itProvisioning')
   const [page, setPage] = useState(1)
-  const [employee, setEmployee] = useState('')
   const [filter, setFilter] = useState('')
+  const [state, setState] = useState<GrantQueueListState | undefined>('WAITING')
   const [selected, setSelected] = useState<GrantQueueResponseDtoDataItemsItem | null>(null)
+  const params = {
+    page,
+    pageSize: 20,
+    state: context ? undefined : state,
+    ...((context?.employeeId ?? filter) ? { beneficiaryEmployeeId: context?.employeeId ?? filter } : {})
+  }
   const query = useQuery({
-    queryKey: getGrantQueueListQueryKey({ page, pageSize: 20, ...(filter ? { beneficiaryEmployeeId: filter } : {}) }),
-    queryFn: () => grantQueueList({ page, pageSize: 20, ...(filter ? { beneficiaryEmployeeId: filter } : {}) })
+    queryKey: [...getGrantQueueListQueryKey(params), context, page],
+    queryFn: async () => {
+      if (!context) return grantQueueList(params)
+      const items = await allProvisioningPages((nextPage) =>
+        grantQueueList({ ...params, page: nextPage, pageSize: 100 })
+      )
+      const scoped = items.filter((item) => item.department?.id === context.departmentId)
+      return { data: { items: scoped.slice((page - 1) * 20, page * 20), pagination: { totalItems: scoped.length } } }
+    }
   })
   const data = query.data?.data
   return (
     <div className='space-y-4'>
-      <form
-        className='flex flex-wrap items-end gap-3'
-        onSubmit={(event) => {
-          event.preventDefault()
-          setFilter(employee.trim())
-          setPage(1)
-        }}
-      >
-        <div className='w-full sm:max-w-sm'>
-          <ItField label={translate('beneficiaryFilter')}>
-            <input
-              className={itInputClass}
-              value={employee}
-              pattern='[0-9a-fA-F-]{36}'
-              placeholder={translate('employeeIdHint')}
-              onChange={(event) => setEmployee(event.target.value)}
+      {!context && (
+        <div className='soft-panel space-y-3 p-4'>
+          <div className='grid gap-3 lg:max-w-3xl'>
+            <ItDirectoryLookup
+              mode='employee'
+              clearable
+              label={translate('beneficiaryFilter')}
+              hint={translate('beneficiaryFilterHint')}
+              value={filter}
+              onSelect={(id) => {
+                setFilter(id)
+                setPage(1)
+              }}
             />
-          </ItField>
+          </div>
+          <div className='flex flex-wrap gap-2' role='group' aria-label={translate('executionFilter')}>
+            {([undefined, 'WAITING', 'EXECUTING', 'DONE'] as const).map((value) => (
+              <button
+                key={value ?? 'all'}
+                type='button'
+                className={itButtonClass}
+                aria-pressed={state === value}
+                onClick={() => {
+                  setState(value)
+                  setPage(1)
+                }}
+              >
+                {translate(value ? `grantStates.${value}` : 'allStatuses')}
+              </button>
+            ))}
+          </div>
         </div>
-        <button type='submit' className={itButtonClass}>
-          {translate('applyFilter')}
-        </button>
-      </form>
+      )}
       <ItQueryState query={query}>
         {data?.items.length ? (
           <div className='space-y-3'>
@@ -226,17 +259,29 @@ export function ProvisioningGrantQueue({ onCreated }: { onCreated: (id: string) 
                   <p className='truncate text-sm text-muted-foreground' title={item.beneficiary.fullName}>
                     {item.beneficiary.fullName} · {translate(`values.${item.type}`)}
                   </p>
+                  {item.department?.name && <p className='text-sm text-muted-foreground'>{item.department.name}</p>}
+                  <p className='text-sm'>
+                    {translate(`grantStates.${item.state}`, { defaultValue: translate('unavailable') })}
+                  </p>
                   {item.type === 'SERVICE_ACCOUNT' && item.boundaryState !== BoundaryState.ACCEPTED && (
                     <p className='mt-1 text-sm text-muted-foreground'>{translate('boundaryRequired')}</p>
                   )}
                 </div>
                 <button
                   className={itButtonClass}
-                  disabled={item.type === 'SERVICE_ACCOUNT' && item.boundaryState !== BoundaryState.ACCEPTED}
+                  disabled={
+                    item.state !== 'WAITING' ||
+                    (item.type === 'SERVICE_ACCOUNT' && item.boundaryState !== BoundaryState.ACCEPTED)
+                  }
                   onClick={() => setSelected(item)}
                 >
                   {translate('startGrant')}
                 </button>
+                {item.execution && (
+                  <button type='button' className={itButtonClass} onClick={() => onCreated(item.execution!.taskId)}>
+                    {translate('viewExecution')}
+                  </button>
+                )}
               </article>
             ))}
           </div>

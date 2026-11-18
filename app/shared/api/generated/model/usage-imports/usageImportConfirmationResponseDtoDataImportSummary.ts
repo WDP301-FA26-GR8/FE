@@ -62,4 +62,5 @@ export type UsageImportConfirmationResponseDtoDataImportSummary = {
   trackingNoticeRequired: boolean
   /** A calendar date as YYYY-MM-DD. */
   recordedOn: string
+  duplicateOfImportId?: string
 }

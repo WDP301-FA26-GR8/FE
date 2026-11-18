@@ -8,9 +8,9 @@
 import type { GroupResponseDtoDataRequestBeneficiary } from './groupResponseDtoDataRequestBeneficiary'
 import type { GroupResponseDtoDataRequestBranch } from './groupResponseDtoDataRequestBranch'
 import type { GroupResponseDtoDataRequestCancellation } from './groupResponseDtoDataRequestCancellation'
+import type { GroupResponseDtoDataRequestCost } from './groupResponseDtoDataRequestCost'
 import type { GroupResponseDtoDataRequestCostCenter } from './groupResponseDtoDataRequestCostCenter'
 import type { GroupResponseDtoDataRequestDepartment } from './groupResponseDtoDataRequestDepartment'
-import type { GroupResponseDtoDataRequestFlags } from './groupResponseDtoDataRequestFlags'
 import type { GroupResponseDtoDataRequestLimitExemption } from './groupResponseDtoDataRequestLimitExemption'
 import type { GroupResponseDtoDataRequestNeedDecision } from './groupResponseDtoDataRequestNeedDecision'
 import type { GroupResponseDtoDataRequestNeedStep } from './groupResponseDtoDataRequestNeedStep'
@@ -61,7 +61,6 @@ export type GroupResponseDtoDataRequest = {
   serviceAccount: GroupResponseDtoDataRequestServiceAccount
   /** @nullable */
   limitExemption: GroupResponseDtoDataRequestLimitExemption
-  flags: GroupResponseDtoDataRequestFlags
   /** @nullable */
   renewal: GroupResponseDtoDataRequestRenewal
   /** @nullable */
@@ -73,6 +72,8 @@ export type GroupResponseDtoDataRequest = {
    */
   budgetYear: number | null
   pricing: GroupResponseDtoDataRequestPricing
+  /** @nullable */
+  cost: GroupResponseDtoDataRequestCost
   policy: GroupResponseDtoDataRequestPolicy
   submittedAt: string
   needStep: GroupResponseDtoDataRequestNeedStep

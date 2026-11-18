@@ -1,5 +1,18 @@
 ﻿export const itNewSoftware = {
+  checklistTitle: 'Decision checklist',
+  fieldHints: {
+    opinionNote: 'Record the business owner opinion received. Leave blank if none is available.',
+    requestId: 'Enter the request reference, or find the request using the department queue.',
+    searchApplication: 'Search by the name of an existing application in the shared catalogue.',
+    softwareName: 'Enter the display name for the internal software being added to the catalogue.'
+  },
+  checklistHint: 'Answer each question before completing the assessment.',
+  reasonHint: 'Explain the reason for refusal to the requester.',
+  alternativeHint: 'Describe an alternative if available.',
   title: 'Software requests outside the catalog',
+  eyebrow: 'New software assessment',
+  subtitle: 'Open a request from the queue to classify it, record the quote and add the software to the catalog.',
+  sections: { proposal: 'Requester proposal', assessment: 'Assessment result' },
   placeholders: {
     vendorName: 'e.g. Miro',
     plannedPlanName: 'e.g. Business',
@@ -12,6 +25,9 @@
     opinion: 'Opinion received, date and supporting reference'
   },
   queue: {
+    chooseDepartment: 'Choose a department',
+    waitingCount: '{{count}} waiting',
+    backDepartments: 'Back to departments',
     title: 'Waiting for assessment',
     total: '{{count}} requests',
     users: '{{count}} users',
@@ -72,6 +88,7 @@
   requestId: 'Request ID',
   lookup: 'Open assessment',
   refresh: 'Refresh',
+  clearEquivalent: 'Remove equivalent plan',
   status: 'Status',
   unfilled: 'Not recorded',
   save: 'Save assessment',
@@ -113,14 +130,14 @@
     grantRevokeMethod: 'Grant and revoke method',
     controlRiskNote: 'Control risk evidence',
     proposedBusinessOwnerEmployeeId: 'Proposed business owner employee ID',
-    equivalentPlanId: 'Equivalent catalog plan ID'
+    equivalentPlanId: 'Equivalent catalog plan'
   },
   values: {
-    K1: 'K1',
-    K2: 'K2',
-    K3: 'K3',
-    K4: 'K4',
-    K5: 'K5',
+    K1: 'Individual account',
+    K2: 'Shared workspace',
+    K3: 'Central sign-in and account synchronisation',
+    K4: 'License key',
+    K5: 'Internal access',
     OBTAINED: 'Obtained',
     NOT_AVAILABLE: 'Not available',
     DRAFT: 'Draft',

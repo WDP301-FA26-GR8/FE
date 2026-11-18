@@ -1,6 +1,6 @@
 import { useId, useState, type ReactNode } from 'react'
 import { BriefcaseBusiness, History, ShieldCheck, UserRound } from 'lucide-react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { EmployeeDetailResponseDtoDataAccountRolesItem } from '~/shared/api/generated/model/employees'
 import { AccountDetailResponseDtoDataInvitationDeliveryStatus } from '~/shared/api/generated/model/app-users'
@@ -11,6 +11,7 @@ import { AdminFormDialog, adminButtonClass } from '../../shared/components/admin
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { PersonnelCode } from '../../shared/components/personnel-list'
 import { employeeWorkStates } from '../enums/employee-work-state'
+import { readEmployeeContractDate } from '../employee-contract-date'
 import { EmployeePlacementForm } from './employee-placement-form'
 import { EmployeeEventForm, type EmployeeEventKind } from './employee-event-form'
 import { SuperAdminTransferView } from '../../transfer/views/super-admin-transfer-view'
@@ -32,11 +33,23 @@ export function EmployeeDetail({
   const navigate = useNavigate()
   const query = useEmployeeGet(employeeId, { query: { retry: false } })
   const employee = query.data?.data
+  const contractDate = readEmployeeContractDate(employee)
   const accountId = employee?.account?.id
   const accountQuery = useAppUserGet(accountId ?? '', { query: { enabled: !!accountId, retry: false } })
   const [placing, setPlacing] = useState(false)
   const [eventKind, setEventKind] = useState<EmployeeEventKind | null>(null)
-  const [transferHistory, setTransferHistory] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const transferHistory = searchParams.get('personnelView') === 'transfers' || searchParams.has('transferId')
+  const setTransferHistory = (open: boolean) =>
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous)
+      if (open) next.set('personnelView', 'transfers')
+      else {
+        next.delete('personnelView')
+        next.delete('transferId')
+      }
+      return next
+    })
   const [managingAccount, setManagingAccount] = useState(false)
   const sectionId = useId()
   const canPlace =
@@ -73,8 +86,8 @@ export function EmployeeDetail({
         ) : (
           <>
             <div className='space-y-5'>
-              <header className='flex min-w-0 flex-wrap items-center gap-4 rounded-lg border border-primary/20 bg-primary-soft p-5 sm:p-6'>
-                <span className='grid size-12 shrink-0 place-items-center rounded-lg bg-surface text-primary-ink'>
+              <header className='page-banner flex min-w-0 flex-wrap items-center gap-4'>
+                <span className='grid size-12 shrink-0 place-items-center rounded-xl bg-surface text-primary shadow-sm ring-1 ring-primary/15'>
                   <UserRound aria-hidden className='size-6' strokeWidth={1.5} />
                 </span>
                 <div className='min-w-0 flex-1'>
@@ -93,7 +106,7 @@ export function EmployeeDetail({
               <div className='grid min-w-0 items-start gap-5 lg:grid-cols-2'>
                 <section
                   aria-labelledby={`${sectionId}-official`}
-                  className='min-w-0 space-y-5 rounded-lg border border-border bg-surface p-5'
+                  className='min-w-0 space-y-5 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'
                 >
                   <h3
                     id={`${sectionId}-official`}
@@ -133,6 +146,14 @@ export function EmployeeDetail({
                         {formatDate(employee.hireDate)}
                       </dd>
                     </div>
+                    {contractDate && (
+                      <div>
+                        <dt className='text-muted-foreground'>{translate('fields.contractEndDate')}</dt>
+                        <dd className='mt-1 font-mono font-medium tabular-nums text-foreground'>
+                          {formatDate(contractDate)}
+                        </dd>
+                      </div>
+                    )}
                     <div className='sm:col-span-2'>
                       <dt className='text-muted-foreground'>{translate('directory.department')}</dt>
                       <dd title={employee.department?.name} className='mt-1 break-words font-medium text-foreground'>
@@ -150,7 +171,7 @@ export function EmployeeDetail({
                 </section>
                 <section
                   aria-labelledby={`${sectionId}-account`}
-                  className='min-w-0 space-y-5 rounded-lg border border-border bg-surface p-5'
+                  className='min-w-0 space-y-5 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'
                 >
                   <h3
                     id={`${sectionId}-account`}
@@ -297,8 +318,8 @@ export function EmployeeDetail({
                   )}
                 </section>
               </div>
-              <section className='space-y-3 rounded-lg border border-border bg-surface p-5'>
-                <h3 className='text-base font-semibold'>{translate('employeeEvents')}</h3>
+              <section className='space-y-3 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'>
+                <h3 className='section-accent text-base font-semibold'>{translate('employeeEvents')}</h3>
                 <div className='flex flex-wrap gap-2'>
                   <button
                     type='button'
@@ -331,7 +352,7 @@ export function EmployeeDetail({
               </section>
               <section
                 aria-labelledby={`${sectionId}-history`}
-                className='min-w-0 space-y-4 rounded-lg border border-border bg-surface p-5'
+                className='min-w-0 space-y-4 rounded-xl border border-border/80 bg-surface p-5 shadow-[0_1px_2px_rgb(0_0_0/4%),0_12px_28px_-24px_rgb(35_39_65/40%)]'
               >
                 <h3
                   id={`${sectionId}-history`}

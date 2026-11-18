@@ -17,7 +17,7 @@ import { customAxios } from '../../../mutator/custom-axios'
 import type { ErrorType, BodyType } from '../../../mutator/custom-axios'
 
 /**
- * @summary Refuse a proposal at the gate
+ * @summary Refuse a proposal at the gate, or send it back to its sender
  */
 export const accessRequestAssessmentReject = (
   id: string,
@@ -80,7 +80,7 @@ export type AccessRequestAssessmentRejectMutationBody = BodyType<AssessmentRejec
 export type AccessRequestAssessmentRejectMutationError = ErrorType<ErrorEnvelopeDto>
 
 /**
- * @summary Refuse a proposal at the gate
+ * @summary Refuse a proposal at the gate, or send it back to its sender
  */
 export const useAccessRequestAssessmentReject = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(
   options?: {

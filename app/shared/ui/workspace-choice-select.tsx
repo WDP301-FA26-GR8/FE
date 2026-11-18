@@ -21,11 +21,13 @@ export function WorkspaceChoiceSelect({
   limit = 1,
   disabled = false,
   invalid = false,
+  required = true,
   onOpenChange,
   search,
   state,
   footer,
   hint,
+  alignedField = false,
   labels
 }: {
   label: string
@@ -37,11 +39,13 @@ export function WorkspaceChoiceSelect({
   limit?: number
   disabled?: boolean
   invalid?: boolean
+  required?: boolean
   onOpenChange?: (open: boolean) => void
   search?: { label: string; placeholder: string; value: string; onChange: (value: string) => void }
   state?: ReactNode
   footer?: ReactNode
   hint?: string
+  alignedField?: boolean
   labels: { selectedCount: (count: number) => string; selectedList: string; remove: (name: string) => string }
 }) {
   const [open, setOpen] = useState(false)
@@ -71,7 +75,9 @@ export function WorkspaceChoiceSelect({
   return (
     <div
       ref={root}
-      className='relative min-w-0 space-y-2'
+      className={
+        alignedField ? 'it-form-field relative grid min-w-0 content-start gap-1.5' : 'relative min-w-0 space-y-2'
+      }
       onBlur={(event) => {
         if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget)) changeOpen(false)
       }}
@@ -106,6 +112,11 @@ export function WorkspaceChoiceSelect({
     >
       <p id={`${id}-label`} className='text-sm font-medium'>
         {label}
+        {required && (
+          <span aria-hidden='true' className='ml-1 text-danger'>
+            *
+          </span>
+        )}
       </p>
       <button
         ref={trigger}
@@ -115,7 +126,7 @@ export function WorkspaceChoiceSelect({
         aria-controls={`${id}-options`}
         aria-expanded={expanded}
         aria-haspopup='listbox'
-        aria-required='true'
+        aria-required={required}
         aria-invalid={invalid || undefined}
         aria-describedby={hint ? `${id}-hint` : undefined}
         disabled={disabled}
@@ -148,6 +159,7 @@ export function WorkspaceChoiceSelect({
           {hint}
         </p>
       )}
+      {alignedField && !hint && <span aria-hidden='true' />}
       {expanded && (
         <div className='absolute inset-x-0 top-full z-20 mt-1 rounded-lg border border-border bg-surface p-3 shadow-lg'>
           {search && (

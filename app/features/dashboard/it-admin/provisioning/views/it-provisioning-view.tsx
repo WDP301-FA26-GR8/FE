@@ -1,4 +1,6 @@
 import { ItChoiceSelect } from '../../shared/components/it-choice-select'
+import { KeyRound } from 'lucide-react'
+import { ItPageHeader } from '../../shared/components/it-page-header'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -18,8 +20,8 @@ import { ItPagination } from '../../shared/components/it-pagination'
 import { itButtonClass } from '../../shared/components/it-form'
 import { ProvisioningActionDialog } from '../components/provisioning-action-dialog'
 import { taskActions, type TaskAction } from '../task-actions'
-import { ProvisioningExpiryQueue } from '../components/provisioning-expiry-queue'
-import { ProvisioningGrantQueue } from '../components/provisioning-grant-queue'
+import { SubscriptionExpiry } from '../components/subscription-expiry'
+import { ProvisioningDirectory } from '../components/provisioning-directory'
 import { TaskStatus } from '../enums/task-status'
 import { TaskChannel } from '../enums/task-channel'
 import { TaskScope } from '../enums/task-scope'
@@ -27,12 +29,13 @@ import { TaskScope } from '../enums/task-scope'
 export function ItProvisioningView({
   initialTaskId,
   initialScope = TaskScope.MINE,
-  initialQueue = 'tasks'
+  initialQueue = 'grants',
+  onSelectTab
 }: {
   initialTaskId?: string
   initialScope?: TaskScope
   initialQueue?: 'tasks' | 'grants' | 'expiry'
-  onSelectTab?: (tab: ItAdminTabKey) => void
+  onSelectTab?: (tab: ItAdminTabKey, params?: Record<string, string>) => void
 }) {
   const { t: translate } = useTranslation('itProvisioning')
   const { formatDate } = useDashboardFormat()
@@ -72,23 +75,24 @@ export function ItProvisioningView({
     )
   return (
     <section className='space-y-5'>
-      <header className='flex flex-wrap items-center justify-between gap-3'>
-        <div>
-          <h1 className='text-2xl font-semibold tracking-tight [text-wrap:balance]'>{translate('title')}</h1>
-          <p className='mt-1 text-sm text-muted-foreground'>{translate('description')}</p>
-        </div>
-        {selectedTask && (
-          <button
-            className={itButtonClass}
-            onClick={() => {
-              setSelectedTask('')
-              setAction(null)
-            }}
-          >
-            {translate('back')}
-          </button>
-        )}
-      </header>
+      <ItPageHeader
+        icon={KeyRound}
+        title={translate('title')}
+        subtitle={translate('description')}
+        actions={
+          selectedTask && (
+            <button
+              className={itButtonClass}
+              onClick={() => {
+                setSelectedTask('')
+                setAction(null)
+              }}
+            >
+              {translate('back')}
+            </button>
+          )
+        }
+      />
       {selectedTask ? (
         <ItQueryState query={detail}>
           {task ? (
@@ -168,6 +172,15 @@ export function ItProvisioningView({
                   <p className='whitespace-pre-wrap break-words text-sm'>{task.failureReason}</p>
                 </div>
               )}
+              {task.kind === 'GRANT' && task.requestId && onSelectTab && (
+                <button
+                  type='button'
+                  className={itButtonClass}
+                  onClick={() => onSelectTab('purchase-invoices', { requestId: task.requestId ?? '', view: 'new' })}
+                >
+                  {translate('submitInvoice')}
+                </button>
+              )}
               {task.revocation?.paidThroughOn && (
                 <p className='text-sm'>
                   {translate('paidThroughOn')}: {task.revocation.paidThroughOn}
@@ -193,9 +206,6 @@ export function ItProvisioningView({
       ) : (
         <>
           <div className='flex flex-wrap gap-2' role='group' aria-label={translate('queue')}>
-            <button className={itButtonClass} aria-pressed={queue === 'tasks'} onClick={() => setQueue('tasks')}>
-              {translate('tasks')}
-            </button>
             <button className={itButtonClass} aria-pressed={queue === 'grants'} onClick={() => setQueue('grants')}>
               {translate('grants')}
             </button>
@@ -204,10 +214,8 @@ export function ItProvisioningView({
             </button>
           </div>
           {queue === 'expiry' ? (
-            <ProvisioningExpiryQueue onOpenTask={setSelectedTask} />
-          ) : queue === 'grants' ? (
-            <ProvisioningGrantQueue onCreated={setSelectedTask} />
-          ) : (
+            <SubscriptionExpiry />
+          ) : queue === 'grants' ? null : (
             <>
               <div className='grid gap-3 sm:grid-cols-3'>
                 <ItChoiceSelect
@@ -281,6 +289,11 @@ export function ItProvisioningView({
             </>
           )}
         </>
+      )}
+      {queue === 'grants' && (
+        <div hidden={!!selectedTask}>
+          <ProvisioningDirectory onCreated={setSelectedTask} />
+        </div>
       )}
       {task && action && <ProvisioningActionDialog task={task} action={action} onClose={() => setAction(null)} />}
     </section>

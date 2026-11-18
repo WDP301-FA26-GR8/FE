@@ -8,9 +8,9 @@
 import type { AccessRequestResponseDtoDataRequestBeneficiary } from './accessRequestResponseDtoDataRequestBeneficiary'
 import type { AccessRequestResponseDtoDataRequestBranch } from './accessRequestResponseDtoDataRequestBranch'
 import type { AccessRequestResponseDtoDataRequestCancellation } from './accessRequestResponseDtoDataRequestCancellation'
+import type { AccessRequestResponseDtoDataRequestCost } from './accessRequestResponseDtoDataRequestCost'
 import type { AccessRequestResponseDtoDataRequestCostCenter } from './accessRequestResponseDtoDataRequestCostCenter'
 import type { AccessRequestResponseDtoDataRequestDepartment } from './accessRequestResponseDtoDataRequestDepartment'
-import type { AccessRequestResponseDtoDataRequestFlags } from './accessRequestResponseDtoDataRequestFlags'
 import type { AccessRequestResponseDtoDataRequestLimitExemption } from './accessRequestResponseDtoDataRequestLimitExemption'
 import type { AccessRequestResponseDtoDataRequestNeedDecision } from './accessRequestResponseDtoDataRequestNeedDecision'
 import type { AccessRequestResponseDtoDataRequestNeedStep } from './accessRequestResponseDtoDataRequestNeedStep'
@@ -61,7 +61,6 @@ export type AccessRequestResponseDtoDataRequest = {
   serviceAccount: AccessRequestResponseDtoDataRequestServiceAccount
   /** @nullable */
   limitExemption: AccessRequestResponseDtoDataRequestLimitExemption
-  flags: AccessRequestResponseDtoDataRequestFlags
   /** @nullable */
   renewal: AccessRequestResponseDtoDataRequestRenewal
   /** @nullable */
@@ -73,6 +72,8 @@ export type AccessRequestResponseDtoDataRequest = {
    */
   budgetYear: number | null
   pricing: AccessRequestResponseDtoDataRequestPricing
+  /** @nullable */
+  cost: AccessRequestResponseDtoDataRequestCost
   policy: AccessRequestResponseDtoDataRequestPolicy
   submittedAt: string
   needStep: AccessRequestResponseDtoDataRequestNeedStep

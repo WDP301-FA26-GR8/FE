@@ -8,21 +8,15 @@
 
 export interface RenewalBodyDto {
   assignmentId: string
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  newEndDate?: string
   /**
-   * @minimum 1
-   * @maximum 12
+   * @minimum -9007199254740991
+   * @maximum 9007199254740991
    */
   extensionMonths?: number
+  longTerm?: true
   /**
    * @minLength 1
    * @maxLength 1000
    */
   businessReason: string
-  /**
-   * @minLength 1
-   * @maxLength 1000
-   */
-  manyPaidSoftwareReason?: string
 }

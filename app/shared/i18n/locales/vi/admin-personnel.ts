@@ -1,9 +1,11 @@
 import { adminEmployeeDirectory } from './admin-employee-directory'
 import { adminImportImpact } from './admin-import-impact'
+import { adminPersonnelHelp } from './admin-personnel-help'
 
 export const adminPersonnel = {
   ...adminEmployeeDirectory,
   ...adminImportImpact,
+  ...adminPersonnelHelp,
   fieldPlaceholder: 'Nhập {{field}}',
   placeholders: {
     groundsNote: 'Nhập thông tin quyết định hoặc văn bản nhân sự có thẩm quyền',
@@ -71,20 +73,25 @@ export const adminPersonnel = {
   searchMembers: 'Đọc thành viên phòng',
   basisHelp:
     'Nhập đầy đủ thông tin của quyết định hoặc văn bản nhân sự có thẩm quyền. Thông báo biến động nhân sự của trưởng phòng không thay thế văn bản này.',
-  eventHelp: 'Chọn nhân viên và phòng đến. Điều chuyển trưởng phòng phải có người kế nhiệm hoặc xác nhận không có.',
+  eventHelp:
+    'Chọn nhân viên và phòng đến. Trưởng phòng cần có người kế nhiệm hợp lệ trước khi ghi điều chuyển hoặc nghỉ việc.',
   memberHelp: 'Đọc thành viên theo từng phòng. Chọn nhân viên để sửa hồ sơ chính thức. Để trống trường không cần sửa.',
   successorConflict: 'Chọn người kế nhiệm hoặc xác nhận không có, không chọn đồng thời.',
   impact: {
     preview: 'Xem trước tác động',
     confirm: 'Xác nhận và ghi',
     title: 'Tác động nếu ghi',
+    notRecorded: 'Chưa ghi nhận',
+    timeline: 'Mốc thời gian',
+    requests: 'Yêu cầu bị ảnh hưởng',
+    noRights: 'Không có quyền nào cần thu hồi.',
     revocationDueOn: 'Hạn thu hồi',
     graceEndsOn: 'Ngày cuối ân hạn',
     graceReminderOn: 'Ngày nhắc',
     requestsCancelled: 'Request đang mở hệ thống sẽ hủy',
     provisioningInFlight: 'Request đang có tác vụ cấp chạy (IT kiểm tra)',
     commitmentReleased: 'Trả về ngân sách',
-    responsibilities: 'Trách nhiệm IT Admin cần bàn giao',
+    responsibilities: 'Trách nhiệm công nghệ thông tin cần bàn giao',
     responsibilityCounts: '{{subscriptions}} thuê bao · {{applications}} ứng dụng',
     successorRequired: 'Người này là trưởng phòng của phòng họ rời đi: phải chọn người kế nhiệm.',
     rightsToRevoke: 'Quyền sẽ thu hồi: {{count}}',
@@ -106,9 +113,20 @@ export const adminPersonnel = {
     'Xác minh nguồn có thẩm quyền trước khi ghi hoặc liên kết sự kiện. Thông báo đổi chức danh cần thủ tục kiểm soát.',
   overdue: 'Quá hạn',
   upload: 'Tải tệp để xem trước',
+  downloadTemplate: 'Tải file mẫu (.xlsx)',
+  downloadCsvTemplate: 'Tải tệp mẫu (.csv)',
+  templateLoading: 'Đang tải file mẫu…',
+  downloadTemplateError: 'Không thể tải file mẫu. Vui lòng thử lại sau.',
   file: 'Tệp nhân sự',
+  importUploadTitle: 'Chọn danh sách nhân viên',
+  importUploadDescription:
+    'Chọn tệp để hệ thống kiểm tra và hiển thị kết quả xem trước. Dữ liệu chỉ được lưu sau khi bạn xác nhận.',
+  preparingPreview: 'Đang kiểm tra tệp và chuẩn bị bản xem trước…',
+  importTemplateTitle: 'Chuẩn bị tệp dữ liệu',
+  importTemplateDescription: 'Tải mẫu phù hợp và điền thông tin nhân viên theo các cột có sẵn.',
+  recentImportsTitle: 'Tiếp tục lần nhập gần đây',
   importHelp:
-    'Chọn tệp bảng tính định dạng CSV hoặc XLSX, tối đa 2.097.152 byte. Các cột bắt buộc: mã nhân viên (employee_code), họ tên (full_name), loại nhân sự (employment_type) và ngày vào làm (hire_date). Mã phòng (department_code), email công việc (work_email) và chức danh (job_title) là tùy chọn. Để trống mã phòng để tạo nhân viên chưa xếp phòng. Tải tệp chỉ tạo bản xem trước.',
+    'Thông tin bắt buộc gồm mã nhân viên, họ tên, loại nhân sự và ngày vào làm. Mã phòng ban, thư điện tử công việc và chức danh là tùy chọn. Có thể để trống phòng ban nếu nhân viên chưa được phân phòng.',
   resumeImport: 'Đọc lần nhập đã có',
   importIdPlaceholder: 'Nhập mã lần nhập nhân sự đã tạo trước đó',
   refreshPreview: 'Làm mới xem trước',
@@ -134,6 +152,7 @@ export const adminPersonnel = {
     workEmail: 'Email công việc',
     employmentType: 'Loại nhân sự',
     hireDate: 'Ngày vào làm',
+    contractEndDate: 'Ngày kết thúc hợp đồng',
     departmentCode: 'Mã phòng',
     jobTitle: 'Chức danh',
     departmentId: 'Phòng ban',
@@ -145,7 +164,7 @@ export const adminPersonnel = {
     reference: 'Số tham chiếu văn bản',
     issuer: 'Người ban hành',
     issuedOn: 'Ngày ban hành',
-    successorEmployeeId: 'Người kế nhiệm (nếu có)',
+    successorEmployeeId: 'Người kế nhiệm',
     noSuccessor: 'Không có người kế nhiệm',
     startedOn: 'Ngày bắt đầu nghỉ',
     approvedReturnOn: 'Ngày về được duyệt',
@@ -200,5 +219,54 @@ export const adminPersonnel = {
     ATTACHED_DOCUMENT: 'Văn bản đính kèm',
     EMAIL_FROM_ISSUER: 'Email từ người ban hành',
     DIRECT_CONTACT: 'Liên hệ trực tiếp'
+  },
+  ui: {
+    eyebrow: 'Hồ sơ và biến động nhân sự',
+    directoryCount: '{{count}} nhân viên',
+    allRoles: 'Mọi vai trò',
+    allPlacements: 'Mọi tình trạng xếp phòng',
+    allWorkStates: 'Mọi tình trạng làm việc',
+    allEmploymentTypes: 'Mọi loại hợp đồng',
+    allAccounts: 'Mọi tình trạng tài khoản',
+    noMatchTitle: 'Không có nhân viên phù hợp',
+    noMatchHint: 'Thử đổi từ khóa hoặc bộ lọc để xem thêm nhân viên.',
+    noEmployeesTitle: 'Chưa có hồ sơ nhân viên',
+    noEmployeesHint: 'Thêm nhân viên hoặc nhập tệp nhân sự để bắt đầu.',
+    importStepUpload: 'Bước 1: Tải tệp lên',
+    importStepPreview: 'Bước 2: Xem trước kết quả',
+    pickRecentImport: 'Chọn lần nhập gần đây, gõ để tìm',
+    importRowsTitle: 'Chi tiết từng dòng',
+    importRowsHint: 'Kết quả kiểm tra của từng dòng trong tệp.',
+    allOutcomes: 'Mọi kết quả',
+    importTiles: {
+      valid: 'Dòng hợp lệ',
+      errors: 'Dòng lỗi',
+      same: 'Trùng, không đổi',
+      different: 'Trùng, có thay đổi'
+    },
+    leavesTitle: 'Nghỉ dài hạn',
+    recordCount: '{{count}} bản ghi',
+    noticesTitle: 'Thông báo biến động nhân sự',
+    offboardingTitle: 'Nghỉ việc',
+    pickOffboardingState: 'Chọn tình trạng nghỉ việc',
+    sectionHint: {
+      employees: 'Tra cứu, thêm và chỉnh sửa hồ sơ nhân viên.',
+      imports: 'Nhập hồ sơ nhân sự từ tệp, xem trước rồi mới xác nhận.',
+      leaves: 'Theo dõi các trường hợp nghỉ dài hạn.',
+      offboarding: 'Theo dõi quy trình nghỉ việc và bàn giao.',
+      notices: 'Xem thông báo biến động nhân sự do trưởng phòng gửi.'
+    },
+    pickDepartment: 'Chọn phòng ban, gõ để tìm',
+    pickDepartmentOptional: 'Chọn phòng ban (không bắt buộc), gõ để tìm',
+    allDepartments: 'Mọi phòng ban',
+    noDepartmentMatch: 'Không tìm thấy phòng ban phù hợp',
+    pickEmployee: 'Chọn nhân viên, gõ tên hoặc mã để tìm',
+    pickEmployeeOptional: 'Chọn nhân viên (không bắt buộc), gõ để tìm',
+    noEmployeeMatch: 'Không tìm thấy nhân viên phù hợp',
+    pickEvent: 'Chọn sự kiện, gõ để tìm',
+    noEventMatch: 'Không tìm thấy sự kiện phù hợp',
+    pickOption: 'Chọn {{field}}',
+    emptyListTitle: 'Chưa có dữ liệu',
+    emptyListHint: 'Dữ liệu sẽ xuất hiện tại đây khi có bản ghi mới.'
   }
 }

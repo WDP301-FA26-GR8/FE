@@ -5,6 +5,7 @@
  * Internal software license and technology cost API. A text field whose description says it is trimmed has its leading and trailing whitespace removed before it is checked; for the other text fields the description makes no such promise.
  * OpenAPI spec version: 1.0
  */
+import type { GhostSeatDecisionBodyDtoChecklist } from './ghostSeatDecisionBodyDtoChecklist'
 import type { GhostSeatDecisionBodyDtoChoice } from './ghostSeatDecisionBodyDtoChoice'
 import type { GhostSeatDecisionBodyDtoItemsItem } from './ghostSeatDecisionBodyDtoItemsItem'
 
@@ -22,6 +23,8 @@ export interface GhostSeatDecisionBodyDto {
    * @maxLength 1000
    */
   reason: string
+  /** The answers to the questions of the policy in force at this step. Every question the person answers needs an answer; a question the system answers is Yes by itself. */
+  checklist: GhostSeatDecisionBodyDtoChecklist
   /** Only for EXEMPT: the last day as YYYY-MM-DD, after today and at most 12 months from today; it must exist (2026-02-30 is refused). */
   exemptUntil?: string
 }

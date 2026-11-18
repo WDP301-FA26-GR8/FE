@@ -1,4 +1,4 @@
-import { Activity, BellRing, Building2, FileClock, Grid2X2, Settings, UserCheck } from 'lucide-react'
+import { Activity, BellRing, BookOpen, Building2, Grid2X2, UserCheck } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 export const SUPER_ADMIN_TAB_KEYS = [
@@ -7,9 +7,8 @@ export const SUPER_ADMIN_TAB_KEYS = [
   'accounts',
   'personnel',
   'reminders',
-  'settings',
-  'operations',
-  'audit-trail'
+  'policies',
+  'operations'
 ] as const
 
 export type SuperAdminTabKey = (typeof SUPER_ADMIN_TAB_KEYS)[number]
@@ -44,11 +43,19 @@ export const superAdminNavItems: SuperAdminNavItem[] = [
     key: 'reminders',
     translationKey: 'reminders'
   },
-  { icon: Activity, key: 'operations', translationKey: 'operations' },
-  { icon: Settings, key: 'settings', translationKey: 'settings' },
-  { icon: FileClock, key: 'audit-trail', translationKey: 'audit-trail' }
+  {
+    icon: BookOpen,
+    key: 'policies',
+    translationKey: 'policies'
+  },
+  { icon: Activity, key: 'operations', translationKey: 'operations' }
 ]
 
 export function isValidSuperAdminTab(value: string | null): value is SuperAdminTabKey {
   return value !== null && (SUPER_ADMIN_TAB_KEYS as readonly string[]).includes(value as SuperAdminTabKey)
+}
+
+// Keep old account bookmarks working within the unified personnel navigation.
+export function getParentSuperAdminTab(tab: SuperAdminTabKey): SuperAdminTabKey {
+  return tab === 'accounts' ? 'personnel' : tab
 }

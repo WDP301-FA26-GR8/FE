@@ -9,6 +9,7 @@ import type { YearListResponseDtoDataItemsItemBase } from './yearListResponseDto
 import type { YearListResponseDtoDataItemsItemBudget } from './yearListResponseDtoDataItemsItemBudget'
 import type { YearListResponseDtoDataItemsItemCode } from './yearListResponseDtoDataItemsItemCode'
 import type { YearListResponseDtoDataItemsItemCost } from './yearListResponseDtoDataItemsItemCost'
+import type { YearListResponseDtoDataItemsItemEffectiveBudget } from './yearListResponseDtoDataItemsItemEffectiveBudget'
 import type { YearListResponseDtoDataItemsItemHeld } from './yearListResponseDtoDataItemsItemHeld'
 import type { YearListResponseDtoDataItemsItemPending } from './yearListResponseDtoDataItemsItemPending'
 import type { YearListResponseDtoDataItemsItemRemaining } from './yearListResponseDtoDataItemsItemRemaining'
@@ -32,6 +33,8 @@ export type YearListResponseDtoDataItemsItem = {
   base: YearListResponseDtoDataItemsItemBase
   /** @nullable */
   reserve: YearListResponseDtoDataItemsItemReserve
+  /** @nullable */
+  effectiveBudget: YearListResponseDtoDataItemsItemEffectiveBudget
   /** @nullable */
   held: YearListResponseDtoDataItemsItemHeld
   /** @nullable */

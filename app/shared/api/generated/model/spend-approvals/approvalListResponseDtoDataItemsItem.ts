@@ -8,6 +8,7 @@
 import type { ApprovalListResponseDtoDataItemsItemAmount } from './approvalListResponseDtoDataItemsItemAmount'
 import type { ApprovalListResponseDtoDataItemsItemBeneficiary } from './approvalListResponseDtoDataItemsItemBeneficiary'
 import type { ApprovalListResponseDtoDataItemsItemCostCenter } from './approvalListResponseDtoDataItemsItemCostCenter'
+import type { ApprovalListResponseDtoDataItemsItemNextYearBudget } from './approvalListResponseDtoDataItemsItemNextYearBudget'
 import type { ApprovalListResponseDtoDataItemsItemOutcome } from './approvalListResponseDtoDataItemsItemOutcome'
 import type { ApprovalListResponseDtoDataItemsItemPlan } from './approvalListResponseDtoDataItemsItemPlan'
 import type { ApprovalListResponseDtoDataItemsItemPrimaryCode } from './approvalListResponseDtoDataItemsItemPrimaryCode'
@@ -47,6 +48,8 @@ export type ApprovalListResponseDtoDataItemsItem = {
   primaryCode: ApprovalListResponseDtoDataItemsItemPrimaryCode
   /** @nullable */
   outcome: ApprovalListResponseDtoDataItemsItemOutcome
+  /** @nullable */
+  nextYearBudget: ApprovalListResponseDtoDataItemsItemNextYearBudget
   /** @nullable */
   batchId: string | null
 }

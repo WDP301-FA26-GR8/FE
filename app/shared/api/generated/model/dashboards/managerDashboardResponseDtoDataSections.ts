@@ -26,6 +26,6 @@ export type ManagerDashboardResponseDtoDataSections = {
   spendQueue: ManagerDashboardResponseDtoDataSectionsSpendQueue
   /** The budget proposals of the department. */
   budgetProposals: ManagerDashboardResponseDtoDataSectionsBudgetProposals
-  /** The lines of the approved budget version of the department. */
+  /** The approved budget of the department: one figure for the year, read at its source. */
   approvedBudgetLines: ManagerDashboardResponseDtoDataSectionsApprovedBudgetLines
 }

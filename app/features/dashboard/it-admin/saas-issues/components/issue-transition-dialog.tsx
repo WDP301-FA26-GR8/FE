@@ -8,6 +8,7 @@ import { useSaasIssueMarkDuplicate } from '~/shared/api/generated/operations/saa
 import { ItField, ItFormDialog, itInputClass } from '../../shared/components/it-form'
 import { useItMutationFeedback } from '../../shared/hooks/use-it-mutation-feedback'
 import { ISSUE_STATE, nextIssueStates } from '../enums/issue-state'
+import { IssueOriginalPicker } from './issue-original-picker'
 
 export function IssueTransitionDialog({
   issue,
@@ -63,19 +64,16 @@ export function IssueTransitionDialog({
       }}
     >
       {mode === 'duplicate' ? (
-        <ItField label={translate('duplicateId')}>
-          <input
-            required
-            className={itInputClass}
-            pattern='[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'
-            placeholder={translate('duplicatePlaceholder')}
-            value={originalId}
-            onChange={(event) => setOriginalId(event.target.value)}
-          />
-        </ItField>
+        <IssueOriginalPicker
+          issueId={issue.id}
+          departmentId={issue.department?.id}
+          value={originalId}
+          onChange={setOriginalId}
+        />
       ) : (
         <ItChoiceSelect
           label={translate('state')}
+          required
           value={to}
           options={states.map((value) => ({ value, label: translate(`states.${value}`) }))}
           onChange={(value) => {
@@ -103,7 +101,7 @@ export function IssueTransitionDialog({
         />
       </ItField>
       {mode === 'transition' && to === ISSUE_STATE.WAITING_PROVIDER && (
-        <ItField label={translate('vendorTicket')}>
+        <ItField label={translate('vendorTicket')} hint={translate('fieldHints.vendorTicket')}>
           <input
             maxLength={100}
             className={itInputClass}

@@ -5,12 +5,10 @@
  * Internal software license and technology cost API. A text field whose description says it is trimmed has its leading and trailing whitespace removed before it is checked; for the other text fields the description makes no such promise.
  * OpenAPI spec version: 1.0
  */
-import type { CycleResponseDtoDataAllocated } from './cycleResponseDtoDataAllocated'
 import type { CycleResponseDtoDataAnnualCeiling } from './cycleResponseDtoDataAnnualCeiling'
-import type { CycleResponseDtoDataCeilings } from './cycleResponseDtoDataCeilings'
+import type { CycleResponseDtoDataAvailable } from './cycleResponseDtoDataAvailable'
 import type { CycleResponseDtoDataSharedPoolReserve } from './cycleResponseDtoDataSharedPoolReserve'
 import type { CycleResponseDtoDataStatus } from './cycleResponseDtoDataStatus'
-import type { CycleResponseDtoDataUnallocated } from './cycleResponseDtoDataUnallocated'
 
 /**
  * @nullable
@@ -28,18 +26,14 @@ export type CycleResponseDtoData = {
   annualCeiling: CycleResponseDtoDataAnnualCeiling
   /** @nullable */
   sharedPoolReserve: CycleResponseDtoDataSharedPoolReserve
+  /** The annual ceiling less the shared-pool reserve: what the budgets of the departments may add up to (checked when a version is sent); below nothing is shown as zero. */
+  available: CycleResponseDtoDataAvailable
   /** @nullable */
   priorities: string | null
   status: CycleResponseDtoDataStatus
-  openedAt: string
-  /** @nullable */
-  publishedAt: string | null
-  /** @nullable */
-  firstPublishedAt: string | null
-  /** The ceilings of the departments and the reserve, added. */
-  allocated: CycleResponseDtoDataAllocated
-  /** The annual ceiling less what is allocated; below nothing is shown as zero. */
-  unallocated: CycleResponseDtoDataUnallocated
-  /** The ceiling of each department, by department id: at most 500, the bound of the departments of budgetDepartmentCeilingsSet. */
-  ceilings: CycleResponseDtoDataCeilings
+  /**
+   * When Finance opened the cycle; null while it is a draft.
+   * @nullable
+   */
+  openedAt: string | null
 } | null

@@ -8,6 +8,7 @@
 import type { BudgetTablePageResponseDtoDataItemsItemBase } from './budgetTablePageResponseDtoDataItemsItemBase'
 import type { BudgetTablePageResponseDtoDataItemsItemCommitted } from './budgetTablePageResponseDtoDataItemsItemCommitted'
 import type { BudgetTablePageResponseDtoDataItemsItemCostCenter } from './budgetTablePageResponseDtoDataItemsItemCostCenter'
+import type { BudgetTablePageResponseDtoDataItemsItemEffectiveBudget } from './budgetTablePageResponseDtoDataItemsItemEffectiveBudget'
 import type { BudgetTablePageResponseDtoDataItemsItemPendingSpend } from './budgetTablePageResponseDtoDataItemsItemPendingSpend'
 import type { BudgetTablePageResponseDtoDataItemsItemPriorPeriodAdjustment } from './budgetTablePageResponseDtoDataItemsItemPriorPeriodAdjustment'
 import type { BudgetTablePageResponseDtoDataItemsItemRemaining } from './budgetTablePageResponseDtoDataItemsItemRemaining'
@@ -34,12 +35,23 @@ export type BudgetTablePageResponseDtoDataItemsItem = {
    * @nullable
    */
   number: number | null
-  /** @nullable */
+  /**
+   * The base of the approved version, before the adjustments (the base with them is effectiveBudget.base; the check of a request names that one `base`).
+   * @nullable
+   */
   base: BudgetTablePageResponseDtoDataItemsItemBase
   /** @nullable */
   reserve: BudgetTablePageResponseDtoDataItemsItemReserve
-  /** @nullable */
+  /**
+   * The base and the reserve of the approved version, before the adjustments.
+   * @nullable
+   */
   total: BudgetTablePageResponseDtoDataItemsItemTotal
+  /**
+   * Null when the Cost Center has no budget of the year. What is left below is worked out on this.
+   * @nullable
+   */
+  effectiveBudget: BudgetTablePageResponseDtoDataItemsItemEffectiveBudget
   committed: BudgetTablePageResponseDtoDataItemsItemCommitted
   spent: BudgetTablePageResponseDtoDataItemsItemSpent
   pendingSpend: BudgetTablePageResponseDtoDataItemsItemPendingSpend

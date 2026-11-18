@@ -8,7 +8,6 @@
 import type { AccessRequestHistoryPageResponseDtoDataItemsItemBeneficiary } from './accessRequestHistoryPageResponseDtoDataItemsItemBeneficiary'
 import type { AccessRequestHistoryPageResponseDtoDataItemsItemBranch } from './accessRequestHistoryPageResponseDtoDataItemsItemBranch'
 import type { AccessRequestHistoryPageResponseDtoDataItemsItemDepartment } from './accessRequestHistoryPageResponseDtoDataItemsItemDepartment'
-import type { AccessRequestHistoryPageResponseDtoDataItemsItemFlags } from './accessRequestHistoryPageResponseDtoDataItemsItemFlags'
 import type { AccessRequestHistoryPageResponseDtoDataItemsItemNeedStep } from './accessRequestHistoryPageResponseDtoDataItemsItemNeedStep'
 import type { AccessRequestHistoryPageResponseDtoDataItemsItemOutcome } from './accessRequestHistoryPageResponseDtoDataItemsItemOutcome'
 import type { AccessRequestHistoryPageResponseDtoDataItemsItemPlan } from './accessRequestHistoryPageResponseDtoDataItemsItemPlan'
@@ -56,5 +55,4 @@ export type AccessRequestHistoryPageResponseDtoDataItemsItem = {
   requester: AccessRequestHistoryPageResponseDtoDataItemsItemRequester
   department: AccessRequestHistoryPageResponseDtoDataItemsItemDepartment
   reserveUsed: boolean
-  flags: AccessRequestHistoryPageResponseDtoDataItemsItemFlags
 }

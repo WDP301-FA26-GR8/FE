@@ -15,10 +15,8 @@ export type PackageResponseDtoDataDepartmentsItemBaselineRefusal =
   | null
 
 export const PackageResponseDtoDataDepartmentsItemBaselineRefusal = {
-  CYCLE_NOT_PUBLISHED: 'CYCLE_NOT_PUBLISHED',
+  CYCLE_NOT_OPEN: 'CYCLE_NOT_OPEN',
   DEPARTMENT_NOT_IN_CYCLE: 'DEPARTMENT_NOT_IN_CYCLE',
   BEFORE_DEADLINE: 'BEFORE_DEADLINE',
-  HAS_HEAD: 'HAS_HEAD',
-  HAS_SUCCESSOR: 'HAS_SUCCESSOR',
   HAS_PROPOSAL: 'HAS_PROPOSAL'
 } as const

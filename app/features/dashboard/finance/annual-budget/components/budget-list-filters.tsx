@@ -21,6 +21,7 @@ export function BudgetListFilters<State extends string>({
       <div className='w-full sm:w-44'>
         <FinanceField
           label={translate('fields.year')}
+          floatingError
           error={isYearFilterInvalid(year) ? translate('yearRange') : null}
         >
           <input
@@ -40,6 +41,7 @@ export function BudgetListFilters<State extends string>({
         <div className='w-full sm:w-60'>
           <FinanceField label={translate('fields.state')}>
             <FinanceSelect
+              placeholder={translate('screen.statePlaceholder')}
               value={state ?? ''}
               onChange={(event) => onStateChange?.(event.target.value ? (event.target.value as State) : undefined)}
             >

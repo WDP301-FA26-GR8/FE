@@ -75,6 +75,11 @@ export type TaskPageResponseDtoDataItemsItem = {
   /** @nullable */
   purchase: TaskPageResponseDtoDataItemsItemPurchase
   /**
+   * A calendar date as YYYY-MM-DD.
+   * @nullable
+   */
+  termCutAt: string | null
+  /**
    * @minimum 0
    * @maximum 9007199254740991
    */

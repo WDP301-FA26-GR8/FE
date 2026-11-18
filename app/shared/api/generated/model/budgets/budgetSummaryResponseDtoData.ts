@@ -6,7 +6,10 @@
  * OpenAPI spec version: 1.0
  */
 import type { BudgetSummaryResponseDtoDataAnnualCeiling } from './budgetSummaryResponseDtoDataAnnualCeiling'
+import type { BudgetSummaryResponseDtoDataCompanySpent } from './budgetSummaryResponseDtoDataCompanySpent'
+import type { BudgetSummaryResponseDtoDataSeatMonthsWithoutCostCenter } from './budgetSummaryResponseDtoDataSeatMonthsWithoutCostCenter'
 import type { BudgetSummaryResponseDtoDataSharedPoolReserve } from './budgetSummaryResponseDtoDataSharedPoolReserve'
+import type { BudgetSummaryResponseDtoDataSharedPoolUnallocated } from './budgetSummaryResponseDtoDataSharedPoolUnallocated'
 import type { BudgetSummaryResponseDtoDataTotals } from './budgetSummaryResponseDtoDataTotals'
 
 /**
@@ -25,4 +28,12 @@ export type BudgetSummaryResponseDtoData = {
   totals: BudgetSummaryResponseDtoDataTotals
   /** @nullable */
   lastInvoiceRecordedAt: string | null
+  /** @nullable */
+  companySpent: BudgetSummaryResponseDtoDataCompanySpent
+  /** @nullable */
+  sharedPoolUnallocated: BudgetSummaryResponseDtoDataSharedPoolUnallocated
+  /** @nullable */
+  sharedPoolOverReserve: boolean | null
+  /** @nullable */
+  seatMonthsWithoutCostCenter: BudgetSummaryResponseDtoDataSeatMonthsWithoutCostCenter
 } | null

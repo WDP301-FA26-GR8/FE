@@ -7,7 +7,7 @@
  */
 
 /**
- * The people of the group the head leaves out and/or an earlier end date, and why.
+ * The people of the group the head leaves out and/or a shorter time of use in months, and why.
  */
 export interface SupplementBodyDto {
   /**
@@ -15,8 +15,11 @@ export interface SupplementBodyDto {
    * @maxItems 100
    */
   dropEmployeeIds?: string[]
-  /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
-  expectedEndDate?: string
+  /**
+   * @minimum -9007199254740991
+   * @maximum 9007199254740991
+   */
+  termMonths?: number
   /**
    * @minLength 1
    * @maxLength 1000

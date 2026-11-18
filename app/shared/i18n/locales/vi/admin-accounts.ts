@@ -1,4 +1,26 @@
 export const adminAccounts = {
+  applicationHandover: {
+    title: 'Bàn giao người phụ trách ứng dụng',
+    submit: 'Lưu người phụ trách mới',
+    help: 'Chuyển trách nhiệm quản lý ứng dụng sang một quản trị viên công nghệ thông tin đang làm việc. Thay đổi áp dụng cho ứng dụng trong toàn công ty.',
+    department: 'Phòng ban đang sử dụng',
+    departmentHelp:
+      'Chọn phòng ban để tìm ứng dụng trong danh sách phần mềm của phòng. Chuyển trang để xem thêm phòng ban.',
+    application: 'Ứng dụng cần bàn giao',
+    applicationHelp:
+      'Chọn ứng dụng cần đổi người phụ trách. Danh sách chỉ gồm phần mềm đã được ghi nhận tại phòng ban đã chọn.',
+    target: 'Người tiếp nhận',
+    targetHelp: 'Chọn quản trị viên công nghệ thông tin đang làm việc để tiếp nhận trách nhiệm ứng dụng.'
+  },
+  releaseDepartureBlock: 'Gỡ chặn truy cập sau hủy nghỉ việc',
+  roleHelp: 'Chọn vai trò thay thế vai trò hiện tại. Quyền truy cập mới có hiệu lực từ yêu cầu tiếp theo.',
+  inviteRoleHelp: 'Chọn vai trò ban đầu cho tài khoản được mời.',
+  spendingApproverInviteHelp:
+    'Để bổ nhiệm Người duyệt chi, hãy mời nhân viên với vai trò Nhân viên. Sau khi người đó kích hoạt tài khoản, đổi vai trò thành Người duyệt chi.',
+  employeeHelp:
+    'Chọn nhân viên chưa có tài khoản. Thư kích hoạt được gửi đến địa chỉ thư điện tử công việc của người này.',
+  emailFromPersonnel:
+    'Địa chỉ đăng nhập và nhận lời mời được lấy từ hồ sơ nhân viên. Muốn thay đổi, hãy cập nhật hồ sơ trước khi tạo tài khoản.',
   retryIn: 'Thử lại sau {{count}} giây',
   title: 'Tài khoản và trách nhiệm',
   list: 'Tài khoản',
@@ -23,7 +45,8 @@ export const adminAccounts = {
   directRoles: 'Vai trò trực tiếp',
   none: 'Không có',
   unknown: 'Chưa xác định',
-  candidateLimit: 'Hiển thị tối đa 20 nhân viên chưa có tài khoản. Thu hẹp tìm kiếm để tìm người khác.',
+  candidateLimit:
+    'Hiển thị tối đa {{count}} nhân viên chưa có tài khoản. Nhập tên, mã nhân viên hoặc thư điện tử công việc để tìm người khác.',
   selectEmployee: 'Chọn nhân viên trước khi tiếp tục.',
   emailHint: 'Để trống để dùng email công việc của nhân viên.',
   lock: 'Khóa tài khoản',
@@ -36,6 +59,9 @@ export const adminAccounts = {
   confirm: 'Xác nhận',
   resend: 'Gửi lại lời mời',
   resendHint: 'Gửi lời mời kích hoạt mới đến email đăng nhập của tài khoản này.',
+  removeAvatar: 'Gỡ ảnh đại diện',
+  removeAvatarReasonPlaceholder: 'Nêu lý do gỡ ảnh đại diện không phù hợp (tối đa 500 ký tự)',
+  removeAvatarHint: 'Ảnh đại diện sẽ bị gỡ và ghi nhận vào nhật ký kiểm toán. Người dùng không nhận được thông báo.',
   createdAt: 'Ngày tạo',
   invitation: 'Lời mời kích hoạt',
   usable: 'Lời mời còn sử dụng được',
@@ -86,5 +112,22 @@ export const adminAccounts = {
     SENT: 'Đã gửi',
     FAILED: 'Gửi thất bại',
     CANCELLED: 'Đã hủy'
+  },
+  ui: {
+    eyebrow: 'Tài khoản và trách nhiệm',
+    allStatuses: 'Mọi trạng thái tài khoản',
+    allActivation: 'Mọi trạng thái kích hoạt',
+    allRoles: 'Mọi vai trò',
+    allEmployment: 'Mọi tình trạng làm việc',
+    accountCount: '{{count}} tài khoản',
+    noAccountsTitle: 'Chưa có tài khoản phù hợp',
+    noAccountsHint: 'Thử đổi bộ lọc hoặc xóa từ khóa tìm kiếm để xem thêm tài khoản.',
+    pickRole: 'Chọn vai trò mới, gõ để tìm',
+    pickCandidate: 'Chọn nhân viên, gõ để tìm',
+    noCandidates: 'Không có nhân viên phù hợp để mời',
+    pickDepartment: 'Chọn phòng ban, gõ để tìm',
+    pickApplication: 'Chọn ứng dụng cần bàn giao, gõ để tìm',
+    noApplications: 'Phòng ban này chưa có ứng dụng nào',
+    pickItAdmin: 'Chọn quản trị viên công nghệ thông tin, gõ để tìm'
   }
 }

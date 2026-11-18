@@ -7,6 +7,7 @@
  */
 import type { BudgetSummaryResponseDtoDataTotalsBase } from './budgetSummaryResponseDtoDataTotalsBase'
 import type { BudgetSummaryResponseDtoDataTotalsCommitted } from './budgetSummaryResponseDtoDataTotalsCommitted'
+import type { BudgetSummaryResponseDtoDataTotalsEffectiveBudget } from './budgetSummaryResponseDtoDataTotalsEffectiveBudget'
 import type { BudgetSummaryResponseDtoDataTotalsPendingSpend } from './budgetSummaryResponseDtoDataTotalsPendingSpend'
 import type { BudgetSummaryResponseDtoDataTotalsRemaining } from './budgetSummaryResponseDtoDataTotalsRemaining'
 import type { BudgetSummaryResponseDtoDataTotalsRemainingBase } from './budgetSummaryResponseDtoDataTotalsRemainingBase'
@@ -21,6 +22,7 @@ export type BudgetSummaryResponseDtoDataTotals = {
     base: BudgetSummaryResponseDtoDataTotalsBase
     reserve: BudgetSummaryResponseDtoDataTotalsReserve
     total: BudgetSummaryResponseDtoDataTotalsTotal
+    effectiveBudget: BudgetSummaryResponseDtoDataTotalsEffectiveBudget
     committed: BudgetSummaryResponseDtoDataTotalsCommitted
     spent: BudgetSummaryResponseDtoDataTotalsSpent
     remaining: BudgetSummaryResponseDtoDataTotalsRemaining

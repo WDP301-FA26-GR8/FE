@@ -9,6 +9,7 @@ import type { GroupCheckResponseDtoDataAmountPerPerson } from './groupCheckRespo
 import type { GroupCheckResponseDtoDataLinesItem } from './groupCheckResponseDtoDataLinesItem'
 import type { GroupCheckResponseDtoDataPlan } from './groupCheckResponseDtoDataPlan'
 import type { GroupCheckResponseDtoDataPricing } from './groupCheckResponseDtoDataPricing'
+import type { GroupCheckResponseDtoDataTermRefusal } from './groupCheckResponseDtoDataTermRefusal'
 import type { GroupCheckResponseDtoDataTooFewLines } from './groupCheckResponseDtoDataTooFewLines'
 import type { GroupCheckResponseDtoDataTooManyLines } from './groupCheckResponseDtoDataTooManyLines'
 
@@ -21,8 +22,8 @@ export type GroupCheckResponseDtoData = {
   tooManyLines: GroupCheckResponseDtoDataTooManyLines
   /** @nullable */
   tooFewLines: GroupCheckResponseDtoDataTooFewLines
-  maxEndDate: string
-  endDateOutOfRange: boolean
+  /** @nullable */
+  termRefusal: GroupCheckResponseDtoDataTermRefusal
   lines: GroupCheckResponseDtoDataLinesItem[]
   /**
    * @minimum 0

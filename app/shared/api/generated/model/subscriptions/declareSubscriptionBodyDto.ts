@@ -8,6 +8,7 @@
 import type { DeclareSubscriptionBodyDtoBillingCycle } from './declareSubscriptionBodyDtoBillingCycle'
 import type { DeclareSubscriptionBodyDtoCommitmentTermMonths } from './declareSubscriptionBodyDtoCommitmentTermMonths'
 import type { DeclareSubscriptionBodyDtoKind } from './declareSubscriptionBodyDtoKind'
+import type { DeclareSubscriptionBodyDtoOriginalPrice } from './declareSubscriptionBodyDtoOriginalPrice'
 import type { DeclareSubscriptionBodyDtoUnitPrice } from './declareSubscriptionBodyDtoUnitPrice'
 
 export interface DeclareSubscriptionBodyDto {
@@ -19,7 +20,10 @@ export interface DeclareSubscriptionBodyDto {
    * @maximum 1000000000
    */
   purchasedQuantity?: number
+  /** The unit price in dong: a decimal string in major units, currency VND. Another currency is refused (SUBSCRIPTION.PRICE_NOT_VND). */
   unitPrice?: DeclareSubscriptionBodyDtoUnitPrice
+  /** The price the vendor quoted in another currency, kept beside the price in dong so an invoice can be matched against it: a decimal string in major units of its currency. It is only kept, never converted. */
+  originalPrice?: DeclareSubscriptionBodyDtoOriginalPrice
   billingCycle?: DeclareSubscriptionBodyDtoBillingCycle
   commitmentTermMonths?: (typeof DeclareSubscriptionBodyDtoCommitmentTermMonths)[keyof typeof DeclareSubscriptionBodyDtoCommitmentTermMonths]
   /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */

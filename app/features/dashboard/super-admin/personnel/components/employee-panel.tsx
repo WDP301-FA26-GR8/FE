@@ -7,19 +7,19 @@ import { useEmployeeUpdateOfficialFields } from '~/shared/api/generated/operatio
 import { getEmployeeListQueryKey } from '~/shared/api/generated/operations/employees/employee-list'
 import { getEmployeeGetQueryKey, useEmployeeGet } from '~/shared/api/generated/operations/employees/employee-get'
 import { getAccountCandidatesListQueryKey } from '~/shared/api/generated/operations/app-users/account-candidates-list'
-import { adminButtonClass, adminPrimaryClass } from '../../shared/components/admin-form'
+import { adminButtonClass } from '../../shared/components/admin-form'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
 import { PersonnelForm, value, type PersonnelField } from '../../shared/components/personnel-form'
 import { employmentTypes } from '../enums/employment-type'
 import { EmployeeDirectory } from './employee-directory'
 import { AdminQueryState } from '../../shared/components/admin-query-state'
+import { readEmployeeContractDate } from '../employee-contract-date'
+import { readEmployeeFieldErrors } from '../employee-field-errors'
 
 export function EmployeePanel({
-  onInviteAccount,
   renderAccountDetail
-}: { onInviteAccount?: () => void; renderAccountDetail?: (id: string, onClose: () => void) => ReactNode } = {}) {
+}: { renderAccountDetail?: (id: string, onClose: () => void) => ReactNode } = {}) {
   const { t: translate } = useTranslation('adminPersonnel')
-  const { t: translateAccounts } = useTranslation('adminAccounts')
   const [searchParams] = useSearchParams()
   const employeeId = searchParams.get('employeeId') ?? ''
   const location = useLocation()
@@ -31,10 +31,12 @@ export function EmployeePanel({
       : null
   const mounted = useRef(true)
   const [noChanges, setNoChanges] = useState(false)
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const employeeQuery = useEmployeeGet(employeeId, {
     query: { enabled: action === 'update' && !!employeeId, retry: false }
   })
   const employee = employeeQuery.data?.data
+  const contractDate = readEmployeeContractDate(employee)
   useEffect(() => {
     mounted.current = true
     return () => {
@@ -57,8 +59,19 @@ export function EmployeePanel({
     ],
     closeForm
   )
-  const create = useEmployeeCreate({ mutation: { ...feedback, retry: false } })
-  const update = useEmployeeUpdateOfficialFields({ mutation: { ...feedback, retry: false } })
+  const onError = async (error: unknown) => {
+    setFieldErrors(
+      Object.fromEntries(
+        Object.entries(readEmployeeFieldErrors(error)).map(([field, code]) => [
+          field,
+          translate(`fieldErrors.${code}`, { defaultValue: translate('fieldErrors.INVALID') })
+        ])
+      )
+    )
+    await feedback.onError(error)
+  }
+  const create = useEmployeeCreate({ mutation: { ...feedback, onError, retry: false } })
+  const update = useEmployeeUpdateOfficialFields({ mutation: { ...feedback, onError, retry: false } })
   const pending = create.isPending || update.isPending
   const fields: PersonnelField[] = [
     ...(action === 'create'
@@ -78,29 +91,19 @@ export function EmployeePanel({
         ]),
     { name: 'fullName', maxLength: 200, initial: employee?.fullName },
     { name: 'workEmail', type: 'email', maxLength: 254, optional: true, initial: employee?.workEmail ?? '' },
-    { name: 'employmentType', options: employmentTypes, initial: employee?.employmentType },
+    {
+      name: 'employmentType',
+      options: action === 'create' ? employmentTypes.filter((type) => type !== 'INTERN') : employmentTypes,
+      initial: employee?.employmentType
+    },
     { name: 'hireDate', type: 'date', initial: employee?.hireDate },
+    { name: 'contractEndDate', type: 'date', optional: true, initial: contractDate ?? '' },
     { name: 'jobTitle', maxLength: 1000, optional: true, initial: employee?.jobTitle ?? '' }
   ]
   return (
     <section className='space-y-5'>
       {!action && (
         <>
-          {!employeeId && (
-            <div className='flex flex-wrap gap-3'>
-              <button
-                className={adminPrimaryClass}
-                onClick={() => void navigate('/dashboard/super-admin/personnel/new')}
-              >
-                {translate('createEmployee')}
-              </button>
-              {onInviteAccount && (
-                <button type='button' className={adminButtonClass} onClick={onInviteAccount}>
-                  {translateAccounts('invite')}
-                </button>
-              )}
-            </div>
-          )}
           <EmployeeDirectory
             renderAccountDetail={renderAccountDetail}
             onCorrect={(id) =>
@@ -127,18 +130,22 @@ export function EmployeePanel({
       )}
       {action && (action === 'create' || employee) && (
         <PersonnelForm
+          key={`${action}-${employeeId}`}
           page
           title={translate(action === 'create' ? 'createEmployee' : 'updateEmployee')}
           pending={pending}
           fields={fields}
+          errors={fieldErrors}
           onClose={closeForm}
           onSubmit={(values) => {
             if (pending) return
+            setFieldErrors({})
             const fullName = value(values, 'fullName')
             const employmentType = value(values, 'employmentType') as CreateEmployeeBodyDto['employmentType']
             const hireDate = value(values, 'hireDate')
             const workEmail = value(values, 'workEmail')
             const jobTitle = value(values, 'jobTitle')
+            const contractEndDate = employmentType === 'STAFF' ? '' : value(values, 'contractEndDate')
             const common: UpdateEmployeeBodyDto =
               action === 'update' && employee
                 ? {
@@ -146,9 +153,17 @@ export function EmployeePanel({
                     ...(employmentType !== employee.employmentType ? { employmentType } : {}),
                     ...(hireDate !== employee.hireDate ? { hireDate } : {}),
                     ...(workEmail !== (employee.workEmail ?? '') ? { workEmail: workEmail || null } : {}),
-                    ...(jobTitle !== (employee.jobTitle ?? '') ? { jobTitle: jobTitle || null } : {})
+                    ...(jobTitle !== (employee.jobTitle ?? '') ? { jobTitle: jobTitle || null } : {}),
+                    ...(contractEndDate !== (contractDate ?? '') ||
+                    (employmentType === 'STAFF' && employee.employmentType !== 'STAFF')
+                      ? { contractEndDate: contractEndDate || null }
+                      : {})
                   }
-                : { ...(workEmail ? { workEmail } : {}), ...(jobTitle ? { jobTitle } : {}) }
+                : {
+                    ...(workEmail ? { workEmail } : {}),
+                    ...(jobTitle ? { jobTitle } : {}),
+                    ...(contractEndDate ? { contractEndDate } : {})
+                  }
             if (action === 'create')
               create.mutate({
                 data: {
@@ -157,7 +172,8 @@ export function EmployeePanel({
                   ...(value(values, 'departmentCode') ? { departmentCode: value(values, 'departmentCode') } : {}),
                   fullName: value(values, 'fullName'),
                   employmentType: value(values, 'employmentType') as CreateEmployeeBodyDto['employmentType'],
-                  hireDate: value(values, 'hireDate')
+                  hireDate: value(values, 'hireDate'),
+                  ...(contractEndDate ? { contractEndDate } : {})
                 }
               })
             else if (employeeId && employee) {

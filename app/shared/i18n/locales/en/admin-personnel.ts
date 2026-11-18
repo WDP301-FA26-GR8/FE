@@ -1,9 +1,11 @@
 import { adminEmployeeDirectory } from './admin-employee-directory'
 import { adminImportImpact } from './admin-import-impact'
+import { adminPersonnelHelp } from './admin-personnel-help'
 
 export const adminPersonnel = {
   ...adminEmployeeDirectory,
   ...adminImportImpact,
+  ...adminPersonnelHelp,
   fieldPlaceholder: 'Enter {{field}}',
   placeholders: {
     groundsNote: 'Describe the authorized personnel decision or document',
@@ -72,7 +74,7 @@ export const adminPersonnel = {
   basisHelp:
     'Enter all details of the authorized personnel decision or document. A department head’s personnel change notice does not replace it.',
   eventHelp:
-    'Choose the employee and destination department. Head transfers require a successor or an explicit declaration that there is none.',
+    'Choose the employee and destination department. A department head must have an eligible successor before their transfer or departure can be recorded.',
   memberHelp:
     'Read one department at a time. Choose the employee to correct their official record. Leave blank any field you do not want to change.',
   successorConflict: 'Choose a successor employee or no successor, not both.',
@@ -80,6 +82,10 @@ export const adminPersonnel = {
     preview: 'Preview impact',
     confirm: 'Confirm and record',
     title: 'Impact if recorded',
+    notRecorded: 'Not recorded yet',
+    timeline: 'Key dates',
+    requests: 'Affected requests',
+    noRights: 'There are no rights to revoke.',
     revocationDueOn: 'Revocation due',
     graceEndsOn: 'Grace period ends',
     graceReminderOn: 'Reminder on',
@@ -109,9 +115,19 @@ export const adminPersonnel = {
     'Verify the authoritative source before recording or linking an event. Job title notices require the controlled procedure.',
   overdue: 'Overdue',
   upload: 'Upload for preview',
+  downloadTemplate: 'Download template (.xlsx)',
+  downloadCsvTemplate: 'Download template (.csv)',
+  templateLoading: 'Downloading template…',
+  downloadTemplateError: 'Could not download template. Please try again later.',
   file: 'Employee file',
+  importUploadTitle: 'Choose an employee list',
+  importUploadDescription: 'Choose a file to check and preview its contents. Data is saved only after you confirm.',
+  preparingPreview: 'Checking the file and preparing the preview…',
+  importTemplateTitle: 'Prepare your file',
+  importTemplateDescription: 'Download a template and enter employee information in the provided columns.',
+  recentImportsTitle: 'Continue a recent import',
   importHelp:
-    'Choose a CSV or XLSX spreadsheet up to 2,097,152 bytes. Required columns: employee code (employee_code), full name (full_name), employment type (employment_type), and hire date (hire_date). Department code (department_code), work email (work_email), and job title (job_title) are optional. Leave the department code blank for unplaced staff. Uploading only creates a preview.',
+    'Employee code, full name, employment type and hire date are required. Department code, work email and job title are optional. Leave the department blank for unassigned employees.',
   resumeImport: 'Read existing import',
   importIdPlaceholder: 'Enter the ID of a previous employee import',
   refreshPreview: 'Refresh preview',
@@ -137,6 +153,7 @@ export const adminPersonnel = {
     workEmail: 'Work email',
     employmentType: 'Employment type',
     hireDate: 'Hire date',
+    contractEndDate: 'Contract end date',
     departmentCode: 'Department code',
     jobTitle: 'Job title',
     departmentId: 'Department',
@@ -148,7 +165,7 @@ export const adminPersonnel = {
     reference: 'Personnel document reference',
     issuer: 'Personnel document issuer',
     issuedOn: 'Personnel document issue date',
-    successorEmployeeId: 'Successor employee (optional)',
+    successorEmployeeId: 'Successor employee',
     noSuccessor: 'No successor',
     startedOn: 'Leave start date',
     approvedReturnOn: 'Approved return date',
@@ -203,5 +220,54 @@ export const adminPersonnel = {
     ATTACHED_DOCUMENT: 'Attached document',
     EMAIL_FROM_ISSUER: 'Email from issuer',
     DIRECT_CONTACT: 'Direct contact'
+  },
+  ui: {
+    eyebrow: 'Personnel records and changes',
+    directoryCount: '{{count}} employees',
+    allRoles: 'All roles',
+    allPlacements: 'All placement states',
+    allWorkStates: 'All work states',
+    allEmploymentTypes: 'All employment types',
+    allAccounts: 'All account states',
+    noMatchTitle: 'No matching employees',
+    noMatchHint: 'Change the keyword or filters to see more employees.',
+    noEmployeesTitle: 'No employee records yet',
+    noEmployeesHint: 'Add an employee or import a personnel file to get started.',
+    importStepUpload: 'Step 1: Upload file',
+    importStepPreview: 'Step 2: Review the result',
+    pickRecentImport: 'Choose a recent import, type to search',
+    importRowsTitle: 'Row details',
+    importRowsHint: 'Validation result for each row in the file.',
+    allOutcomes: 'All outcomes',
+    importTiles: {
+      valid: 'Valid rows',
+      errors: 'Rows with errors',
+      same: 'Existing, unchanged',
+      different: 'Existing, changed'
+    },
+    leavesTitle: 'Long leave',
+    recordCount: '{{count}} records',
+    noticesTitle: 'Personnel change notices',
+    offboardingTitle: 'Offboarding',
+    pickOffboardingState: 'Choose an offboarding state',
+    sectionHint: {
+      employees: 'Look up, add and edit employee records.',
+      imports: 'Import personnel records from a file, review them, then confirm.',
+      leaves: 'Track long leave cases.',
+      offboarding: 'Track offboarding and handover.',
+      notices: 'Review personnel change notices sent by department heads.'
+    },
+    pickDepartment: 'Choose a department, type to search',
+    pickDepartmentOptional: 'Choose a department (optional), type to search',
+    allDepartments: 'All departments',
+    noDepartmentMatch: 'No matching department found',
+    pickEmployee: 'Choose an employee, type a name or code to search',
+    pickEmployeeOptional: 'Choose an employee (optional), type to search',
+    noEmployeeMatch: 'No matching employee found',
+    pickEvent: 'Choose an event, type to search',
+    noEventMatch: 'No matching event found',
+    pickOption: 'Choose {{field}}',
+    emptyListTitle: 'No data yet',
+    emptyListHint: 'Data will appear here when new records exist.'
   }
 }

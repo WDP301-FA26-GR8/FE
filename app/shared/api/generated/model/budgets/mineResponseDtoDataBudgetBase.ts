@@ -7,6 +7,7 @@
  */
 
 /**
+ * The base of the approved version, before the adjustments (the base with them is effectiveBudget.base; the check of a request names that one `base`).
  * @nullable
  */
 export type MineResponseDtoDataBudgetBase = {

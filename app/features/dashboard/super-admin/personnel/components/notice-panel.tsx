@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import {
   usePersonnelNoticeList,
@@ -17,6 +18,7 @@ import { getOffboardingCaseListQueryKey } from '~/shared/api/generated/operation
 import { AdminQueryState } from '../../shared/components/admin-query-state'
 import { AdminPagination } from '../../shared/components/admin-pagination'
 import { AdminFormDialog, adminButtonClass } from '../../shared/components/admin-form'
+import { AdminSectionTitle } from '../../shared/components/admin-page-header'
 import { usePersonnelMutationFeedback } from '../../shared/hooks/use-personnel-mutation-feedback'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import { PersonnelCard, PersonnelCode, PersonnelList } from '../../shared/components/personnel-list'
@@ -28,9 +30,17 @@ export function NoticePanel() {
   const { t: translate } = useTranslation('adminPersonnel')
   const { formatDate } = useDashboardFormat()
   const [page, setPage] = useState(1)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const selectedId = searchParams.get('noticeId')
+  const setSelectedId = (id: string | null) =>
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous)
+      if (id) next.set('noticeId', id)
+      else next.delete('noticeId')
+      return next
+    })
   const [action, setAction] = useState<NoticeAction | null>(null)
-  const query = usePersonnelNoticeList({ page, pageSize: 20 })
+  const query = usePersonnelNoticeList({ page, pageSize: 20 }, { query: { enabled: !selectedId } })
   const detail = usePersonnelNoticeGet(selectedId ?? '', { query: { enabled: Boolean(selectedId) } })
   const feedback = usePersonnelMutationFeedback(
     [
@@ -54,31 +64,36 @@ export function NoticePanel() {
   const canHandle = notice?.status === noticePending && noticeKinds.includes(notice.kind)
   return (
     <section className='space-y-5'>
-      <p className='text-sm text-muted-foreground'>{translate('noticeHelp')}</p>
-      <AdminQueryState query={query}>
-        <PersonnelList empty={!data?.items.length}>
-          {data?.items.map((item) => (
-            <PersonnelCard
-              key={item.id}
-              title={item.employee.fullName}
-              actions={
-                <button className={adminButtonClass} onClick={() => setSelectedId(item.id)}>
-                  {translate('viewNotice')}
-                </button>
-              }
-            >
-              <p className='font-mono'>{item.code}</p>
-              <PersonnelCode code={item.kind} values={noticeKinds} plain />
-              <PersonnelCode code={item.status} values={noticeStatuses} />
-              <p>{translate('noticeDue', { date: formatDate(item.dueOn) })}</p>
-              {item.overdue && <p className='text-warning'>{translate('overdue')}</p>}
-            </PersonnelCard>
-          ))}
-        </PersonnelList>
-        <AdminPagination pagination={data?.pagination} onPageChange={setPage} disabled={query.isFetching} />
-      </AdminQueryState>
+      {!selectedId && (
+        <>
+          <AdminSectionTitle title={translate('ui.noticesTitle')} hint={translate('noticeHelp')} />
+          <AdminQueryState query={query}>
+            <PersonnelList empty={!data?.items.length}>
+              {data?.items.map((item) => (
+                <PersonnelCard
+                  key={item.id}
+                  title={item.employee.fullName}
+                  actions={
+                    <button className={adminButtonClass} onClick={() => setSelectedId(item.id)}>
+                      {translate('viewNotice')}
+                    </button>
+                  }
+                >
+                  <p className='font-mono'>{item.code}</p>
+                  <PersonnelCode code={item.kind} values={noticeKinds} plain />
+                  <PersonnelCode code={item.status} values={noticeStatuses} />
+                  <p>{translate('noticeDue', { date: formatDate(item.dueOn) })}</p>
+                  {item.overdue && <p className='text-warning'>{translate('overdue')}</p>}
+                </PersonnelCard>
+              ))}
+            </PersonnelList>
+            <AdminPagination pagination={data?.pagination} onPageChange={setPage} disabled={query.isFetching} />
+          </AdminQueryState>
+        </>
+      )}
       {selectedId && !action && (
         <AdminFormDialog
+          page
           title={translate('noticeDetails')}
           pending={false}
           wide
@@ -92,7 +107,7 @@ export function NoticePanel() {
           <AdminQueryState query={detail}>
             {notice && (
               <div className='space-y-3'>
-                <h3 className='font-semibold'>{notice.employee.fullName}</h3>
+                <h3 className='section-accent font-semibold'>{notice.employee.fullName}</h3>
                 <p className='font-mono'>{notice.code}</p>
                 <PersonnelCode code={notice.kind} values={noticeKinds} plain />
                 <PersonnelCode code={notice.status} values={noticeStatuses} />

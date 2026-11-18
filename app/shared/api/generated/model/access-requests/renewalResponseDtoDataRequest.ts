@@ -8,9 +8,9 @@
 import type { RenewalResponseDtoDataRequestBeneficiary } from './renewalResponseDtoDataRequestBeneficiary'
 import type { RenewalResponseDtoDataRequestBranch } from './renewalResponseDtoDataRequestBranch'
 import type { RenewalResponseDtoDataRequestCancellation } from './renewalResponseDtoDataRequestCancellation'
+import type { RenewalResponseDtoDataRequestCost } from './renewalResponseDtoDataRequestCost'
 import type { RenewalResponseDtoDataRequestCostCenter } from './renewalResponseDtoDataRequestCostCenter'
 import type { RenewalResponseDtoDataRequestDepartment } from './renewalResponseDtoDataRequestDepartment'
-import type { RenewalResponseDtoDataRequestFlags } from './renewalResponseDtoDataRequestFlags'
 import type { RenewalResponseDtoDataRequestLimitExemption } from './renewalResponseDtoDataRequestLimitExemption'
 import type { RenewalResponseDtoDataRequestNeedDecision } from './renewalResponseDtoDataRequestNeedDecision'
 import type { RenewalResponseDtoDataRequestNeedStep } from './renewalResponseDtoDataRequestNeedStep'
@@ -61,7 +61,6 @@ export type RenewalResponseDtoDataRequest = {
   serviceAccount: RenewalResponseDtoDataRequestServiceAccount
   /** @nullable */
   limitExemption: RenewalResponseDtoDataRequestLimitExemption
-  flags: RenewalResponseDtoDataRequestFlags
   /** @nullable */
   renewal: RenewalResponseDtoDataRequestRenewal
   /** @nullable */
@@ -73,6 +72,8 @@ export type RenewalResponseDtoDataRequest = {
    */
   budgetYear: number | null
   pricing: RenewalResponseDtoDataRequestPricing
+  /** @nullable */
+  cost: RenewalResponseDtoDataRequestCost
   policy: RenewalResponseDtoDataRequestPolicy
   submittedAt: string
   needStep: RenewalResponseDtoDataRequestNeedStep

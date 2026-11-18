@@ -9,7 +9,7 @@ import type { MineResponseDtoDataBudgetBase } from './mineResponseDtoDataBudgetB
 import type { MineResponseDtoDataBudgetCommitted } from './mineResponseDtoDataBudgetCommitted'
 import type { MineResponseDtoDataBudgetCostCenter } from './mineResponseDtoDataBudgetCostCenter'
 import type { MineResponseDtoDataBudgetCycle } from './mineResponseDtoDataBudgetCycle'
-import type { MineResponseDtoDataBudgetDepartmentCeiling } from './mineResponseDtoDataBudgetDepartmentCeiling'
+import type { MineResponseDtoDataBudgetEffectiveBudget } from './mineResponseDtoDataBudgetEffectiveBudget'
 import type { MineResponseDtoDataBudgetLatestRefusal } from './mineResponseDtoDataBudgetLatestRefusal'
 import type { MineResponseDtoDataBudgetPendingSpend } from './mineResponseDtoDataBudgetPendingSpend'
 import type { MineResponseDtoDataBudgetProposal } from './mineResponseDtoDataBudgetProposal'
@@ -29,12 +29,23 @@ export type MineResponseDtoDataBudget = {
    */
   year: number
   status: MineResponseDtoDataBudgetStatus
-  /** @nullable */
+  /**
+   * The base of the approved version, before the adjustments (the base with them is effectiveBudget.base; the check of a request names that one `base`).
+   * @nullable
+   */
   base: MineResponseDtoDataBudgetBase
   /** @nullable */
   reserve: MineResponseDtoDataBudgetReserve
-  /** @nullable */
+  /**
+   * The base and the reserve of the approved version, before the adjustments.
+   * @nullable
+   */
   total: MineResponseDtoDataBudgetTotal
+  /**
+   * Null when the Cost Center has no budget of the year. What is left below is worked out on this.
+   * @nullable
+   */
+  effectiveBudget: MineResponseDtoDataBudgetEffectiveBudget
   committed: MineResponseDtoDataBudgetCommitted
   spent: MineResponseDtoDataBudgetSpent
   pendingSpend: MineResponseDtoDataBudgetPendingSpend
@@ -43,8 +54,6 @@ export type MineResponseDtoDataBudget = {
   /** @nullable */
   remainingWithReserve: MineResponseDtoDataBudgetRemainingWithReserve
   overBudget: boolean
-  /** @nullable */
-  departmentCeiling: MineResponseDtoDataBudgetDepartmentCeiling
   /** @nullable */
   cycle: MineResponseDtoDataBudgetCycle
   /** @nullable */

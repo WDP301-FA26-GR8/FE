@@ -7,10 +7,9 @@ import { AccountInviteDialog } from './accounts/components/account-invite-dialog
 import { AccountDetailModal } from './accounts/components/account-detail-modal'
 import { SuperAdminDepartmentsView } from './departments/views/super-admin-departments-view'
 import { SuperAdminPersonnelView } from './personnel/views/super-admin-personnel-view'
-import { SuperAdminSettingsView } from './settings/views/super-admin-settings-view'
 import { SuperAdminRemindersView } from './reminders/views/super-admin-reminders-view'
 import { SuperAdminOperationsView } from './operations/views/super-admin-operations-view'
-import { SuperAdminAuditView } from './audit/views/super-admin-audit-view'
+import { SuperAdminPoliciesView } from './policies'
 import './super-admin.css'
 
 export function SuperAdminScreen({ tab, onSelectTab }: { tab: SuperAdminTabKey; onSelectTab: SuperAdminSelectTab }) {
@@ -66,17 +65,30 @@ function SuperAdminContent({ tab, onSelectTab }: { tab: SuperAdminTabKey; onSele
             onInviteAccount={() => setInviteFromPersonnel(true)}
             renderAccountDetail={(id, onClose) => <AccountDetailModal page id={id} onClose={onClose} />}
           />
-          {inviteFromPersonnel && <AccountInviteDialog onClose={() => setInviteFromPersonnel(false)} />}
+          {(inviteFromPersonnel || invite) && (
+            <AccountInviteDialog
+              onClose={() => {
+                setInviteFromPersonnel(false)
+                if (invite)
+                  setSearchParams(
+                    (previous) => {
+                      const next = new URLSearchParams(previous)
+                      next.delete('action')
+                      return next
+                    },
+                    { replace: true }
+                  )
+              }}
+            />
+          )}
         </>
       )
-    case 'settings':
-      return <SuperAdminSettingsView />
     case 'reminders':
       return <SuperAdminRemindersView />
     case 'operations':
       return <SuperAdminOperationsView />
-    case 'audit-trail':
-      return <SuperAdminAuditView />
+    case 'policies':
+      return <SuperAdminPoliciesView />
     default:
       return <SuperAdminOverviewView onSelectTab={onSelectTab} />
   }

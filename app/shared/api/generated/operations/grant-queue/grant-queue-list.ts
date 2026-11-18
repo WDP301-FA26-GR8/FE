@@ -28,7 +28,7 @@ import { customAxios } from '../../../mutator/custom-axios'
 import type { ErrorType } from '../../../mutator/custom-axios'
 
 /**
- * @summary List the requests waiting to be carried out
+ * @summary List the approved requests to carry out, person by person
  */
 export const grantQueueList = (
   params?: GrantQueueListParams,
@@ -122,7 +122,7 @@ export function useGrantQueueList<
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary List the requests waiting to be carried out
+ * @summary List the approved requests to carry out, person by person
  */
 
 export function useGrantQueueList<

@@ -7,7 +7,7 @@
  */
 
 /**
- * The versions counted at the annual check, in the currency of the cycle, whether or not their department is listed below.
+ * The versions counted at the annual check, in the currency of the cycle, whether or not their department is listed below, with the adjustments approved for them (the version of a row keeps its own figures).
  */
 export type PackageResponseDtoDataVersionsTotal = {
   amount: string

@@ -13,9 +13,40 @@ export const adminButtonClass = `${adminControlClass} border-border bg-surface h
 export const adminPrimaryClass = `${adminControlClass} border-transparent bg-primary text-primary-foreground hover:bg-primary-hover enabled:active:bg-primary-hover enabled:active:shadow-inner`
 const adminDangerClass = `${adminControlClass} border-danger bg-danger text-white hover:bg-danger/90`
 
-export function AdminField({ label, children, error }: { label: string; children: ReactNode; error?: string }) {
-  const control = isValidElement<{ required?: boolean; 'aria-label'?: string }>(children) ? children : null
-  const required = control?.props.required
+export function AdminField({
+  label,
+  children,
+  error,
+  description,
+  required: requiredOverride
+}: {
+  label: string
+  children: ReactNode
+  error?: string
+  description?: string
+  required?: boolean
+}) {
+  const descriptionId = useId()
+  const errorId = useId()
+  const control = isValidElement<{
+    required?: boolean
+    disabled?: boolean
+    readOnly?: boolean
+    'aria-label'?: string
+    'aria-describedby'?: string
+    descriptionId?: string
+  }>(children)
+    ? children
+    : null
+  const describedBy =
+    [
+      control?.props['aria-describedby'] ?? control?.props.descriptionId,
+      description ? descriptionId : undefined,
+      error ? errorId : undefined
+    ]
+      .filter(Boolean)
+      .join(' ') || undefined
+  const required = !control?.props.disabled && !control?.props.readOnly && (requiredOverride ?? control?.props.required)
   return (
     <label className='grid min-w-0 content-start gap-1.5 text-sm font-medium'>
       <span>
@@ -27,9 +58,23 @@ export function AdminField({ label, children, error }: { label: string; children
         )}
       </span>
       {control && typeof control.type === 'string'
-        ? cloneElement(control, { 'aria-label': control.props['aria-label'] ?? label })
-        : children}
-      {error && <span className='min-h-5 text-xs text-danger'>{error}</span>}
+        ? cloneElement(control, {
+            'aria-label': control.props['aria-label'] ?? label,
+            'aria-describedby': describedBy
+          })
+        : control
+          ? cloneElement(control, { descriptionId: describedBy })
+          : children}
+      {description && (
+        <span id={descriptionId} className='text-xs font-normal leading-relaxed text-muted-foreground'>
+          {description}
+        </span>
+      )}
+      {error && (
+        <span id={errorId} className='min-h-5 text-xs text-danger'>
+          {error}
+        </span>
+      )}
     </label>
   )
 }
@@ -84,7 +129,7 @@ export function AdminFormDialog({
           className={
             page
               ? 'flex w-full flex-col rounded-lg border border-border bg-surface outline-none'
-              : `flex max-h-[95dvh] w-full flex-col border border-border bg-surface shadow-xl outline-none ${wide ? 'h-dvh md:max-w-[640px]' : 'rounded-t-lg md:max-w-lg md:rounded-lg'}`
+              : `flex max-h-[95dvh] min-h-0 w-full flex-col overflow-hidden border border-border bg-surface shadow-xl outline-none ${wide ? 'h-dvh md:max-w-[640px]' : 'rounded-t-lg md:max-w-lg md:rounded-lg'}`
           }
           onKeyDown={(event) => {
             if (page) return
@@ -108,7 +153,7 @@ export function AdminFormDialog({
             }
           }}
         >
-          <header className='flex items-center justify-between border-b border-border p-5'>
+          <header className='flex shrink-0 items-center justify-between border-b border-border p-5'>
             <h2 id={titleId} className='text-lg font-semibold [text-wrap:balance]'>
               {title}
             </h2>
@@ -137,17 +182,12 @@ export function AdminFormDialog({
               onSubmit(event)
             }}
           >
-            <fieldset
-              disabled={pending}
-              className={
-                page
-                  ? 'grid min-w-0 content-start gap-4 p-5'
-                  : 'grid min-h-0 min-w-0 flex-1 grid-cols-[minmax(0,1fr)] content-start gap-4 overflow-x-hidden overflow-y-auto p-5'
-              }
-            >
-              {children}
-            </fieldset>
-            <footer className='flex justify-end gap-3 border-t border-border p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]'>
+            <div className={page ? 'min-w-0' : 'min-h-0 min-w-0 flex-1 overflow-x-hidden overflow-y-auto'}>
+              <fieldset disabled={pending} className='grid min-w-0 grid-cols-[minmax(0,1fr)] content-start gap-4 p-5'>
+                {children}
+              </fieldset>
+            </div>
+            <footer className='flex shrink-0 justify-end gap-3 border-t border-border bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]'>
               <button type='button' disabled={pending} onClick={onClose} className={adminButtonClass}>
                 {translate('cancel')}
               </button>

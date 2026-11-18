@@ -7,6 +7,7 @@
  */
 import type { BudgetCheckResponseDtoDataBudgetCheckBindingTotal } from './budgetCheckResponseDtoDataBudgetCheckBindingTotal'
 import type { BudgetCheckResponseDtoDataBudgetCheckBlockedReasonsItem } from './budgetCheckResponseDtoDataBudgetCheckBlockedReasonsItem'
+import type { BudgetCheckResponseDtoDataBudgetCheckNextYearBudget } from './budgetCheckResponseDtoDataBudgetCheckNextYearBudget'
 import type { BudgetCheckResponseDtoDataBudgetCheckOutcome } from './budgetCheckResponseDtoDataBudgetCheckOutcome'
 import type { BudgetCheckResponseDtoDataBudgetCheckOverBaseBy } from './budgetCheckResponseDtoDataBudgetCheckOverBaseBy'
 import type { BudgetCheckResponseDtoDataBudgetCheckOverBy } from './budgetCheckResponseDtoDataBudgetCheckOverBy'
@@ -38,5 +39,7 @@ export type BudgetCheckResponseDtoDataBudgetCheck = {
    * @exclusiveMinimum 0
    */
   yearCount: number
+  /** @nullable */
+  nextYearBudget: BudgetCheckResponseDtoDataBudgetCheckNextYearBudget
   ranAt: string
 }

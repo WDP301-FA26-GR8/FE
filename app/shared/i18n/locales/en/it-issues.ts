@@ -1,5 +1,13 @@
 export const itIssues = {
   title: 'SaaS issues',
+  subtitle: 'Triage, work on and close software issue reports from the departments you look after.',
+  chooseDepartment: 'Choose a department',
+  backDepartments: 'Back to departments',
+  fieldHints: {
+    duplicateId: 'Select the existing report from the same department that describes the same incident.',
+    vendorTicket: 'Enter the vendor support ticket reference if one was created.',
+    message: 'Describe the issue or update. Do not include passwords or secret keys.'
+  },
   scope: 'Scope',
   assigned: 'Assigned to me',
   allIssues: 'All reports',
@@ -23,8 +31,8 @@ export const itIssues = {
   ticketPlaceholder: 'Enter the ticket reference created with the vendor',
   resolutionPlaceholder: 'Describe the confirmed resolution and outcome',
   duplicate: 'Mark as duplicate',
-  duplicateId: 'Original report identifier',
-  duplicatePlaceholder: 'Enter the original report UUID',
+  duplicateId: 'Original report',
+  duplicatePlaceholder: 'Choose the original report, type a title or code to search',
   reason: 'Reason',
   reasonPlaceholder: 'Explain why the two reports describe the same issue',
   save: 'Save changes',

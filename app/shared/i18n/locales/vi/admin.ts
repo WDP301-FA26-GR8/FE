@@ -3,8 +3,14 @@ import { parameterPresentation } from './admin-parameters'
 import { operationPresentation } from './admin-operations-presentation'
 import { overviewMetrics } from './admin-overview-metrics'
 import { parameterContract } from './admin-parameter-contract'
+import { adminFormHelp } from './admin-form-help'
+import { adminOversight } from './admin-oversight'
+import { policyLibrary } from './admin-policy-library'
+import { operatingDefinitions } from './admin-operating-definitions'
 
 export const admin = {
+  ...adminFormHelp,
+  ...adminOversight,
   retryIn: 'Thử lại sau {{count}} giây',
   navigation: {
     overview: 'Tổng quan',
@@ -12,9 +18,7 @@ export const admin = {
     departments: 'Phòng ban',
     personnel: 'Nhân sự',
     reminders: 'Tham số vận hành',
-    settings: 'Cấu hình hệ thống',
-    transfer: 'Điều chuyển phòng ban',
-    'audit-trail': 'Nhật ký kiểm toán',
+    policies: 'Thư viện chính sách',
     operations: 'Giám sát quy trình'
   },
   loading: 'Đang tải…',
@@ -39,6 +43,10 @@ export const admin = {
   remove: 'Xóa',
   create: 'Tạo',
   errors: {
+    activeDepartureBlock: 'Hồ sơ nghỉ việc vẫn còn hiệu lực. Hủy hồ sơ trước khi gỡ chặn truy cập do nghỉ việc.',
+    itAdminLimit: 'Quản trị viên công nghệ thông tin này đã phụ trách đủ số phòng ban cho phép. Chọn người khác.',
+    policyStepsFixed:
+      'Phải giữ nguyên các bước quyết định và mục kiểm tra tự động của hệ thống. Tải lại bản nháp và chỉ sửa nội dung hiển thị.',
     duplicate: 'Mã, email hoặc ngày này đã tồn tại. Chọn giá trị khác.',
     financeAssigned: 'Đã có tài khoản giữ vai trò tài chính. Kiểm tra phân công hiện tại trước.',
     derivedRole: 'Vai này được suy ra từ trưởng phòng hoặc trách nhiệm phê duyệt.',
@@ -122,8 +130,6 @@ export const admin = {
     departments: 'Phòng ban',
     accounts: 'Tài khoản và trách nhiệm',
     personnel: 'Nhân sự',
-    settings: 'Cấu hình vận hành',
-    audit: 'Nhật ký kiểm toán',
     operations: 'Giám sát quy trình',
     steps: {
       ORGANIZATION: 'Tổ chức',
@@ -153,6 +159,19 @@ export const admin = {
     }
   },
   parameters: {
+    additionalDefinitions: operatingDefinitions,
+    options: { ON: 'Đang bật', OFF: 'Đang tắt', DAILY: 'Hằng ngày', WEEKLY: 'Hằng tuần' },
+    groups: {
+      WORKFLOW: 'Quy trình',
+      BUDGET: 'Ngân sách',
+      PERSONNEL: 'Nhân sự',
+      PROVISIONING: 'Cấp quyền sử dụng',
+      ACCOUNT: 'Tài khoản',
+      DOCUMENT: 'Tài liệu',
+      SUBSCRIPTION: 'Thuê bao',
+      USAGE: 'Sử dụng phần mềm',
+      AI: 'Trí tuệ nhân tạo'
+    },
     contract: parameterContract,
     ...parameterPresentation,
     title: 'Tham số vận hành',
@@ -168,49 +187,50 @@ export const admin = {
     olderHistory: 'Phản hồi này chưa bao gồm các thay đổi cũ hơn.',
     changed: 'Thời điểm thay đổi'
   },
-  settings: {
-    reasonPlaceholder: 'Ví dụ: Nghỉ lễ Quốc khánh',
-    currencyPlaceholder: 'Ví dụ: VND',
-    title: 'Cấu hình hệ thống',
-    holidays: 'Ngày nghỉ',
-    date: 'Ngày',
-    reason: 'Lý do',
-    addDate: 'Thêm ngày nghỉ',
-    renameDate: 'Đổi tên ngày nghỉ',
-    removeDate: 'Xóa ngày nghỉ',
-    confirmRemove: 'Xóa ngày này khỏi lịch nghỉ?',
-    currency: 'Tiền tệ báo cáo',
-    currencyImpact: 'Tiền tệ sẽ bị khóa khi đã có tỷ giá hoặc giá được quy đổi.',
-    currencySave: 'Đặt tiền tệ báo cáo',
-    from: 'Từ ngày',
-    to: 'Đến ngày'
-  },
-  audit: {
-    placeholders: {
-      resourceType: 'Nhập loại tài nguyên, ví dụ Department',
-      resourceId: 'Nhập mã tài nguyên cần tìm',
-      actorAppUserId: 'Nhập mã tài khoản thực hiện',
-      action: 'Nhập mã hành động cần tìm'
-    },
-    title: 'Nhật ký kiểm toán',
-    resourceType: 'Loại tài nguyên',
-    resourceId: 'Mã tài nguyên',
-    actor: 'Mã tài khoản thực hiện',
-    action: 'Hành động',
-    from: 'Từ thời điểm',
-    to: 'Đến thời điểm (không bao gồm)',
-    apply: 'Áp dụng bộ lọc',
-    occurred: 'Thời điểm',
-    before: 'Trước thay đổi',
-    after: 'Sau thay đổi',
-    correlation: 'Mã liên kết sự kiện',
-    actorKinds: { USER: 'Người dùng', SYSTEM: 'Hệ thống', OPERATOR: 'Vận hành' }
+  policies: {
+    title: 'Thư viện chính sách',
+    description: 'Soạn và công bố chính sách vận hành cùng các điều kiện kiểm tra khi phê duyệt.',
+    draftBadge: 'Có bản nháp',
+    applicableRoles: 'Vai áp dụng',
+    publishedAt: 'Ngày ban hành',
+    viewDetails: 'Đọc chính sách',
+    createDraft: 'Soạn nháp',
+    editDraft: 'Sửa bản nháp',
+    saveDraft: 'Lưu bản nháp',
+    discardDraft: 'Hủy bản nháp',
+    publish: 'Xuất bản',
+    publishTitle: 'Xuất bản chính sách {{code}}',
+    publishConfirm: 'Xác nhận xuất bản',
+    publishNotice:
+      'Chính sách sẽ có hiệu lực ngay lập tức sau khi xuất bản. Mọi quyết định tiếp theo sẽ áp dụng phiên bản mới.',
+    changeNote: 'Căn cứ ban hành',
+    changeNotePlaceholder: 'Ghi rõ quyết định, số hiệu, ngày ban hành và người ký ban hành…',
+    requiresReacknowledgement: 'Yêu cầu nhân sự xác nhận lại (người đã đọc bản cũ phải đọc lại)',
+    draftTitle: 'Bản nháp chính sách {{code}}',
+    targetVersion: 'Phiên bản dự kiến: v{{version}}',
+    titleLabel: 'Tiêu đề chính sách',
+    firstSectionHeading: 'Tiêu đề phần mở đầu',
+    firstSectionBody: 'Nội dung quy định',
+    version: 'Phiên bản',
+    versionNumber: 'Phiên bản {{version}}',
+    sections: 'Các điều khoản',
+    steps: 'Các bước và điều kiện kiểm tra',
+    report: 'Báo cáo xác nhận',
+    reportTitle: 'Báo cáo xác nhận đã đọc: {{code}}',
+    filterState: 'Trạng thái xác nhận',
+    status: 'Trạng thái',
+    stateDone: 'Đã xác nhận',
+    statePending: 'Chờ xác nhận',
+    state_DONE: 'Đã đọc',
+    state_PENDING: 'Chưa đọc',
+    ackVersion: 'Bản đã đọc',
+    acknowledgedAt: 'Thời điểm xác nhận',
+    ...policyLibrary
   },
   operations: {
     descriptionPlaceholder: 'Mô tả điểm nghẽn, ảnh hưởng và nội dung cần xử lý',
     ...operationPresentation,
     title: 'Giám sát quy trình',
-    waits: 'Đang chờ cấu hình',
     congestion: 'Trách nhiệm bị tắc nghẽn',
     incident: 'Ghi nhận sự cố',
     holder: 'Mã nhân viên giữ bước',
@@ -222,19 +242,44 @@ export const admin = {
     overdueSteps: 'Bước quá hạn',
     reminders: 'Lượt đã nhắc',
     incidentHistory: 'Sự cố đã ghi nhận',
-    waitReasons: {
-      NO_SPENDING_APPROVER: 'Cấu hình Người duyệt chi.',
-      NO_FALLBACK_APPROVER: 'Cấu hình người duyệt dự phòng.',
-      FALLBACK_IS_REQUESTER: 'Người duyệt dự phòng là người yêu cầu. Cần cấu hình người thay thế.',
-      NO_CONFLICT_SUBSTITUTE: 'Cấu hình người thay khi xung đột.',
-      NO_FINANCE_REVIEWER: 'Chỉ định nhân sự tài chính đủ điều kiện.',
-      NO_IT_ADMIN_IN_CHARGE: 'Chỉ định quản trị viên công nghệ thông tin phụ trách phòng.'
-    },
     stepKinds: {
       NEED: 'Duyệt nhu cầu',
       FINANCE_REVIEW: 'Bộ phận tài chính rà soát',
       SPEND_APPROVAL: 'Duyệt chi',
       IT_ASSESSMENT: 'Thẩm định công nghệ'
+    }
+  },
+  ui: {
+    pickGroupBy: 'Chọn cách nhóm kết quả',
+    allSources: 'Mọi nguồn',
+    noReportRows: 'Chưa có dữ liệu để hiển thị',
+    noReportRowsHint: 'Dữ liệu sẽ xuất hiện khi có hoạt động phù hợp với bộ lọc.',
+    allDeadlineKinds: 'Mọi loại hạn xử lý',
+    operationsEyebrow: 'Giám sát vận hành',
+    operationsHint: {
+      workflow: 'Theo dõi các bước đang chờ, quá hạn và trách nhiệm bị tắc nghẽn.',
+      sla: 'Xem thời gian xử lý so với cam kết theo từng nhóm.',
+      auditFlags: 'Các cảnh báo kiểm soát cần được rà soát.',
+      deadlines: 'Các hạn xử lý sắp đến và đã quá hạn.'
+    },
+    congestionHint: 'Những người đang giữ nhiều bước chờ xử lý nhất.',
+    noCongestionTitle: 'Không có tắc nghẽn',
+    noCongestionHint: 'Hiện chưa có trách nhiệm nào bị tắc nghẽn.',
+    pickCheckType: 'Chọn loại mục kiểm tra',
+    pickReack: 'Chọn có yêu cầu xác nhận lại hay không',
+    policiesEyebrow: 'Thư viện chính sách',
+    policyLibrary: 'Danh sách chính sách',
+    policyCount: '{{count}} chính sách',
+    noPoliciesTitle: 'Chưa có chính sách nào',
+    parametersEyebrow: 'Tham số vận hành',
+    noParametersTitle: 'Chưa có tham số nào',
+    parameterCount: '{{count}} tham số',
+    placeholders: {
+      sectionHeading: 'Ví dụ: Phạm vi áp dụng',
+      sectionBody: 'Ví dụ: Chính sách áp dụng cho mọi nhân viên sử dụng phần mềm của công ty',
+      stepTitle: 'Ví dụ: Gửi đề xuất cho trưởng phòng',
+      checklistText: 'Ví dụ: Tôi đã đọc và hiểu quy định sử dụng phần mềm',
+      policyTitle: 'Ví dụ: Chính sách vận hành chung, phiên bản bổ sung'
     }
   }
 } as const

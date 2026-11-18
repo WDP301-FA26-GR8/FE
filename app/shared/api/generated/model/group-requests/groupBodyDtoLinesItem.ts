@@ -8,9 +8,4 @@
 
 export type GroupBodyDtoLinesItem = {
   employeeId: string
-  /**
-   * @minLength 1
-   * @maxLength 1000
-   */
-  manyPaidSoftwareReason?: string
 }

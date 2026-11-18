@@ -8,7 +8,6 @@
 import type { DepartmentAccessRequestPageResponseDtoDataItemsItemBeneficiary } from './departmentAccessRequestPageResponseDtoDataItemsItemBeneficiary'
 import type { DepartmentAccessRequestPageResponseDtoDataItemsItemBranch } from './departmentAccessRequestPageResponseDtoDataItemsItemBranch'
 import type { DepartmentAccessRequestPageResponseDtoDataItemsItemDepartment } from './departmentAccessRequestPageResponseDtoDataItemsItemDepartment'
-import type { DepartmentAccessRequestPageResponseDtoDataItemsItemFlags } from './departmentAccessRequestPageResponseDtoDataItemsItemFlags'
 import type { DepartmentAccessRequestPageResponseDtoDataItemsItemNeedStep } from './departmentAccessRequestPageResponseDtoDataItemsItemNeedStep'
 import type { DepartmentAccessRequestPageResponseDtoDataItemsItemOutcome } from './departmentAccessRequestPageResponseDtoDataItemsItemOutcome'
 import type { DepartmentAccessRequestPageResponseDtoDataItemsItemPlan } from './departmentAccessRequestPageResponseDtoDataItemsItemPlan'
@@ -56,6 +55,5 @@ export type DepartmentAccessRequestPageResponseDtoDataItemsItem = {
   requester: DepartmentAccessRequestPageResponseDtoDataItemsItemRequester
   department: DepartmentAccessRequestPageResponseDtoDataItemsItemDepartment
   reserveUsed: boolean
-  flags: DepartmentAccessRequestPageResponseDtoDataItemsItemFlags
   awaitingMe: boolean
 }

@@ -11,7 +11,9 @@ import type { ItAdminDashboardResponseDtoDataSectionsDiscrepancies } from './itA
 import type { ItAdminDashboardResponseDtoDataSectionsGhostSeats } from './itAdminDashboardResponseDtoDataSectionsGhostSeats'
 import type { ItAdminDashboardResponseDtoDataSectionsGrantTasks } from './itAdminDashboardResponseDtoDataSectionsGrantTasks'
 import type { ItAdminDashboardResponseDtoDataSectionsLicenseKeys } from './itAdminDashboardResponseDtoDataSectionsLicenseKeys'
+import type { ItAdminDashboardResponseDtoDataSectionsMissingInvoicePeriods } from './itAdminDashboardResponseDtoDataSectionsMissingInvoicePeriods'
 import type { ItAdminDashboardResponseDtoDataSectionsOffboardingHandovers } from './itAdminDashboardResponseDtoDataSectionsOffboardingHandovers'
+import type { ItAdminDashboardResponseDtoDataSectionsOutOfProcessRevocationsDue } from './itAdminDashboardResponseDtoDataSectionsOutOfProcessRevocationsDue'
 import type { ItAdminDashboardResponseDtoDataSectionsPlansBelowVendorAdminMinimum } from './itAdminDashboardResponseDtoDataSectionsPlansBelowVendorAdminMinimum'
 import type { ItAdminDashboardResponseDtoDataSectionsRevocationTasks } from './itAdminDashboardResponseDtoDataSectionsRevocationTasks'
 import type { ItAdminDashboardResponseDtoDataSectionsSaasIssues } from './itAdminDashboardResponseDtoDataSectionsSaasIssues'
@@ -44,6 +46,10 @@ export type ItAdminDashboardResponseDtoDataSections = {
   unconfirmedDevices: ItAdminDashboardResponseDtoDataSectionsUnconfirmedDevices
   /** The SaaS error reports given to the caller that are not resolved, closed or marked duplicate. */
   saasIssues: ItAdminDashboardResponseDtoDataSectionsSaasIssues
+  /** The periods of a right paid by the month or the year whose invoice has not been submitted five working days after the payment day, in the departments of the caller: the total of the list of them (`purchaseInvoiceMissingPeriodList`). */
+  missingInvoicePeriods: ItAdminDashboardResponseDtoDataSectionsMissingInvoicePeriods
+  /** The open cases outside the process on a company asset whose revocation is due now: no Request of the person to wait for, or the ten working days of the wait have passed with the Request not yet at the step of the spending approver. The cases are listed by `outOfProcessCaseList`, each with its `revocation`; no list answers this number alone. */
+  outOfProcessRevocationsDue: ItAdminDashboardResponseDtoDataSectionsOutOfProcessRevocationsDue
   /** The recommendations of wasted seats not closed: the seats of people who left (G2) and the free seats of subscriptions (G1 open). */
   ghostSeats: ItAdminDashboardResponseDtoDataSectionsGhostSeats
 }

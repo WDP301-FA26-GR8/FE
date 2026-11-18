@@ -9,6 +9,7 @@ import type { UsageUnmatchedIdentityListStatus } from './usageUnmatchedIdentityL
 
 export type UsageUnmatchedIdentityListParams = {
   applicationId?: string
+  importId?: string
   status?: UsageUnmatchedIdentityListStatus
   /**
    * @minimum 1

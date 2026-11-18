@@ -10,7 +10,7 @@ export type CycleListResponseDtoDataItemsItemStatus =
   (typeof CycleListResponseDtoDataItemsItemStatus)[keyof typeof CycleListResponseDtoDataItemsItemStatus]
 
 export const CycleListResponseDtoDataItemsItemStatus = {
-  NOT_PUBLISHED: 'NOT_PUBLISHED',
-  PUBLISHED: 'PUBLISHED',
-  CHANGED_AFTER_PUBLISH: 'CHANGED_AFTER_PUBLISH'
+  DRAFT: 'DRAFT',
+  OPEN: 'OPEN',
+  LOCKED: 'LOCKED'
 } as const

@@ -10,38 +10,27 @@ export type VersionBodyDto =
   | {
       source?: 'PROPOSAL'
       proposalId: string
-      base: {
+      /** The base of the year. Left out, it is filled in with what the Cost Center carries into the year (carriedOverNextYear). */
+      base?: {
         /** @maxLength 40 */
         amount: string
       }
+      /** The reserve as an amount; not with reservePercent. An amount that is not the default share of the base asks a reason when the version is sent. */
       reserve?: {
         /** @maxLength 40 */
         amount: string
       }
       /**
+       * The reserve as a share of the base, in whole percent; not with reserve. The default share when neither is given. A share that is not the default asks reserveReason when the version is sent.
+       * @minimum 0
+       * @maximum 100
+       */
+      reservePercent?: number
+      /**
        * @minLength 1
        * @maxLength 1000
        */
       reserveReason?: string
-      /** @nullable */
-      quarters?: {
-        q1: {
-          /** @maxLength 40 */
-          amount: string
-        }
-        q2: {
-          /** @maxLength 40 */
-          amount: string
-        }
-        q3: {
-          /** @maxLength 40 */
-          amount: string
-        }
-        q4: {
-          /** @maxLength 40 */
-          amount: string
-        }
-      } | null
     }
   | {
       source: 'BASELINE'
@@ -51,4 +40,25 @@ export type VersionBodyDto =
        * @maximum 2200
        */
       year: number
+      /** The base of the year. Left out, it is filled in with what the Cost Center carries into the year (carriedOverNextYear). */
+      base?: {
+        /** @maxLength 40 */
+        amount: string
+      }
+      /** The reserve as an amount; not with reservePercent. An amount that is not the default share of the base asks a reason when the version is sent. */
+      reserve?: {
+        /** @maxLength 40 */
+        amount: string
+      }
+      /**
+       * The reserve as a share of the base, in whole percent; not with reserve. The default share when neither is given. A share that is not the default asks reserveReason when the version is sent.
+       * @minimum 0
+       * @maximum 100
+       */
+      reservePercent?: number
+      /**
+       * @minLength 1
+       * @maxLength 1000
+       */
+      reserveReason?: string
     }

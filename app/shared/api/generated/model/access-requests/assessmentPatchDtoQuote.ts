@@ -6,13 +6,17 @@
  * OpenAPI spec version: 1.0
  */
 import type { AssessmentPatchDtoQuoteBillingCycle } from './assessmentPatchDtoQuoteBillingCycle'
+import type { AssessmentPatchDtoQuoteOriginalPrice } from './assessmentPatchDtoQuoteOriginalPrice'
 import type { AssessmentPatchDtoQuoteUnitPrice } from './assessmentPatchDtoQuoteUnitPrice'
 
 /**
  * @nullable
  */
 export type AssessmentPatchDtoQuote = {
+  /** What one person costs for one billing cycle, in dong: a decimal string in major units, currency VND. Another currency is refused (ASSESSMENT.QUOTE_PRICE_NOT_VND). */
   unitPrice: AssessmentPatchDtoQuoteUnitPrice
+  /** The price the vendor quoted in another currency, kept beside the quote in dong for matching an invoice later: a decimal string in major units of its currency. It is only kept, never converted. */
+  originalPrice?: AssessmentPatchDtoQuoteOriginalPrice
   billingCycle: AssessmentPatchDtoQuoteBillingCycle
   /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
   validFrom: string

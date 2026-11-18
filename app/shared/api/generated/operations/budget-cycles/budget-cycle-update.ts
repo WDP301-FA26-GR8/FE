@@ -17,7 +17,7 @@ import { customAxios } from '../../../mutator/custom-axios'
 import type { ErrorType, BodyType } from '../../../mutator/custom-axios'
 
 /**
- * @summary Change the deadlines, priorities or annual ceiling of a cycle
+ * @summary Change a budget cycle
  */
 export const budgetCycleUpdate = (
   year: number,
@@ -78,7 +78,7 @@ export type BudgetCycleUpdateMutationBody = BodyType<UpdateCycleBodyDto>
 export type BudgetCycleUpdateMutationError = ErrorType<ErrorEnvelopeDto>
 
 /**
- * @summary Change the deadlines, priorities or annual ceiling of a cycle
+ * @summary Change a budget cycle
  */
 export const useBudgetCycleUpdate = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(
   options?: {

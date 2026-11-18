@@ -11,5 +11,7 @@ export type PackageResponseDtoDataDepartmentsItemVersionOrigin =
 
 export const PackageResponseDtoDataDepartmentsItemVersionOrigin = {
   PROPOSAL: 'PROPOSAL',
-  BASELINE_NO_HEAD: 'BASELINE_NO_HEAD'
+  BASELINE_NO_HEAD: 'BASELINE_NO_HEAD',
+  BASELINE_NO_PROPOSAL: 'BASELINE_NO_PROPOSAL',
+  ADJUSTMENT: 'ADJUSTMENT'
 } as const

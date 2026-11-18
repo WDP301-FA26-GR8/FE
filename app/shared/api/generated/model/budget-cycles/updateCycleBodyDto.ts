@@ -6,6 +6,7 @@
  * OpenAPI spec version: 1.0
  */
 import type { UpdateCycleBodyDtoAnnualCeiling } from './updateCycleBodyDtoAnnualCeiling'
+import type { UpdateCycleBodyDtoSharedPoolReserve } from './updateCycleBodyDtoSharedPoolReserve'
 
 export interface UpdateCycleBodyDto {
   /** A calendar date as YYYY-MM-DD; it must exist (2026-02-30 is refused). */
@@ -19,8 +20,9 @@ export interface UpdateCycleBodyDto {
    */
   priorities?: string | null
   annualCeiling?: UpdateCycleBodyDtoAnnualCeiling
+  sharedPoolReserve?: UpdateCycleBodyDtoSharedPoolReserve
   /**
-   * Needed when the annual ceiling changes.
+   * Needed once the cycle is open, when the submission deadline moves or the annual ceiling or the reserve changes; kept with the figures before and after.
    * @minLength 1
    * @maxLength 1000
    */

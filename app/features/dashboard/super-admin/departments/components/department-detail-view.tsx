@@ -12,6 +12,7 @@ import { DepartmentMembersPanel } from './department-members-panel'
 import { DepartmentHeadHistory } from './department-head-history'
 import { DepartmentActionForm, type DepartmentAction } from './department-action-form'
 import { DepartmentAddEmployee } from './department-add-employee'
+import { DepartmentHistoryPage } from './department-history-page'
 
 export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () => void }) {
   const { t: translate } = useTranslation('adminOrganization')
@@ -43,6 +44,9 @@ export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () =>
   const query = useDepartmentGet(id)
   const department = query.data?.data
   const active = department?.status === DepartmentStatus.ACTIVE
+  if (historyOpen && department && (department.headHistory.length > 6 || department.headHistoryHasMore))
+    return <DepartmentHistoryPage department={department} onClose={closeHistory} />
+  if (action === 'edit' && department) return <DepartmentForm department={department} onClose={() => setAction(null)} />
   if (addingEmployee && active && department)
     return (
       <DepartmentAddEmployee
@@ -61,9 +65,9 @@ export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () =>
         {!department && <AdminEmpty />}
         {department && (
           <>
-            <header className='flex min-w-0 flex-wrap items-center gap-5 rounded-lg border border-t-4 border-border/80 border-t-primary/60 bg-surface p-5 shadow-sm sm:p-6'>
+            <header className='page-banner flex min-w-0 flex-wrap items-center gap-5'>
               <div className='flex w-full min-w-0 items-center gap-4 sm:w-auto sm:flex-1'>
-                <span className='grid size-14 shrink-0 place-items-center rounded-md bg-primary-soft text-primary-ink'>
+                <span className='grid size-14 shrink-0 place-items-center rounded-xl bg-surface text-primary shadow-sm ring-1 ring-primary/15'>
                   <Building2 aria-hidden className='size-7' strokeWidth={1.5} />
                 </span>
                 <div className='min-w-0'>
@@ -135,20 +139,14 @@ export function DepartmentDetailView({ id, onBack }: { id: string; onBack: () =>
               historyOpening={historyOpening}
               historyOpen={historyOpen}
             />
-            {active && (
-              <button
-                type='button'
-                className={`${adminButtonClass} justify-self-start`}
-                onClick={() => setAddingEmployee(true)}
-              >
-                {translate('addEmployee')}
-              </button>
-            )}
-            <DepartmentMembersPanel key={id} id={id} />
+            <DepartmentMembersPanel
+              key={id}
+              id={id}
+              onAddEmployee={active ? () => setAddingEmployee(true) : undefined}
+            />
             {historyOpen && (
               <DepartmentHeadHistory department={department} onClose={closeHistory} onReady={historyReady} />
             )}
-            {action === 'edit' && <DepartmentForm department={department} onClose={() => setAction(null)} />}
             {action && action !== 'edit' && (
               <DepartmentActionForm department={department} action={action} onClose={() => setAction(null)} />
             )}

@@ -7,7 +7,7 @@
  */
 
 /**
- * The lines counted: a CANCEL line is shown and not added.
+ * The amount the head asked for.
  */
 export type PackageResponseDtoDataDepartmentsItemProposalTotal = {
   amount: string

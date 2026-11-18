@@ -1,17 +1,20 @@
+import { CalendarRange, FileStack, Landmark } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useBudgetVersionList } from '~/shared/api/generated/operations/budget-versions/budget-version-list'
 import { useBudgetProposalList } from '~/shared/api/generated/operations/budget-proposals/budget-proposal-list'
 import { useDashboardFormat } from '../../../dashboard-ui'
 import {
-  ApprovalsButton,
   ApprovalsPage,
   ApprovalsPagination,
+  ApprovalsSection,
   ApprovalsStatus
 } from '../../shared/components/approvals-ui'
+import { ApprovalsSegmented } from '../../shared/components/approvals-segmented'
 import { ApprovalsQueryState } from '../../shared/components/approvals-query-state'
 import { ApprovalsTable } from '../../shared/components/approvals-table'
 import { formatMoney } from '../../shared/approvals-money'
+import { ApprovalCycleDetail, ApprovalCycleList, CYCLE_ID_PREFIX } from '../components/approval-cycle-overview'
 import { ApprovalAnnualBudgetDetail } from '../components/approval-annual-budget-detail'
 import { ApprovalAnnualBudgetFilters } from '../components/approval-annual-budget-filters'
 import { ApprovalBudgetProposalDetail } from '../components/approval-budget-proposal-detail'
@@ -24,30 +27,33 @@ export function ApprovalAnnualBudgetView(props: ApprovalBudgetViewProps) {
     return (
       <ApprovalBudgetProposalDetail {...props} key={props.itemId} itemId={props.itemId.slice('proposal:'.length)} />
     )
+  if (props.itemId?.startsWith(CYCLE_ID_PREFIX))
+    return <ApprovalCycleDetail {...props} key={props.itemId} itemId={props.itemId} />
   if (props.itemId) return <ApprovalAnnualBudgetDetail {...props} key={props.itemId} itemId={props.itemId} />
   return <ApprovalBudgetLists {...props} />
 }
 
 function ApprovalBudgetLists({ onSelectTab }: ApprovalBudgetViewProps) {
   const { t: translate } = useTranslation('approvalsBudget')
-  const [section, setSection] = useState<'versions' | 'proposals'>('versions')
+  const [section, setSection] = useState<'versions' | 'proposals' | 'cycles'>('versions')
   return (
-    <ApprovalsPage title={translate('title')} description={translate('pageDescription')}>
-      <div
-        role='group'
-        aria-label={translate('title')}
-        className='inline-flex flex-wrap gap-1 rounded-lg border border-border/70 bg-surface-subtle p-1'
-      >
-        {(['versions', 'proposals'] as const).map((item) => (
-          <ApprovalsButton key={item} variant='ghost' aria-pressed={section === item} onClick={() => setSection(item)}>
-            {translate(item)}
-          </ApprovalsButton>
-        ))}
-      </div>
-      {section === 'versions' ? (
-        <VersionList onOpen={(id) => onSelectTab('annual-budget', { id })} />
-      ) : (
+    <ApprovalsPage icon={Landmark} title={translate('title')} description={translate('pageDescription')}>
+      <ApprovalsSegmented
+        label={translate('title')}
+        value={section}
+        onChange={setSection}
+        items={[
+          { key: 'versions', label: translate('versions'), icon: Landmark },
+          { key: 'proposals', label: translate('proposals'), icon: FileStack },
+          { key: 'cycles', label: translate('cycles.tab'), icon: CalendarRange }
+        ]}
+      />
+      {section === 'versions' && <VersionList onOpen={(id) => onSelectTab('annual-budget', { id })} />}
+      {section === 'proposals' && (
         <ProposalList onOpen={(id) => onSelectTab('annual-budget', { id: `proposal:${id}` })} />
+      )}
+      {section === 'cycles' && (
+        <ApprovalCycleList onOpen={(year) => onSelectTab('annual-budget', { id: `${CYCLE_ID_PREFIX}${year}` })} />
       )}
     </ApprovalsPage>
   )
@@ -60,7 +66,7 @@ function VersionList({ onOpen }: { onOpen: (id: string) => void }) {
   const [filters, setFilters] = useState<{ state?: VersionState; year?: number }>({ state: versionState.SENT })
   const query = useBudgetVersionList({ ...filters, page, pageSize: 20 })
   return (
-    <>
+    <ApprovalsSection title={translate('versions')} description={translate('layout.versionsDescription')}>
       <ApprovalAnnualBudgetFilters
         states={Object.values(versionState)}
         state={filters.state}
@@ -73,6 +79,7 @@ function VersionList({ onOpen }: { onOpen: (id: string) => void }) {
       <ApprovalsQueryState query={query}>
         <ApprovalsTable
           items={query.data?.data?.items ?? []}
+          emptyMessage={translate('layout.versionsEmpty')}
           rowKey={(version) => version.id}
           onOpen={(version) => onOpen(version.id)}
           columns={[
@@ -115,7 +122,7 @@ function VersionList({ onOpen }: { onOpen: (id: string) => void }) {
         />
         <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
       </ApprovalsQueryState>
-    </>
+    </ApprovalsSection>
   )
 }
 
@@ -126,10 +133,7 @@ function ProposalList({ onOpen }: { onOpen: (id: string) => void }) {
   const [filters, setFilters] = useState<{ state?: ProposalState; year?: number }>({})
   const query = useBudgetProposalList({ ...filters, page, pageSize: 20 })
   return (
-    <>
-      <p role='note' className='text-sm text-muted-foreground'>
-        {translate('readOnly')}
-      </p>
+    <ApprovalsSection title={translate('proposals')} description={translate('readOnly')}>
       <ApprovalAnnualBudgetFilters
         states={Object.values(proposalState)}
         state={filters.state}
@@ -150,7 +154,13 @@ function ProposalList({ onOpen }: { onOpen: (id: string) => void }) {
               label: translate('center'),
               render: (proposal) => <span title={proposal.costCenter.name}>{proposal.costCenter.name}</span>
             },
-            { key: 'year', label: translate('year'), numeric: true, render: (proposal) => proposal.year },
+            {
+              key: 'year',
+              label: translate('year'),
+              numeric: true,
+              align: 'center',
+              render: (proposal) => proposal.year
+            },
             {
               key: 'total',
               label: translate('total'),
@@ -173,6 +183,6 @@ function ProposalList({ onOpen }: { onOpen: (id: string) => void }) {
         />
         <ApprovalsPagination pagination={query.data?.data?.pagination} onPageChange={setPage} />
       </ApprovalsQueryState>
-    </>
+    </ApprovalsSection>
   )
 }

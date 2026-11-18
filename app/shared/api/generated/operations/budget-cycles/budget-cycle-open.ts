@@ -9,47 +9,27 @@ import type { SecondParameter } from './budget-cycles.helpers'
 import { useMutation } from '@tanstack/react-query'
 import type { MutationFunction, QueryClient, UseMutationOptions, UseMutationResult } from '@tanstack/react-query'
 
-import type { BudgetCycleOpen201, ErrorEnvelopeDto, OpenCycleBodyDto } from '../../model'
+import type { BudgetCycleOpen201, ErrorEnvelopeDto } from '../../model'
 
 import { env } from '~/shared/config/env'
 
 import { customAxios } from '../../../mutator/custom-axios'
-import type { ErrorType, BodyType } from '../../../mutator/custom-axios'
+import type { ErrorType } from '../../../mutator/custom-axios'
 
 /**
- * @summary Open the budget cycle of a year
+ * @summary Open a draft budget cycle
  */
-export const budgetCycleOpen = (
-  openCycleBodyDto: BodyType<OpenCycleBodyDto>,
-  options?: SecondParameter<typeof customAxios>,
-  signal?: AbortSignal
-) => {
+export const budgetCycleOpen = (year: number, options?: SecondParameter<typeof customAxios>, signal?: AbortSignal) => {
   return customAxios<BudgetCycleOpen201>(
-    {
-      url: `${env.API_BASE_URL}/api/v1/budget-cycles`,
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      data: openCycleBodyDto,
-      signal
-    },
+    { url: `${env.API_BASE_URL}/api/v1/budget-cycles/${year}/opening`, method: 'POST', signal },
     options
   )
 }
 
 export const getBudgetCycleOpenMutationOptions = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(options?: {
-  mutation?: UseMutationOptions<
-    Awaited<ReturnType<typeof budgetCycleOpen>>,
-    TError,
-    { data: BodyType<OpenCycleBodyDto> },
-    TContext
-  >
+  mutation?: UseMutationOptions<Awaited<ReturnType<typeof budgetCycleOpen>>, TError, { year: number }, TContext>
   request?: SecondParameter<typeof customAxios>
-}): UseMutationOptions<
-  Awaited<ReturnType<typeof budgetCycleOpen>>,
-  TError,
-  { data: BodyType<OpenCycleBodyDto> },
-  TContext
-> => {
+}): UseMutationOptions<Awaited<ReturnType<typeof budgetCycleOpen>>, TError, { year: number }, TContext> => {
   const mutationKey = ['budgetCycleOpen']
   const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
@@ -57,41 +37,28 @@ export const getBudgetCycleOpenMutationOptions = <TError = ErrorType<ErrorEnvelo
       : { ...options, mutation: { ...options.mutation, mutationKey } }
     : { mutation: { mutationKey }, request: undefined }
 
-  const mutationFn: MutationFunction<
-    Awaited<ReturnType<typeof budgetCycleOpen>>,
-    { data: BodyType<OpenCycleBodyDto> }
-  > = (props) => {
-    const { data } = props ?? {}
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof budgetCycleOpen>>, { year: number }> = (props) => {
+    const { year } = props ?? {}
 
-    return budgetCycleOpen(data, requestOptions)
+    return budgetCycleOpen(year, requestOptions)
   }
 
   return { mutationFn, ...mutationOptions }
 }
 
 export type BudgetCycleOpenMutationResult = NonNullable<Awaited<ReturnType<typeof budgetCycleOpen>>>
-export type BudgetCycleOpenMutationBody = BodyType<OpenCycleBodyDto>
+
 export type BudgetCycleOpenMutationError = ErrorType<ErrorEnvelopeDto>
 
 /**
- * @summary Open the budget cycle of a year
+ * @summary Open a draft budget cycle
  */
 export const useBudgetCycleOpen = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(
   options?: {
-    mutation?: UseMutationOptions<
-      Awaited<ReturnType<typeof budgetCycleOpen>>,
-      TError,
-      { data: BodyType<OpenCycleBodyDto> },
-      TContext
-    >
+    mutation?: UseMutationOptions<Awaited<ReturnType<typeof budgetCycleOpen>>, TError, { year: number }, TContext>
     request?: SecondParameter<typeof customAxios>
   },
   queryClient?: QueryClient
-): UseMutationResult<
-  Awaited<ReturnType<typeof budgetCycleOpen>>,
-  TError,
-  { data: BodyType<OpenCycleBodyDto> },
-  TContext
-> => {
+): UseMutationResult<Awaited<ReturnType<typeof budgetCycleOpen>>, TError, { year: number }, TContext> => {
   return useMutation(getBudgetCycleOpenMutationOptions(options), queryClient)
 }

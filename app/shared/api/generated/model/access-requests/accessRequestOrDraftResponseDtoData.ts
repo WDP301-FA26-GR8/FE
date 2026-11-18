@@ -51,6 +51,8 @@ export type AccessRequestOrDraftResponseDtoData =
            * @exclusiveMinimum 0
            */
           expectedUsers: number
+          /** @nullable */
+          existingApplicationId: string | null
         } | null
         department: {
           id: string
@@ -113,22 +115,12 @@ export type AccessRequestOrDraftResponseDtoData =
         } | null
         /** @nullable */
         limitExemption: 'TRANSFER_GRACE' | 'ROLE_ENDED' | null
-        flags: {
-          /** @nullable */
-          manyPaidSoftware: {
-            /**
-             * @minimum 0
-             * @maximum 9007199254740991
-             */
-            count: number
-            reason: string
-          } | null
-        }
         /** @nullable */
         renewal: {
           assignmentId: string
           previousExpectedEndDate: string
-          newExpectedEndDate: string
+          /** @nullable */
+          newExpectedEndDate: string | null
           /**
            * @maximum 9007199254740991
            * @exclusiveMinimum 0
@@ -150,7 +142,7 @@ export type AccessRequestOrDraftResponseDtoData =
             | 'WAITING_SPEND_DECISION'
             | 'REFUSED'
           /** @maxItems 3 */
-          blockedReasons: ('PRICE_EXPIRED' | 'NO_APPROVED_BUDGET' | 'OVER_RESERVE' | 'PRICE_MISSING' | 'RATE_MISSING')[]
+          blockedReasons: ('PRICE_EXPIRED' | 'NO_APPROVED_BUDGET' | 'OVER_RESERVE' | 'PRICE_MISSING')[]
           /** @nullable */
           overBy: {
             amount: string
@@ -200,6 +192,54 @@ export type AccessRequestOrDraftResponseDtoData =
             currency: string
           } | null
         }
+        /** @nullable */
+        cost: {
+          currentYear: {
+            /**
+             * @minimum -9007199254740991
+             * @maximum 9007199254740991
+             */
+            year: number
+            /**
+             * @minimum -9007199254740991
+             * @maximum 9007199254740991
+             * @nullable
+             */
+            months: number | null
+            amount: {
+              amount: string
+              currency: string
+            }
+          }
+          /** @nullable */
+          nextYear: {
+            /** The first day of the year after, YYYY-MM-DD. */
+            from: string
+            /**
+             * @minimum -9007199254740991
+             * @maximum 9007199254740991
+             * @nullable
+             */
+            months: number | null
+            amount: {
+              amount: string
+              currency: string
+            }
+            estimate: true
+          } | null
+          /**
+           * The last day of the contract of a person with a term, when it cut the time of use short.
+           * @nullable
+           */
+          termCutAt: string | null
+          /**
+           * The months that have begun by the end of the term, each counted whole; null for a right with no end.
+           * @minimum -9007199254740991
+           * @maximum 9007199254740991
+           * @nullable
+           */
+          months: number | null
+        } | null
         policy: {
           /**
            * @maximum 9007199254740991
@@ -244,7 +284,7 @@ export type AccessRequestOrDraftResponseDtoData =
         }
         /** @nullable */
         needDecision: {
-          decision: 'APPROVED' | 'REJECTED'
+          decision: 'APPROVED' | 'REJECTED' | 'RETURNED'
           decidedBy: {
             employeeId: string
             employeeCode: string

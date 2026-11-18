@@ -17,6 +17,7 @@ import type { AssessmentResponseDtoDataAssessmentProposal } from './assessmentRe
 import type { AssessmentResponseDtoDataAssessmentProvisioningType } from './assessmentResponseDtoDataAssessmentProvisioningType'
 import type { AssessmentResponseDtoDataAssessmentQuote } from './assessmentResponseDtoDataAssessmentQuote'
 import type { AssessmentResponseDtoDataAssessmentRejection } from './assessmentResponseDtoDataAssessmentRejection'
+import type { AssessmentResponseDtoDataAssessmentScope } from './assessmentResponseDtoDataAssessmentScope'
 import type { AssessmentResponseDtoDataAssessmentStatus } from './assessmentResponseDtoDataAssessmentStatus'
 import type { AssessmentResponseDtoDataAssessmentStep } from './assessmentResponseDtoDataAssessmentStep'
 import type { AssessmentResponseDtoDataAssessmentVendor } from './assessmentResponseDtoDataAssessmentVendor'
@@ -25,6 +26,7 @@ export type AssessmentResponseDtoDataAssessment = {
   requestId: string
   status: AssessmentResponseDtoDataAssessmentStatus
   proposal: AssessmentResponseDtoDataAssessmentProposal
+  scope: AssessmentResponseDtoDataAssessmentScope
   /** @nullable */
   step: AssessmentResponseDtoDataAssessmentStep
   /** @nullable */

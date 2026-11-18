@@ -1,24 +1,7 @@
 # E2E findings
 
-## Khảo sát và kiểm chứng tính năng AI theo từng Role > 1. Super Admin: Quản trị và kiểm soát tham số vận hành AI
+## Main Flow 2 & 3: Thu hồi khi nghỉ việc (MF-2) và Điều chuyển phòng ban (MF-3) > MF-2 (Super Admin): Mở hồ sơ nhân sự -> Ghi nghỉ việc -> Xem trước tác động (Impact Preview)
 
-- **note** Super Admin AI parameters: Trợ lý AI 3 tham số Công tắc tổng của các tính năng AI Đã tùy chỉnh Tắt để dừng mọi lời gọi đến dịch vụ trí tuệ nhân tạo. Giá trị hiện hành Bật Mặc định Tắt Đơn vị công tắc Thời điểm thay đổi: 23:33 18/11/2026 Thao tác Tóm tắt hàng chờ duyệt bằng AI Đã tùy chỉnh Chỉ hoạt động khi công tắc trí tuệ nh _(/dashboard/super-admin?tab=reminders)_
-
-## Khảo sát và kiểm chứng tính năng AI theo từng Role > 2. Spending Approver: Tóm tắt hàng chờ duyệt chi bằng AI (US-15-05)
-
-- **note** Spending Approver source: {"queueRevision":"db32dec218541f5e0cb44c509823a1ef77907bea18eeda857a8d0a717e5f1497","stepCount":9,"omittedCount":0} _(/dashboard/spending-approver?tab=queue)_
-- **note** Spending Approver AI result: Tóm tắt bằng AI Chỉ giúp đọc nhanh hàng chờ, không thay bạn quyết định. Hãy mở từng yêu cầu để xem đủ thông tin trước khi quyết. Tóm tắt lại Hoàng Văn Em đề nghị dùng GitHub (không nêu mục đích). Mở Lâm Văn Vinh đề nghị dùng Canva trong 1 tháng để làm dự phòng. Mở Lê Minh Cường đề nghị dùng Cursor t _(/dashboard/spending-approver?tab=queue)_
-
-## Khảo sát và kiểm chứng tính năng AI theo từng Role > 3. Manager: Tóm tắt hàng chờ duyệt nhu cầu (US-15-05)
-
-- **note** Manager source: {"queueRevision":"dc0e1cae0655810ce55a0644072b3a0611779e27a0b37e109f63bd56ad50168c","stepCount":6,"omittedCount":0} _(/dashboard/manager?tab=team-requests)_
-- **note** Manager AI lines: 6/6 _(/dashboard/manager?tab=team-requests)_
-- **note** Manager AI result: Tóm tắt bằng AI Chỉ giúp đọc nhanh hàng chờ, không thay bạn quyết định. Hãy mở từng yêu cầu để xem đủ thông tin trước khi quyết. Tóm tắt lại Mai Thị Rạng đề nghị dùng Slack (không nêu mục đích). Mở Đặng Nguyễn Việt Anh đề nghị dùng Claude (không nêu mục đích). Mở Đặng Nguyễn Việt Anh đề nghị dùng ChatGPT trong 9 tháng để phân tích mã nguồn, nghiên cứu kiến trúc hệ thống, phát hiện lỗi, xây dựng tính năng, viết kiểm thử và tối ưu hóa hiệu suất ứng dụng. Mở Đặng Quang Hiển đề nghị dùng Claude (không nêu mục đích). Mở Đặng Nguyễn Việt Anh đề nghị dùng Claude trong 1 tháng để lập kế hoạch du lịch, _(/dashboard/manager?tab=team-requests)_
-
-## Khảo sát và kiểm chứng tính năng AI theo từng Role > 4. Finance: Kiểm chứng hiện trạng AI đối với vai Tài chính
-
-- **note** Finance gọi /api/v1/ai/access-request-summaries/source: {"status":200,"data":{"queueRevision":"2ff52fc3fa9648fd24a62ec9196dbdcbdbb139342922f8f6542555b36f91f994","stepCount":0,"omittedCount":0}} _(/dashboard/finance)_
-- **console-error** Failed to load resource: the server responded with a status of 404 (Not Found) _(/dashboard/finance)_
-- **http-4xx** GET /api/v1/ai/cost-reports -> 404 HTTP_NOT_FOUND _(/dashboard/finance)_
-- **http-4xx** GET /api/v1/ai/cost-report-summaries -> 404 HTTP_NOT_FOUND _(/dashboard/finance)_
-- **note** Kiểm tra endpoint AI Finance: {"/backend/api/v1/ai/cost-reports":404,"/backend/api/v1/ai/cost-report-summaries":404,"/backend/api/v1/cost-reports/draft":404} _(/dashboard/finance)_
+- **note** POST offboarding-cases/preview -> 200 _(/dashboard/super-admin?tab=personnel&employeeId=32298bb7-18ba-4cd8-bd39-204b6cd8baf5)_
+- **note** MF-2: Xem trước tác động nghỉ việc thành công _(/dashboard/super-admin?tab=personnel&employeeId=32298bb7-18ba-4cd8-bd39-204b6cd8baf5)_
+- **note** MF-2: Đã đóng form kiểm thử an toàn _(/dashboard/super-admin?tab=personnel&employeeId=32298bb7-18ba-4cd8-bd39-204b6cd8baf5)_

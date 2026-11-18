@@ -16,7 +16,11 @@ export const ACCOUNTS: Record<E2eRole, E2eAccount> = {
   },
   finance: { role: 'finance', email: 'phuc.trinh@saoviet.example', passwordVariable: 'E2E_SEED_PASSWORD' },
   'it-admin': { role: 'it-admin', email: 'quan.ly@saoviet.example', passwordVariable: 'E2E_SEED_PASSWORD' },
-  manager: { role: 'manager', email: 'cuong.le@saoviet.example', passwordVariable: 'E2E_SEED_PASSWORD' },
+  manager: {
+    role: 'manager',
+    email: process.env.E2E_MANAGER_EMAIL || 'cuong.le@saoviet.example',
+    passwordVariable: 'E2E_SEED_PASSWORD'
+  },
   'spending-approver': {
     role: 'spending-approver',
     email: 'an.nguyen@saoviet.example',

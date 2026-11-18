@@ -27,7 +27,10 @@ test.describe('Khảo sát và kiểm chứng tính năng AI theo từng Role', 
     await noteVisibleProblems(page, report, 'Super Admin - Tham số vận hành')
 
     // Xác nhận nhóm tham số Trợ lý AI hiện diện
-    const aiSection = page.locator('section').filter({ hasText: /Trợ lý AI/i }).first()
+    const aiSection = page
+      .locator('section')
+      .filter({ hasText: /Trợ lý AI/i })
+      .first()
     await expect(aiSection).toBeVisible()
 
     // Xác nhận 3 tham số cốt lõi được định nghĩa trong BE và hiển thị trên UI
@@ -83,8 +86,24 @@ test.describe('Khảo sát và kiểm chứng tính năng AI theo từng Role', 
 
     // Nếu có yêu cầu chờ (stepCount > 0), panel xuất hiện
     const panel = page.getByRole('region', { name: 'Tóm tắt bằng AI' })
-    if (sourceBody.data?.stepCount > 0) {
+    const stepCount: number = sourceBody.data?.stepCount ?? 0
+    if (stepCount > 0) {
       await expect(panel).toBeVisible()
+      const createPromise = page.waitForResponse(
+        (r) => r.url().endsWith(AI_CREATE_PATH) && r.request().method() === 'POST'
+      )
+      await click(panel.getByRole('button', { name: /Tóm tắt \d+ yêu cầu|Tóm tắt lại/ }), 'Bấm tóm tắt')
+      expect((await createPromise).status()).toBe(202)
+      // Wait for an answer, not for the running note: it may not have rendered yet when the 202 arrives.
+      await expect(panel.getByRole('button', { name: 'Tóm tắt lại' })).toBeEnabled({ timeout: 150_000 })
+      // The backend drops lines that fail its checks, so a completed summary has at most one line per step.
+      const lines = panel.getByRole('listitem')
+      await expect(lines.first()).toBeVisible()
+      const lineCount = await lines.count()
+      expect(lineCount).toBeLessThanOrEqual(stepCount)
+      report.add('note', `Manager AI lines: ${lineCount}/${stepCount}`)
+      const outcome = await panel.innerText()
+      report.add('note', `Manager AI result: ${outcome.replace(/\s+/g, ' ').slice(0, 600)}`)
     } else {
       await expect(panel).toBeHidden()
       report.add('note', 'Manager hàng chờ rỗng -> Khối AI ẩn đúng thiết kế')
@@ -99,9 +118,11 @@ test.describe('Khảo sát và kiểm chứng tính năng AI theo từng Role', 
 
     // Finance gọi source API qua proxy /backend để kiểm tra hàng chờ Access Request
     const API_BASE = '/backend/api/v1'
+    // The session keeps its tokens in localStorage, not in a cookie: send the access token like the app does.
     const sourceResult = await page.evaluate(async (url) => {
       try {
-        const res = await fetch(url, { credentials: 'include' })
+        const tokens = JSON.parse(localStorage.getItem('saas-sentry.auth-tokens') ?? '{}') as { accessToken?: string }
+        const res = await fetch(url, { headers: { authorization: `Bearer ${tokens.accessToken ?? ''}` } })
         const data = (await res.json()) as { data?: { stepCount?: number } }
         return { status: res.status, data: data.data }
       } catch (err) {
@@ -111,17 +132,18 @@ test.describe('Khảo sát và kiểm chứng tính năng AI theo từng Role', 
 
     report.add('note', `Finance gọi ${AI_SOURCE_PATH}: ${JSON.stringify(sourceResult)}`)
     // Finance không phải người duyệt Access Request nên stepCount = 0
-    if ('status' in sourceResult && sourceResult.status === 200) {
-      expect(sourceResult.data?.stepCount ?? 0).toBe(0)
-    }
+    expect(sourceResult).toMatchObject({ status: 200 })
+    expect('data' in sourceResult ? (sourceResult.data?.stepCount ?? 0) : -1).toBe(0)
 
     // Kiểm chứng BE deploy chưa có route US-15-06 (báo cáo chi phí AI qua /backend)
     const costReportAiCheck = await page.evaluate(async (base) => {
+      const tokens = JSON.parse(localStorage.getItem('saas-sentry.auth-tokens') ?? '{}') as { accessToken?: string }
+      const headers = { authorization: `Bearer ${tokens.accessToken ?? ''}` }
       const endpoints = [`${base}/ai/cost-reports`, `${base}/ai/cost-report-summaries`, `${base}/cost-reports/draft`]
       const results: Record<string, number> = {}
       for (const endpoint of endpoints) {
         try {
-          const res = await fetch(endpoint, { credentials: 'include' })
+          const res = await fetch(endpoint, { headers })
           results[endpoint] = res.status
         } catch {
           results[endpoint] = 0

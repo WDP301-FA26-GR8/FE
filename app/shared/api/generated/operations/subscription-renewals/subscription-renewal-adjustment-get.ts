@@ -78,7 +78,6 @@ export type SubscriptionRenewalAdjustmentGetQueryResult = NonNullable<
 >
 export type SubscriptionRenewalAdjustmentGetQueryError = ErrorType<ErrorEnvelopeDto>
 
-/** @summary Read the seats a subscription needs for its next period */
 export function useSubscriptionRenewalAdjustmentGet<
   TData = Awaited<ReturnType<typeof subscriptionRenewalAdjustmentGet>>,
   TError = ErrorType<ErrorEnvelopeDto>
@@ -98,7 +97,6 @@ export function useSubscriptionRenewalAdjustmentGet<
   },
   queryClient?: QueryClient
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/** @summary Read the seats a subscription needs for its next period */
 export function useSubscriptionRenewalAdjustmentGet<
   TData = Awaited<ReturnType<typeof subscriptionRenewalAdjustmentGet>>,
   TError = ErrorType<ErrorEnvelopeDto>
@@ -118,7 +116,6 @@ export function useSubscriptionRenewalAdjustmentGet<
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/** @summary Read the seats a subscription needs for its next period */
 export function useSubscriptionRenewalAdjustmentGet<
   TData = Awaited<ReturnType<typeof subscriptionRenewalAdjustmentGet>>,
   TError = ErrorType<ErrorEnvelopeDto>
@@ -130,7 +127,10 @@ export function useSubscriptionRenewalAdjustmentGet<
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/** @summary Read the seats a subscription needs for its next period */
+/**
+ * @summary Read the seats a subscription needs for its next period
+ */
+
 export function useSubscriptionRenewalAdjustmentGet<
   TData = Awaited<ReturnType<typeof subscriptionRenewalAdjustmentGet>>,
   TError = ErrorType<ErrorEnvelopeDto>

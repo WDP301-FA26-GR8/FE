@@ -7,5 +7,5 @@
  */
 
 export interface StopRequestBodyDto {
-  [key: string]: never
+  [key: string]: unknown
 }

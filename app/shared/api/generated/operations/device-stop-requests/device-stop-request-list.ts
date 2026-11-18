@@ -72,7 +72,6 @@ export const getDeviceStopRequestListQueryOptions = <
 export type DeviceStopRequestListQueryResult = NonNullable<Awaited<ReturnType<typeof deviceStopRequestList>>>
 export type DeviceStopRequestListQueryError = ErrorType<ErrorEnvelopeDto>
 
-/** @summary List the requests to stop collection */
 export function useDeviceStopRequestList<
   TData = Awaited<ReturnType<typeof deviceStopRequestList>>,
   TError = ErrorType<ErrorEnvelopeDto>
@@ -92,7 +91,6 @@ export function useDeviceStopRequestList<
   },
   queryClient?: QueryClient
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/** @summary List the requests to stop collection */
 export function useDeviceStopRequestList<
   TData = Awaited<ReturnType<typeof deviceStopRequestList>>,
   TError = ErrorType<ErrorEnvelopeDto>
@@ -112,7 +110,6 @@ export function useDeviceStopRequestList<
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/** @summary List the requests to stop collection */
 export function useDeviceStopRequestList<
   TData = Awaited<ReturnType<typeof deviceStopRequestList>>,
   TError = ErrorType<ErrorEnvelopeDto>
@@ -124,7 +121,10 @@ export function useDeviceStopRequestList<
   },
   queryClient?: QueryClient
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-/** @summary List the requests to stop collection */
+/**
+ * @summary List the requests to stop collection
+ */
+
 export function useDeviceStopRequestList<
   TData = Awaited<ReturnType<typeof deviceStopRequestList>>,
   TError = ErrorType<ErrorEnvelopeDto>

@@ -8,7 +8,9 @@
 import type { DeviceStopRequestListState } from './deviceStopRequestListState'
 
 export type DeviceStopRequestListParams = {
-  /** The state of the requests to list; OPEN when omitted. */
+  /**
+   * The state of the requests to list; OPEN when omitted.
+   */
   state?: DeviceStopRequestListState
   /**
    * @minimum 1

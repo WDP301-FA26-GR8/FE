@@ -1,4 +1,20 @@
 export const itDevices = {
+  stopRequests: 'Yêu cầu dừng thu thập',
+  stopRequestedAt: 'Ngày yêu cầu',
+  stopDueAt: 'Hạn xử lý',
+  stopOverdue: 'Quá hạn',
+  stopComplete: 'Hoàn tất dừng thu thập',
+  stopConfirm:
+    'Xác nhận dừng thu thập cho lần bàn giao này. Thông tin xác thực của collector vẫn còn hiệu lực. Người giữ có thể mở lại thu thập bằng cách xác nhận lại thông báo.',
+  stopSelfHandled: 'Người giữ máy tự hoàn tất',
+  stopDevice: 'Xem thiết bị',
+  stopStates: { OPEN: 'Chờ xử lý', COMPLETED: 'Đã hoàn tất', INVALID: 'Không hợp lệ' },
+  stopReasons: {
+    DUPLICATE: 'Đã có yêu cầu đang mở.',
+    ALREADY_STOPPED: 'Thu thập đã được dừng.',
+    REGISTRATION_ENDED: 'Lần bàn giao đã kết thúc.',
+    IT_ADMIN: 'Hệ thống đánh dấu không hợp lệ.'
+  },
   title: 'Thiết bị và công cụ thu thập',
   subtitle: 'Ghi sổ máy công ty, lưu thông báo đã ký và xem kết quả thu thập.',
   registry: 'Sổ thiết bị',

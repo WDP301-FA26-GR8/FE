@@ -1,4 +1,20 @@
 export const itDevices = {
+  stopRequests: 'Collection stop requests',
+  stopRequestedAt: 'Requested',
+  stopDueAt: 'Due',
+  stopOverdue: 'Overdue',
+  stopComplete: 'Complete collection stop',
+  stopConfirm:
+    'Confirm that collection should stop for this registration. The collector credentials remain valid. Collection can resume after the holder acknowledges the notice again.',
+  stopSelfHandled: 'Completed by the device holder',
+  stopDevice: 'View device',
+  stopStates: { OPEN: 'Awaiting handling', COMPLETED: 'Completed', INVALID: 'Invalid' },
+  stopReasons: {
+    DUPLICATE: 'An open request already exists.',
+    ALREADY_STOPPED: 'Collection has already stopped.',
+    REGISTRATION_ENDED: 'The handover registration has ended.',
+    IT_ADMIN: 'Marked invalid by the system.'
+  },
   title: 'Devices and collectors',
   subtitle: 'Register company machines, record signed notices and review collector results.',
   registry: 'Device registry',

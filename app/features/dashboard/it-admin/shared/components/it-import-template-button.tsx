@@ -5,7 +5,7 @@ import { importTemplateGet } from '~/shared/api/generated/operations/import-temp
 import { getItError } from '../hooks/it-errors'
 import { itButtonClass } from './it-form'
 
-export function ItImportTemplateButton({ kind }: { kind: 'seat-baseline' | 'license-keys' | 'usage-csv' }) {
+export function ItImportTemplateButton({ kind }: { kind: 'license-keys' | 'usage-csv' }) {
   const { t: translate } = useTranslation('itAdmin')
   const [pending, setPending] = useState(false)
   async function download() {

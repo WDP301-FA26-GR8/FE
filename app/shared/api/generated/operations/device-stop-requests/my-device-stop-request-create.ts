@@ -37,8 +37,6 @@ export const myDeviceStopRequestCreate = (
   )
 }
 
-export const getMyDeviceStopRequestCreateMutationKey = () => ['myDeviceStopRequestCreate'] as const
-
 export const getMyDeviceStopRequestCreateMutationOptions = <
   TError = ErrorType<ErrorEnvelopeDto>,
   TContext = unknown
@@ -46,17 +44,17 @@ export const getMyDeviceStopRequestCreateMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof myDeviceStopRequestCreate>>,
     TError,
-    MyDeviceStopRequestCreateMutationVariables,
+    { id: string; data: BodyType<StopRequestBodyDto> },
     TContext
   >
   request?: SecondParameter<typeof customAxios>
 }): UseMutationOptions<
   Awaited<ReturnType<typeof myDeviceStopRequestCreate>>,
   TError,
-  MyDeviceStopRequestCreateMutationVariables,
+  { id: string; data: BodyType<StopRequestBodyDto> },
   TContext
 > => {
-  const mutationKey = getMyDeviceStopRequestCreateMutationKey()
+  const mutationKey = ['myDeviceStopRequestCreate']
   const { mutation: mutationOptions, request: requestOptions } = options
     ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
       ? options
@@ -65,7 +63,7 @@ export const getMyDeviceStopRequestCreateMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof myDeviceStopRequestCreate>>,
-    MyDeviceStopRequestCreateMutationVariables
+    { id: string; data: BodyType<StopRequestBodyDto> }
   > = (props) => {
     const { id, data } = props ?? {}
 
@@ -78,15 +76,16 @@ export const getMyDeviceStopRequestCreateMutationOptions = <
 export type MyDeviceStopRequestCreateMutationResult = NonNullable<Awaited<ReturnType<typeof myDeviceStopRequestCreate>>>
 export type MyDeviceStopRequestCreateMutationBody = BodyType<StopRequestBodyDto>
 export type MyDeviceStopRequestCreateMutationError = ErrorType<ErrorEnvelopeDto>
-export type MyDeviceStopRequestCreateMutationVariables = { id: string; data: BodyType<StopRequestBodyDto> }
 
-/** @summary Ask to stop the collection of my machine */
+/**
+ * @summary Ask to stop the collection of my machine
+ */
 export const useMyDeviceStopRequestCreate = <TError = ErrorType<ErrorEnvelopeDto>, TContext = unknown>(
   options?: {
     mutation?: UseMutationOptions<
       Awaited<ReturnType<typeof myDeviceStopRequestCreate>>,
       TError,
-      MyDeviceStopRequestCreateMutationVariables,
+      { id: string; data: BodyType<StopRequestBodyDto> },
       TContext
     >
     request?: SecondParameter<typeof customAxios>
@@ -95,7 +94,7 @@ export const useMyDeviceStopRequestCreate = <TError = ErrorType<ErrorEnvelopeDto
 ): UseMutationResult<
   Awaited<ReturnType<typeof myDeviceStopRequestCreate>>,
   TError,
-  MyDeviceStopRequestCreateMutationVariables,
+  { id: string; data: BodyType<StopRequestBodyDto> },
   TContext
 > => {
   return useMutation(getMyDeviceStopRequestCreateMutationOptions(options), queryClient)

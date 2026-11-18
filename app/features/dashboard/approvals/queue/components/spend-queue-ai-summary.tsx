@@ -65,8 +65,7 @@ export function SpendQueueAiSummary({ onOpen }: { onOpen: (requestId: string) =>
   }
 
   const result = summary.data?.data
-  const hasSummaryError = summary.isError
-  const running = Boolean(invocationId) && !hasSummaryError && (!result || RUNNING.includes(result.status))
+  const running = Boolean(invocationId) && (!result || RUNNING.includes(result.status))
   const failed =
     result?.status === 'FAILED' || result?.status === 'NO_VALID_OUTPUT' || result?.status === 'STALE'
       ? result.status
@@ -101,11 +100,6 @@ export function SpendQueueAiSummary({ onOpen }: { onOpen: (requestId: string) =>
       {askError && (
         <p role='status' className='text-sm text-warning-ink'>
           {translate(askError)}
-        </p>
-      )}
-      {hasSummaryError && (
-        <p role='status' className='text-sm text-warning-ink'>
-          {translate('ai.unavailable')}
         </p>
       )}
       {running && (

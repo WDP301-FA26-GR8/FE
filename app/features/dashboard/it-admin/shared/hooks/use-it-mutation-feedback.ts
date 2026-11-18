@@ -25,7 +25,7 @@ export function useItMutationFeedback(queryKeys: readonly QueryKey[], onSuccess?
     queryKey.some(
       (part) =>
         typeof part === 'string' &&
-        /\/api\/v1\/(provisioning-tasks|grant-queue|assignment-expiry-queue|seat-baseline-imports|license-keys|license-assignments|service-account-duties|handover-duties)(\/|$)/.test(
+        /\/api\/v1\/(provisioning-tasks|grant-queue|assignment-expiry-queue|license-keys|license-assignments|service-account-duties|handover-duties)(\/|$)/.test(
           part
         )
     )
@@ -45,7 +45,7 @@ export function useItMutationFeedback(queryKeys: readonly QueryKey[], onSuccess?
           query.queryKey.some(
             (part) =>
               typeof part === 'string' &&
-              /\/api\/v1\/(offboarding-cases|department-transfers|stock-summary|license-assignments|subscriptions|provisioning-tasks|grant-queue|assignment-expiry-queue|seat-baseline|seat-baseline-imports|service-account-duties|handover-duties)(\/|$)/.test(
+              /\/api\/v1\/(offboarding-cases|department-transfers|stock-summary|license-assignments|subscriptions|provisioning-tasks|grant-queue|assignment-expiry-queue|service-account-duties|handover-duties)(\/|$)/.test(
                 part
               )
           ))

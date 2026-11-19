@@ -13,6 +13,9 @@ function failure(status: number, code: string, method = 'post') {
 }
 
 describe('IT failure feedback', () => {
+  it('identifies an invalid company account during provisioning', () => {
+    expect(getItError(failure(422, 'PROVISIONING.PERSONAL_ACCOUNT')).key).toBe('personalAccount')
+  })
   it('requires another administrator for self revocation', () => {
     expect(getItError(failure(403, 'PROVISIONING.ANOTHER_IT_ADMIN_NEEDED')).key).toBe('anotherAdmin')
   })

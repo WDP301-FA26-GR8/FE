@@ -63,8 +63,7 @@ export function useItMutationFeedback(queryKeys: readonly QueryKey[], onSuccess?
       if (failure.key === 'forbidden')
         await queryClient.fetchQuery({ ...getMeGetQueryOptions(), staleTime: 0, retry: false }).catch(() => undefined)
       toast.error(translate(`errors.${failure.key}`), {
-        id: 'it-admin-write',
-        description: failure.requestId ? translate('requestId', { id: failure.requestId }) : undefined
+        id: 'it-admin-write'
       })
     }
   }

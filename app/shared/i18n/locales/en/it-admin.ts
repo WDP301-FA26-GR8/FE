@@ -231,6 +231,7 @@ export const itAdmin = {
     baselineOpen: 'Complete the initial seat baseline before granting access.',
     noSeats: 'No seats are available in this subscription.',
     purchaseRefused: 'The pool has an available seat or key. Review the refreshed stock and grant from the pool.',
+    personalAccount: 'Use a valid company email. If the employee has no work email, ask a Super Admin to add it.',
     purchaseReasonRequired: 'Explain why buying cannot wait for the rights being revoked.',
     keyRequired: 'Select an available license key before completing the grant.',
     keyUnavailable: 'This key is no longer available for this subscription. Select a key from the refreshed list.',

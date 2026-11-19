@@ -110,6 +110,7 @@ it('preserves evidence and invalidates the chosen key after a concurrent assignm
 it('offers K4 revocation and returns the key to the pool by default', async () => {
   expect(taskActions({ ...task, kind: 'REVOKE' })).toContain('revocation')
   open('revocation', { ...task, kind: 'REVOKE' })
+  expect(screen.getByText('Key deactivated')).toBeInTheDocument()
   evidence()
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
   await waitFor(() => expect(posts()).toHaveLength(1))
@@ -118,6 +119,14 @@ it('offers K4 revocation and returns the key to the pool by default', async () =
     evidence: 'Verified on the company device',
     keyDisposition: 'RETURN_TO_STORE'
   })
+})
+it('shows the K5 result and sends the off-system revocation', async () => {
+  open('revocation', { ...task, kind: 'REVOKE', plan: { ...task.plan!, provisioningType: 'K5' } })
+  expect(screen.getByText('Revoked outside system')).toBeInTheDocument()
+  evidence()
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+  await waitFor(() => expect(posts()).toHaveLength(1))
+  expect(posts()[0][0].data).toEqual({ completion: 'OFF_SYSTEM_REVOKED', evidence: 'Verified on the company device' })
 })
 it('requires a withdrawal reason and sends it only for withdrawal', async () => {
   open('revocation', { ...task, kind: 'REVOKE' })

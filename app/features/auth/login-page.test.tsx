@@ -169,7 +169,14 @@ describe('LoginPage', () => {
     apiClient.defaults.adapter = async (config) => {
       throw new AxiosError('Unauthorized', 'ERR_BAD_REQUEST', config, undefined, {
         config,
-        data: { error: { code: 'AUTH.INVALID_CREDENTIALS', requestId: 'request-123' } },
+        data: {
+          success: false,
+          error: {
+            code: 'AUTH.INVALID_CREDENTIALS',
+            message: 'The email or password is not valid.',
+            requestId: 'request-123'
+          }
+        },
         headers: new AxiosHeaders(),
         status: 401,
         statusText: 'Unauthorized'
@@ -183,10 +190,34 @@ describe('LoginPage', () => {
     const message = await screen.findByText('Email hoặc mật khẩu không đúng.')
     expect(message.closest('[data-sonner-toast]')).not.toBeNull()
     expect(message.closest('form')).toBeNull()
-    expect(screen.getByText('Mã yêu cầu: request-123')).toBeInTheDocument()
+    expect(screen.queryByText(/request-123/)).not.toBeInTheDocument()
+    expect(screen.queryByText('The email or password is not valid.')).not.toBeInTheDocument()
     expect(screen.getByLabelText('Mật khẩu')).toHaveValue('incorrect')
     fireEvent.click(screen.getByRole('button', { name: 'Đóng thông báo' }))
     await waitFor(() => expect(screen.queryByText('Email hoặc mật khẩu không đúng.')).not.toBeInTheDocument())
+  })
+
+  it('localizes backend invalid credentials in English without exposing its message or request ID', async () => {
+    localStorage.setItem('saas-sentry.language', 'en')
+    await setAppLanguage('en', false)
+    apiClient.defaults.adapter = async (config) => {
+      throw new AxiosError('Unauthorized', 'ERR_BAD_REQUEST', config, undefined, {
+        config,
+        data: {
+          success: false,
+          error: { code: 'AUTH.INVALID_CREDENTIALS', message: 'Private backend message', requestId: 'request-123' }
+        },
+        headers: new AxiosHeaders(),
+        status: 401,
+        statusText: 'Unauthorized'
+      })
+    }
+    renderLoginPage()
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'person@example.com' } })
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'incorrect' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+    expect(await screen.findByText('Email or password is incorrect.')).toBeInTheDocument()
+    expect(screen.queryByText(/request-123|Private backend message/)).not.toBeInTheDocument()
   })
 
   it('keeps the retry countdown on the disabled submit button after a rate limit', async () => {

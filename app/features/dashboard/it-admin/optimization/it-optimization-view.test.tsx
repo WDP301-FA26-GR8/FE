@@ -1,11 +1,65 @@
 ﻿import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render as renderWithRouter, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router'
+import type { ReactElement } from 'react'
 import { expect, it, vi } from 'vitest'
 import { customAxios } from '~/shared/api/mutator/custom-axios'
 import { setAppLanguage } from '~/shared/i18n/i18n'
 import { ItOptimizationView } from './it-optimization-view'
 
 vi.mock('~/shared/api/mutator/custom-axios', () => ({ customAxios: vi.fn() }))
+function render(element: ReactElement) {
+  return renderWithRouter(<MemoryRouter>{element}</MemoryRouter>)
+}
+it('explains monitoring eligibility and identifies empty seats without a holder', async () => {
+  await setAppLanguage('en', false)
+  vi.mocked(customAxios).mockResolvedValue({
+    data: {
+      items: [
+        {
+          id: 'monitor',
+          group: 'G3',
+          state: 'OPEN',
+          tier: 'MONITOR',
+          application: { applicationName: 'Figma' },
+          plan: { planName: 'Pro' },
+          holder: { employeeCode: 'EMP-1' }
+        },
+        {
+          id: 'waiting',
+          group: 'G4',
+          state: 'AWAITING_DECISION',
+          tier: 'REVIEW',
+          application: { applicationName: 'Figma' },
+          plan: { planName: 'Pro' },
+          holder: { employeeCode: 'EMP-2' }
+        },
+        {
+          id: 'vacant',
+          group: 'G1',
+          state: 'OPEN',
+          tier: null,
+          application: { applicationName: 'Figma' },
+          plan: { planName: 'Pro' },
+          holder: null
+        }
+      ],
+      pagination: { totalItems: 3 }
+    }
+  } as never)
+  render(
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <ItOptimizationView />
+    </QueryClientProvider>
+  )
+  expect(await screen.findByText('Available seat · no holder')).toBeInTheDocument()
+  expect(screen.getByText('Never active · Monitoring')).toBeInTheDocument()
+  expect(screen.getByText('No recent usage · Needs review')).toBeInTheDocument()
+  expect(screen.getAllByRole('checkbox')).toHaveLength(1)
+  expect(screen.getByText(/Only open monitoring recommendations can be sent early/)).toBeInTheDocument()
+  fireEvent.click(screen.getByRole('checkbox', { name: 'Select EMP-1 · Figma' }))
+  expect(screen.getByRole('button', { name: 'Send to department head' })).toBeEnabled()
+})
 it('shows recommendations by software and employee code without exposing the holder name or internal ID', async () => {
   await setAppLanguage('en', false)
   vi.mocked(customAxios).mockResolvedValue({
@@ -34,8 +88,7 @@ it('shows recommendations by software and employee code without exposing the hol
   expect(screen.getByText('EMP-001')).toBeInTheDocument()
   expect(screen.queryByText('holder-id')).not.toBeInTheDocument()
   expect(screen.queryByText('internal-id')).not.toBeInTheDocument()
-  fireEvent.click(screen.getByRole('button', { name: 'Details' }))
-  expect(screen.getByRole('button', { name: 'Back to recommendations' })).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Details' })).toBeInTheDocument()
 })
 it('loads the current recommendation details when opening a row', async () => {
   await setAppLanguage('en', false)

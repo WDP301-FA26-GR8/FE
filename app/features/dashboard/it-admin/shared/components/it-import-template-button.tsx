@@ -24,8 +24,7 @@ export function ItImportTemplateButton({ kind }: { kind: 'license-keys' | 'usage
     } catch (error) {
       const failure = getItError(error)
       toast.error(translate(`errors.${failure.key}`), {
-        id: 'it-import-template',
-        description: failure.requestId ? translate('requestId', { id: failure.requestId }) : undefined
+        id: 'it-import-template'
       })
     } finally {
       setPending(false)

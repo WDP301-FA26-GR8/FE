@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getMeGetQueryKey } from '~/shared/api/generated/operations/me/me-get'
@@ -71,7 +71,7 @@ const task: TaskResponseDtoDataTask = {
   closedBy: null,
   closeReason: null
 }
-function setup(authorized = true) {
+function setup(authorized = true, initialTaskId: string | undefined = 'task-1') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
   client.setQueryData(getMeGetQueryKey(), {
     success: true,
@@ -84,7 +84,7 @@ function setup(authorized = true) {
   })
   return render(
     <QueryClientProvider client={client}>
-      <ItProvisioningView initialTaskId='task-1' />
+      <ItProvisioningView initialTaskId={initialTaskId || undefined} />
     </QueryClientProvider>
   )
 }
@@ -113,6 +113,66 @@ beforeEach(async () => {
   } as Awaited<ReturnType<typeof api.provisioningTaskGet>>)
 })
 describe('Provisioning API integration', () => {
+  it('opens the task queue directly from provisioning', async () => {
+    setup(true, '')
+    fireEvent.click(await screen.findByRole('button', { name: 'Task queue' }))
+    await waitFor(() => expect(api.provisioningTaskList).toHaveBeenCalled())
+  })
+  it('shows task status without the manual channel in the queue', async () => {
+    vi.mocked(api.provisioningTaskList).mockResolvedValue({
+      success: true,
+      message: 'TASK.LISTED',
+      data: {
+        items: [{ ...task, kind: 'REVOKE' }],
+        pagination: { page: 1, pageSize: 20, totalItems: 1, totalPages: 1 }
+      }
+    } as unknown as Awaited<ReturnType<typeof api.provisioningTaskList>>)
+    setup(true, '')
+    fireEvent.click(await screen.findByRole('button', { name: 'Task queue' }))
+    const row = (await screen.findByText(/Employee One/)).closest('article')!
+    expect(within(row).getByText(/Revoke/)).toBeInTheDocument()
+    expect(within(row).queryByText(/Manual/)).not.toBeInTheDocument()
+  })
+  it('hides technical fields and does not offer another claim on a revocation held by the current admin', async () => {
+    vi.mocked(api.provisioningTaskGet).mockResolvedValue({
+      success: true,
+      message: 'TASK.FOUND',
+      data: { task: { ...task, kind: 'REVOKE' } }
+    })
+    setup()
+    expect(await screen.findByRole('button', { name: 'Complete revocation' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Claim task' })).not.toBeInTheDocument()
+    expect(screen.queryByText('Attempts')).not.toBeInTheDocument()
+    expect(screen.queryByText('Channel')).not.toBeInTheDocument()
+  })
+  it('still permits taking over a revocation held by another admin', async () => {
+    vi.mocked(api.provisioningTaskGet).mockResolvedValue({
+      success: true,
+      message: 'TASK.FOUND',
+      data: { task: { ...task, kind: 'REVOKE', claimedBy: 'other-admin' } }
+    })
+    setup()
+    expect(await screen.findByRole('button', { name: 'Claim task' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Complete revocation' })).not.toBeInTheDocument()
+  })
+  it('replaces claim with completion actions after the server confirms the claim', async () => {
+    let currentTask: TaskResponseDtoDataTask = { ...task, kind: 'REVOKE', status: 'QUEUED', claimedBy: null }
+    vi.mocked(api.provisioningTaskGet).mockImplementation(async () => ({
+      success: true,
+      message: 'TASK.FOUND',
+      data: { task: currentTask }
+    }))
+    vi.mocked(api.provisioningTaskClaim).mockImplementation(async () => {
+      currentTask = { ...currentTask, status: 'IN_PROGRESS', claimedBy: 'it-1' }
+      return { success: true, message: 'TASK.CLAIMED', data: { task: currentTask } }
+    })
+    setup()
+    fireEvent.click(await screen.findByRole('button', { name: 'Claim task' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+    expect(await screen.findByRole('button', { name: 'Complete revocation' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Report failure' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Claim task' })).not.toBeInTheDocument()
+  })
   it('explains when a revocation waiting for its grace period can be claimed', async () => {
     vi.mocked(api.provisioningTaskGet).mockResolvedValue({
       success: true,
@@ -214,6 +274,93 @@ describe('Provisioning API integration', () => {
       })
     )
     expect(api.provisioningTaskComplete).not.toHaveBeenCalled()
+  })
+  it('sends a Drive evidence link for a departure revocation', async () => {
+    vi.mocked(api.provisioningTaskGet).mockResolvedValue({
+      success: true,
+      message: 'TASK.FOUND',
+      data: {
+        task: {
+          ...task,
+          kind: 'REVOKE',
+          revocation: { source: 'DEPARTURE' } as NonNullable<TaskResponseDtoDataTask['revocation']>
+        }
+      }
+    })
+    vi.mocked(api.provisioningTaskCompleteRevocation).mockResolvedValue({
+      success: true,
+      message: 'TASK.COMPLETED',
+      data: null
+    })
+    setup()
+    fireEvent.click(await screen.findByRole('button', { name: 'Complete revocation' }))
+    expect(screen.getByText('Paste the Drive link to the images showing the completed revocation.')).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('Evidence'), {
+      target: { value: 'https://drive.google.com/file/d/evidence/view' }
+    })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+    await waitFor(() =>
+      expect(api.provisioningTaskCompleteRevocation).toHaveBeenCalledWith('task-1', {
+        completion: 'ACCOUNT_REMOVED',
+        evidence: 'https://drive.google.com/file/d/evidence/view'
+      })
+    )
+  })
+  it('also sends the evidence link and required note when a departing employee account is already gone', async () => {
+    vi.mocked(api.provisioningTaskGet).mockResolvedValue({
+      success: true,
+      message: 'TASK.FOUND',
+      data: {
+        task: {
+          ...task,
+          kind: 'REVOKE',
+          revocation: { source: 'ABRUPT_DEPARTURE' } as NonNullable<TaskResponseDtoDataTask['revocation']>
+        }
+      }
+    })
+    vi.mocked(api.provisioningTaskCompleteRevocation).mockResolvedValue({
+      success: true,
+      message: 'TASK.COMPLETED',
+      data: null
+    })
+    setup()
+    fireEvent.click(await screen.findByRole('button', { name: 'Complete revocation' }))
+    fireEvent.click(screen.getByRole('combobox', { name: 'Revocation result' }))
+    fireEvent.click(screen.getByRole('option', { name: 'Already gone' }))
+    fireEvent.change(screen.getByLabelText('Evidence'), {
+      target: { value: 'https://drive.google.com/file/d/evidence/view' }
+    })
+    fireEvent.change(screen.getByLabelText('Note'), { target: { value: 'Provider confirmed account was removed' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+    await waitFor(() =>
+      expect(api.provisioningTaskCompleteRevocation).toHaveBeenCalledWith('task-1', {
+        completion: 'ALREADY_GONE',
+        note: 'Provider confirmed account was removed',
+        evidence: 'https://drive.google.com/file/d/evidence/view'
+      })
+    )
+  })
+  it('sends the account-removed result with evidence for K2', async () => {
+    vi.mocked(api.provisioningTaskGet).mockResolvedValue({
+      success: true,
+      message: 'TASK.FOUND',
+      data: { task: { ...task, kind: 'REVOKE' } }
+    })
+    vi.mocked(api.provisioningTaskCompleteRevocation).mockResolvedValue({
+      success: true,
+      message: 'TASK.COMPLETED',
+      data: null
+    })
+    setup()
+    fireEvent.click(await screen.findByRole('button', { name: 'Complete revocation' }))
+    fireEvent.change(screen.getByLabelText('Evidence'), { target: { value: 'Removed from workspace' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+    await waitFor(() =>
+      expect(api.provisioningTaskCompleteRevocation).toHaveBeenCalledWith('task-1', {
+        completion: 'ACCOUNT_REMOVED',
+        evidence: 'Removed from workspace'
+      })
+    )
   })
   it('preserves completion evidence when a write fails', async () => {
     vi.mocked(api.provisioningTaskComplete).mockRejectedValue(new Error('network'))

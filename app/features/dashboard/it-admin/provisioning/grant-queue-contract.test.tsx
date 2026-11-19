@@ -51,6 +51,66 @@ function mount() {
 }
 const posts = () => request.mock.calls.filter(([config]) => config.method === 'POST')
 
+it('requires a subscription before granting a K1 personal plan', async () => {
+  stock = { kind: 'NONE', free: 0, inRevocation: 0 }
+  request.mockImplementation(async (config) => {
+    if (config.url?.endsWith('/grant-queue'))
+      return {
+        data: {
+          items: [
+            {
+              requestId: 'request-1',
+              type: 'GRANT',
+              state: 'WAITING',
+              stock,
+              beneficiary: { employeeId, fullName: 'Alice' },
+              plan: { planId: 'plan-1', applicationName: 'Workspace', planName: 'Personal' }
+            }
+          ],
+          pagination: { totalItems: 1 }
+        }
+      }
+    if (config.url?.endsWith('/plans/plan-1')) return { data: { provisioningType: 'K1' } }
+    return { data: { items: [], pagination: { totalItems: 0 } } }
+  })
+  mount()
+  fireEvent.click(await screen.findByRole('button', { name: 'Start grant' }))
+  expect(await screen.findByText('No subscription is available for this selection.')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Confirm' })).toBeDisabled()
+  expect(posts()).toHaveLength(0)
+})
+
+it('starts a K1 grant without sending purchase information', async () => {
+  stock = { kind: 'NONE', free: 0, inRevocation: 0 }
+  request.mockImplementation(async (config) => {
+    if (config.method === 'POST') return { data: { task: { id: 'task-1' } } }
+    if (config.url?.endsWith('/grant-queue'))
+      return {
+        data: {
+          items: [
+            {
+              requestId: 'request-1',
+              type: 'GRANT',
+              state: 'WAITING',
+              stock,
+              beneficiary: { employeeId, fullName: 'Alice' },
+              plan: { planId: 'plan-1', applicationName: 'Workspace', planName: 'Personal' }
+            }
+          ],
+          pagination: { totalItems: 1 }
+        }
+      }
+    if (config.url?.endsWith('/plans/plan-1')) return { data: { provisioningType: 'K1' } }
+    return { data: { items: [{ id: 'subscription-1', planName: 'Personal' }], pagination: { totalItems: 1 } } }
+  })
+  mount()
+  fireEvent.click(await screen.findByRole('button', { name: 'Start grant' }))
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled())
+  fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
+  await waitFor(() => expect(posts()).toHaveLength(1))
+  expect(posts()[0][0].data).toEqual({ requestId: 'request-1' })
+})
+
 it('uses the server-scoped grant queue and server pagination without recreating department permissions', async () => {
   mount()
   expect(await screen.findByText(/Alice/)).toBeInTheDocument()
@@ -91,7 +151,7 @@ it('grants an internal plan without requiring a subscription or purchase', async
   fireEvent.click(await screen.findByRole('button', { name: 'Start grant' }))
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
   await waitFor(() => expect(posts()).toHaveLength(1))
-  expect(posts()[0][0].data).toEqual({ requestId: 'request-1', beneficiaryEmployeeId: employeeId })
+  expect(posts()[0][0].data).toEqual({ requestId: 'request-1' })
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
 })
 
@@ -99,11 +159,11 @@ it('preserves the account draft and does not automatically repeat an uncertain g
   rejectGrant = true
   mount()
   fireEvent.click(await screen.findByRole('button', { name: 'Start grant' }))
-  fireEvent.change(screen.getByLabelText('Account identifier'), { target: { value: 'alice@example.org' } })
+  fireEvent.change(screen.getByLabelText('Account email'), { target: { value: 'alice@example.org' } })
   fireEvent.click(screen.getByRole('button', { name: 'Confirm' }))
   await waitFor(() => expect(posts()).toHaveLength(1))
   await waitFor(() => expect(screen.getByRole('button', { name: 'Confirm' })).toBeEnabled())
   expect(posts()).toHaveLength(1)
-  expect(screen.getByLabelText('Account identifier')).toHaveValue('alice@example.org')
+  expect(screen.getByLabelText('Account email')).toHaveValue('alice@example.org')
   expect(screen.getByRole('dialog')).toBeInTheDocument()
 })

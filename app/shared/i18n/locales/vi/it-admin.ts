@@ -228,6 +228,7 @@ export const itAdmin = {
     baselineOpen: 'Cần hoàn tất hiện trạng ghế ban đầu trước khi cấp phát.',
     noSeats: 'Thuê bao không còn ghế để cấp.',
     purchaseRefused: 'Kho đã có ghế hoặc khóa trống. Kiểm tra tồn kho vừa cập nhật và cấp từ kho.',
+    personalAccount: 'Hãy dùng email công ty hợp lệ. Nếu nhân viên chưa có email công việc, nhờ Super Admin bổ sung.',
     purchaseReasonRequired: 'Cần nêu lý do không thể chờ các quyền đang thu hồi trước khi mua thêm.',
     keyRequired: 'Chọn khóa bản quyền còn trống trước khi hoàn tất cấp quyền.',
     keyUnavailable: 'Khóa không còn khả dụng cho thuê bao này. Chọn khóa trong danh sách vừa cập nhật.',

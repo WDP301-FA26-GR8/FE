@@ -44,7 +44,7 @@ export function ItDevicesView({ initialId }: { initialId?: string }) {
         <ItSegmented
           label={translate('title')}
           value={view}
-          items={(['registry', 'mine', 'allowlist', 'stopRequests'] as const).map((key) => ({
+          items={(['registry', 'mine'] as const).map((key) => ({
             key,
             label: translate(key)
           }))}

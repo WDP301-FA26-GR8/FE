@@ -63,6 +63,7 @@ function fillRevocation(dialog: HTMLElement) {
 it('reads the card again and sends every ticked step with its time, in order', async () => {
   card = checklist(departureSteps)
   const dialog = mount()
+  expect(within(dialog).getByText('Renewal cancelled')).toBeInTheDocument()
   // The fresh card now has the mailbox lock: this is the last K1 task of the person.
   expect(await within(dialog).findByRole('checkbox', { name: /Lock the mailbox/ })).toBeInTheDocument()
   fillRevocation(dialog)
@@ -81,6 +82,53 @@ it('reads the card again and sends every ticked step with its time, in order', a
   expect(body.k1Checklist.items.every((item) => item.done && !Number.isNaN(Date.parse(item.doneAt)))).toBe(true)
 })
 
+it('sends K1 paid-through and actual cut details with the checklist', async () => {
+  card = checklist(['RENEWAL_DISABLED', 'EVIDENCE_RECORDED'], 'STILL_EMPLOYED')
+  const dialog = mount()
+  await within(dialog).findAllByRole('checkbox')
+  fillRevocation(dialog)
+  fireEvent.click(within(dialog).getByRole('combobox', { name: 'Access after cancellation' }))
+  fireEvent.click(within(dialog).getByRole('option', { name: 'Access cut' }))
+  fireEvent.change(within(dialog).getByLabelText('Access cut date'), { target: { value: '2026-11-20' } })
+  fireEvent.change(within(dialog).getByLabelText('Access cut evidence'), { target: { value: 'Access disabled' } })
+  within(dialog)
+    .getAllByRole('checkbox')
+    .forEach((box) => fireEvent.click(box))
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }))
+  await waitFor(() => expect(request.mock.calls.some(([config]) => config.method === 'POST')).toBe(true))
+  expect(request.mock.calls.find(([config]) => config.method === 'POST')![0].data).toEqual({
+    completion: 'RENEWAL_CANCELLED',
+    evidence: 'Renewal turned off',
+    paidThroughOn: '2026-11-30',
+    accessState: 'CUT',
+    accessCutOn: '2026-11-20',
+    accessEvidence: 'Access disabled',
+    k1Checklist: { items: card.items.map(({ code }) => ({ code, done: true, doneAt: expect.any(String) })) }
+  })
+})
+
+it('completes a K1 grant with evidence and both server checklist steps', async () => {
+  card = checklist(['COMPANY_EMAIL_REGISTERED', 'NO_PERSONAL_DEVICE_MFA'], 'GRANT')
+  const grantTask = { ...task, kind: 'GRANT', k1Checklist: null } as TaskResponseDtoDataTask
+  render(
+    <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+      <ProvisioningActionDialog task={grantTask} action='complete' onClose={vi.fn()} />
+    </QueryClientProvider>
+  )
+  const dialog = screen.getByRole('dialog')
+  const boxes = await within(dialog).findAllByRole('checkbox')
+  fireEvent.change(within(dialog).getByLabelText('Evidence'), { target: { value: 'Registered with company email' } })
+  boxes.forEach((box) => fireEvent.click(box))
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Confirm' }))
+  await waitFor(() => expect(request.mock.calls.some(([config]) => config.method === 'POST')).toBe(true))
+  const post = request.mock.calls.find(([config]) => config.method === 'POST')![0]
+  expect(post.url).toContain('/provisioning-tasks/task-1/complete')
+  expect(post.data).toEqual({
+    evidence: 'Registered with company email',
+    k1Checklist: { items: card.items.map(({ code }) => ({ code, done: true, doneAt: expect.any(String) })) }
+  })
+})
+
 it('refuses a step ticked earlier than the step before it', async () => {
   const dialog = mount()
   await within(dialog).findAllByRole('checkbox')
@@ -95,6 +143,15 @@ it('refuses a step ticked earlier than the step before it', async () => {
     target: { value: '2026-11-10T09:00' }
   })
   expect(within(dialog).getByText(/must be done at or after the time of the step before it/)).toBeInTheDocument()
+  expect(within(dialog).getByRole('button', { name: 'Confirm' })).toBeDisabled()
+})
+
+it('shows a retry option if the K1 checklist cannot be refreshed', async () => {
+  request.mockImplementation(async () => {
+    throw new Error('Network error')
+  })
+  const dialog = mount()
+  expect(await within(dialog).findByRole('button', { name: 'Try again' })).toBeInTheDocument()
   expect(within(dialog).getByRole('button', { name: 'Confirm' })).toBeDisabled()
 })
 
